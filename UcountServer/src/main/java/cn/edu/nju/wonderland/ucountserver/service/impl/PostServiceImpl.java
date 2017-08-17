@@ -38,7 +38,12 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public void praisePost(Long postId) {
+    public void praisePost(Long userId, Long postId) {
+
+    }
+
+    @Override
+    public void cancelPraisePost(Long userId, Long postId) {
 
     }
 

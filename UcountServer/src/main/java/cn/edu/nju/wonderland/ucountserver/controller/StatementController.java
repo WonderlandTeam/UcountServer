@@ -1,5 +1,7 @@
 package cn.edu.nju.wonderland.ucountserver.controller;
 
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -11,6 +13,8 @@ import java.util.Map;
 @RequestMapping("/statements")
 public class StatementController {
 
+    @ApiOperation(value = "获取报表", notes = "根据用户id获取报表（参数待定）")
+    @ApiImplicitParam(name = "userId", value = "用户id", required = true, dataType = "Long")
     @GetMapping
     public Map<String, Object> getStatement(@RequestParam Long userId) {
         return null;

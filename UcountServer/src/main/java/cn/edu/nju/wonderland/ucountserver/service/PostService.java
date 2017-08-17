@@ -46,9 +46,17 @@ public interface PostService {
 
     /**
      * 称赞帖子
+     * @param userId        用户id
      * @param postId        帖子id
      */
-    void praisePost(Long postId);
+    void praisePost(Long userId, Long postId);
+
+    /**
+     * 取消称赞
+     * @param userId        用户id
+     * @param postId        帖子id
+     */
+    void cancelPraisePost(Long userId, Long postId);
 
     /**
      * 回复帖子
