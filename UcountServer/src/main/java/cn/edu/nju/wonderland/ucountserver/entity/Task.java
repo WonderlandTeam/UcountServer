@@ -5,7 +5,7 @@ import java.sql.Timestamp;
 
 /**
  *
- * 消费任务（用户名，消费类型，任务内容，建立时间，截止时间，任务状态）
+ * 消费任务（用户名，消费类型，任务内容，消费上限，消费下限，建立时间，截止时间，任务状态）
  * Created by green-cherry on 2017/8/16.
  */
 @Entity
@@ -19,6 +19,9 @@ public class Task {
     private String taskContent;
     private Timestamp deadline;
     private String taskState;
+    private Double upper;
+    private Double lower;
+
 
     public Long getId() {
         return id;
@@ -88,31 +91,24 @@ public class Task {
         this.taskState = taskState;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        Task task = (Task) o;
-
-        if (username != null ? !username.equals(task.username) : task.username != null) return false;
-        if (createTime != null ? !createTime.equals(task.createTime) : task.createTime != null) return false;
-        if (consumeType != null ? !consumeType.equals(task.consumeType) : task.consumeType != null) return false;
-        if (taskContent != null ? !taskContent.equals(task.taskContent) : task.taskContent != null) return false;
-        if (deadline != null ? !deadline.equals(task.deadline) : task.deadline != null) return false;
-        if (taskState != null ? !taskState.equals(task.taskState) : task.taskState != null) return false;
-
-        return true;
+    @Basic
+    @Column(name = "upper", nullable = true, precision = 0)
+    public Double getUpper() {
+        return upper;
     }
 
-    @Override
-    public int hashCode() {
-        int result = username != null ? username.hashCode() : 0;
-        result = 31 * result + (createTime != null ? createTime.hashCode() : 0);
-        result = 31 * result + (consumeType != null ? consumeType.hashCode() : 0);
-        result = 31 * result + (taskContent != null ? taskContent.hashCode() : 0);
-        result = 31 * result + (deadline != null ? deadline.hashCode() : 0);
-        result = 31 * result + (taskState != null ? taskState.hashCode() : 0);
-        return result;
+    public void setUpper(Double upper) {
+        this.upper = upper;
     }
+
+    @Basic
+    @Column(name = "lower", nullable = true, precision = 0)
+    public Double getLower() {
+        return lower;
+    }
+
+    public void setLower(Double lower) {
+        this.lower = lower;
+    }
+
 }

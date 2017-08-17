@@ -3,7 +3,7 @@ package cn.edu.nju.wonderland.ucountserver.entity;
 import javax.persistence.*;
 
 /**
- * 用户信息（用户名，密码）
+ * 用户信息（用户名，密码，手机号，邮箱）
  * Created by green-cherry on 2017/8/16.
  */
 @Entity
@@ -13,6 +13,9 @@ public class User {
     private Long id;
     private String username;
     private String password;
+    private String tel;
+    private String email;
+
 
     public Long getId() {
         return id;
@@ -42,23 +45,24 @@ public class User {
         this.password = password;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        User user = (User) o;
-
-        if (username != null ? !username.equals(user.username) : user.username != null) return false;
-        if (password != null ? !password.equals(user.password) : user.password != null) return false;
-
-        return true;
+    @Basic
+    @Column(name = "tel", nullable = true)
+    public String getTel() {
+        return tel;
     }
 
-    @Override
-    public int hashCode() {
-        int result = username != null ? username.hashCode() : 0;
-        result = 31 * result + (password != null ? password.hashCode() : 0);
-        return result;
+    public void setTel(String tel) {
+        this.tel = tel;
     }
+
+    @Basic
+    @Column(name = "email", nullable = true)
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
 }

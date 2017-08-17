@@ -4,7 +4,7 @@ import javax.persistence.*;
 import java.sql.Timestamp;
 
 /**
- * 手动记账（用户名，时间，收/支，消费项目，消费类型，备注）
+ * 手动记账（用户名，时间，收/支，消费项目，消费类型，备注，卡类型，账号）
  * Created by green-cherry on 2017/8/16.
  */
 @Entity
@@ -19,6 +19,8 @@ public class ManualBilling {
     private String commodity;
     private String consumeType;
     private String remark;
+    private String cardType;
+    private String cardId;
 
     public Long getId() {
         return id;
@@ -88,32 +90,24 @@ public class ManualBilling {
         this.consumeType = consumeType;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        ManualBilling that = (ManualBilling) o;
-
-        if (id != null ? !id.equals(that.id) : that.id != null) return false;
-        if (username != null ? !username.equals(that.username) : that.username != null) return false;
-        if (time != null ? !time.equals(that.time) : that.time != null) return false;
-        if (incomeExpenditure != null ? !incomeExpenditure.equals(that.incomeExpenditure) : that.incomeExpenditure != null)
-            return false;
-        if (commodity != null ? !commodity.equals(that.commodity) : that.commodity != null) return false;
-        if (consumeType != null ? !consumeType.equals(that.consumeType) : that.consumeType != null) return false;
-        return remark != null ? remark.equals(that.remark) : that.remark == null;
+    @Basic
+    @Column(name = "card_type", nullable = true, length = 45)
+    public String getCardType() {
+        return cardType;
     }
 
-    @Override
-    public int hashCode() {
-        int result = id != null ? id.hashCode() : 0;
-        result = 31 * result + (username != null ? username.hashCode() : 0);
-        result = 31 * result + (time != null ? time.hashCode() : 0);
-        result = 31 * result + (incomeExpenditure != null ? incomeExpenditure.hashCode() : 0);
-        result = 31 * result + (commodity != null ? commodity.hashCode() : 0);
-        result = 31 * result + (consumeType != null ? consumeType.hashCode() : 0);
-        result = 31 * result + (remark != null ? remark.hashCode() : 0);
-        return result;
+    public void setCardType(String cardType) {
+        this.cardType = cardType;
     }
+
+    @Basic
+    @Column(name = "card_id", nullable = true, length = 45)
+    public String getCardId() {
+        return cardId;
+    }
+
+    public void setCardId(String cardId) {
+        this.cardId = cardId;
+    }
+
 }
