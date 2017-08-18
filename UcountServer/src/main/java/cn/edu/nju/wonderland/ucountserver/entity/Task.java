@@ -5,7 +5,7 @@ import java.sql.Timestamp;
 
 /**
  *
- * 消费任务（用户名，消费类型，任务内容，消费上限，消费下限，建立时间，截止时间，任务状态）
+ * 攒钱计划（用户名，消费类型，消费内容，攒钱总额，建立时间，预计完成日期）
  * Created by green-cherry on 2017/8/16.
  */
 @Entity
@@ -18,9 +18,7 @@ public class Task {
     private String consumeType;
     private String taskContent;
     private Timestamp deadline;
-    private String taskState;
     private Double upper;
-    private Double lower;
 
 
     public Long getId() {
@@ -81,15 +79,6 @@ public class Task {
         this.deadline = deadline;
     }
 
-    @Basic
-    @Column(name = "task_state", nullable = true, length = 45)
-    public String getTaskState() {
-        return taskState;
-    }
-
-    public void setTaskState(String taskState) {
-        this.taskState = taskState;
-    }
 
     @Basic
     @Column(name = "upper", nullable = true, precision = 0)
@@ -101,14 +90,6 @@ public class Task {
         this.upper = upper;
     }
 
-    @Basic
-    @Column(name = "lower", nullable = true, precision = 0)
-    public Double getLower() {
-        return lower;
-    }
 
-    public void setLower(Double lower) {
-        this.lower = lower;
-    }
 
 }
