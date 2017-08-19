@@ -20,13 +20,13 @@ public class BudgetController {
         return null;
     }
 
-    @ApiOperation(value = "获取用户所有预算信息", notes = "根据用户id获取预算信息")
+    @ApiOperation(value = "获取用户所有预算信息", notes = "根据用户名获取预算信息")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "budgetId", value = "预算id", required = true, dataType = "Long"),
             @ApiImplicitParam(name = "date", value = "年份-月份（待定）", dataType = "String")
     })
     @GetMapping
-    public Map<String, Object> getBudgetsByUser(@RequestParam Long userId,
+    public Map<String, Object> getBudgetsByUser(@RequestParam String username,
                                                 @RequestParam(required = false) String date) {
         return null;
     }

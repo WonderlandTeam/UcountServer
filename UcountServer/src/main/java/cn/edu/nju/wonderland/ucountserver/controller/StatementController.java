@@ -13,10 +13,10 @@ import java.util.Map;
 @RequestMapping("/statements")
 public class StatementController {
 
-    @ApiOperation(value = "获取报表", notes = "根据用户id获取报表（参数待定）")
-    @ApiImplicitParam(name = "userId", value = "用户id", required = true, dataType = "Long")
+    @ApiOperation(value = "获取报表", notes = "根据用户名获取报表（参数待定）")
+    @ApiImplicitParam(name = "username", value = "用户名", required = true, dataType = "String")
     @GetMapping
-    public Map<String, Object> getStatement(@RequestParam Long userId) {
+    public Map<String, Object> getStatement(@RequestParam String username) {
         return null;
     }
 

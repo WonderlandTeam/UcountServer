@@ -18,10 +18,10 @@ public class AccountController {
         return null;
     }
 
-    @ApiOperation(value = "获取某用户所有资产账户信息", notes = "根据用户id获取其资产账户信息列表")
-    @ApiImplicitParam(name = "userId", value = "用户id", required = true, dataType = "Long")
+    @ApiOperation(value = "获取某用户所有资产账户信息", notes = "根据用户名获取其资产账户信息列表")
+    @ApiImplicitParam(name = "username", value = "用户名", required = true, dataType = "String")
     @GetMapping
-    public Map<String, Object> getAccountsByUser(@RequestParam Long userId) {
+    public Map<String, Object> getAccountsByUser(@RequestParam String username) {
         return null;
     }
 

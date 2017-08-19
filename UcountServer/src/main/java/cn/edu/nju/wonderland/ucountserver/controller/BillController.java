@@ -34,13 +34,13 @@ public class BillController {
         return null;
     }
 
-    @ApiOperation(value = "获取用户所有账户账目列表", notes = "根据用户id及筛选条件获取账目信息列表")
+    @ApiOperation(value = "获取用户所有账户账目列表", notes = "根据用户名及筛选条件获取账目信息列表")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "userId", value = "用户id", required = true, dataType = "Long"),
+            @ApiImplicitParam(name = "username", value = "用户名", required = true, dataType = "String"),
             @ApiImplicitParam(name = "pageable", value = "过滤信息", dataType = "Pageable")
     })
-    @GetMapping("users/{user_id}/bills")
-    public Map<String, Object> getBillsByUser(@PathVariable Long userId,
+    @GetMapping("users/{username}/bills")
+    public Map<String, Object> getBillsByUser(@PathVariable String username,
                                               Pageable pageable) {
         return null;
     }
