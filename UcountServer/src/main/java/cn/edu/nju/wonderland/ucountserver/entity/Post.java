@@ -4,7 +4,7 @@ import javax.persistence.*;
 import java.util.List;
 
 /**
- * 理财经验（用户名，帖子ID，标题，帖子内容，时间，点赞数）
+ * 理财经验（用户名，帖子ID，标题，帖子内容，时间）
  * Created by green-cherry on 2017/8/16.
  */
 @Entity
@@ -14,7 +14,6 @@ public class Post {
     private String title;
     private String content;
     private String time;
-    private int supportNum;
     private List<Reply> replies;
 
 
@@ -69,15 +68,6 @@ public class Post {
         this.time = time;
     }
 
-    @Basic
-    @Column(name = "support_num", nullable = true)
-    public int getSupportNum() {
-        return supportNum;
-    }
-
-    public void setSupportNum(int supportNum) {
-        this.supportNum = supportNum;
-    }
 
     @OneToMany(mappedBy ="post")
     public List<Reply> getReplies() {
@@ -96,7 +86,6 @@ public class Post {
         Post post = (Post) o;
 
         if (postId != post.postId) return false;
-        if (supportNum != post.supportNum) return false;
         if (username != null ? !username.equals(post.username) : post.username != null) return false;
         if (content != null ? !content.equals(post.content) : post.content != null) return false;
         if (time != null ? !time.equals(post.time) : post.time != null) return false;

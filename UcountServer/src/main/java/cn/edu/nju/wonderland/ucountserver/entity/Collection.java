@@ -13,7 +13,7 @@ public class Collection {
     @GeneratedValue(strategy= GenerationType.AUTO)
     private Long id;
     private String username;
-    private int postId;
+    private Long postId;
     private Timestamp colTime;
 
     public Long getId() {
@@ -36,11 +36,11 @@ public class Collection {
 
     @Basic
     @Column(name = "post_id", nullable = false)
-    public int getPostId() {
+    public Long getPostId() {
         return postId;
     }
 
-    public void setPostId(int postId) {
+    public void setPostId(Long postId) {
         this.postId = postId;
     }
 
@@ -54,25 +54,4 @@ public class Collection {
         this.colTime = colTime;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        Collection that = (Collection) o;
-
-        if (postId != that.postId) return false;
-        if (username != null ? !username.equals(that.username) : that.username != null) return false;
-        if (colTime != null ? !colTime.equals(that.colTime) : that.colTime != null) return false;
-
-        return true;
-    }
-
-    @Override
-    public int hashCode() {
-        int result = username != null ? username.hashCode() : 0;
-        result = 31 * result + postId;
-        result = 31 * result + (colTime != null ? colTime.hashCode() : 0);
-        return result;
-    }
 }

@@ -12,7 +12,6 @@ public class Reply {
     private Long replyId;
     private String content;
     private String time;
-    private int supportNum;
     private Post post;
 
     @ManyToOne
@@ -63,17 +62,6 @@ public class Reply {
     public void setTime(String time) {
         this.time = time;
     }
-
-    @Basic
-    @Column(name = "support_num", nullable = true)
-    public int getSupportNum() {
-        return supportNum;
-    }
-
-    public void setSupportNum(int supportNum) {
-        this.supportNum = supportNum;
-    }
-
-
+    
 
 }

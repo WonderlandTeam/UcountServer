@@ -123,7 +123,7 @@ public class Alipay {
     }
 
     @Basic
-    @Column(name = "pay_tyoe", nullable = true, length = 45)
+    @Column(name = "pay_type", nullable = true, length = 45)
     public String getPayTyoe() {
         return payTyoe;
     }

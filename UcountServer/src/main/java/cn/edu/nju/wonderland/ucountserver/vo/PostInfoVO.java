@@ -24,15 +24,13 @@ public class PostInfoVO {
         this.title = entity.getTitle();
         this.content = entity.getContent();
         this.time = entity.getTime();
-        this.supportNum = entity.getSupportNum();
     }
 
-    public PostInfoVO(String username, String title, String content, String time, int supportNum, List<PostReplyVO> replies) {
+    public PostInfoVO(String username, String title, String content, String time, List<PostReplyVO> replies) {
         this.username = username;
         this.title = title;
         this.content = content;
         this.time = time;
-        this.supportNum = supportNum;
         this.replies = replies;
     }
 
