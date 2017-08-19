@@ -42,6 +42,28 @@ public class PostController {
         return null;
     }
 
+    @ApiOperation(value = "用户收藏原贴", notes = "根据用户id和帖子id增加收藏信息")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "postId", value = "帖子id", required = true, dataType = "Long"),
+            @ApiImplicitParam(name = "userId", value = "用户id", required = true, dataType = "Long")
+    })
+    @PostMapping("/{post_id}/collections")
+    public Map<String, Object> collectPost(@PathVariable("post_id") Long postId,
+                                           @RequestParam Long userId) {
+        return null;
+    }
+
+    @ApiOperation(value = "用户取消收藏", notes = "根据用户id和帖子id删除收藏信息")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "postId", value = "帖子id", required = true, dataType = "Long"),
+            @ApiImplicitParam(name = "userId", value = "用户id", required = true, dataType = "Long")
+    })
+    @DeleteMapping("/{post_id}/collections")
+    public Map<String, Object> deleteCollection(@PathVariable("post_id") Long post_id,
+                                                @RequestParam Long userId) {
+        return null;
+    }
+
     @ApiOperation(value = "获取用户收藏所有帖子", notes = "根据用户id获取其收藏帖子")
     @ApiImplicitParam(name = "userId", value = "用户id", required = true, dataType = "Long")
     @GetMapping("/collections")
@@ -49,7 +71,7 @@ public class PostController {
         return null;
     }
 
-    @ApiOperation(value = "用户点赞", notes = "根据用户id和帖子id增加点赞信息")
+    @ApiOperation(value = "用户点赞原贴", notes = "根据用户id和帖子id增加点赞信息")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "postId", value = "帖子id", required = true, dataType = "Long"),
             @ApiImplicitParam(name = "userId", value = "用户id", required = true, dataType = "Long")
@@ -60,7 +82,7 @@ public class PostController {
         return null;
     }
 
-    @ApiOperation(value = "用户取消点赞", notes = "根据用户id和帖子id删除点赞信息")
+    @ApiOperation(value = "用户取消原贴点赞", notes = "根据用户id和帖子id删除原贴点赞信息")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "postId", value = "帖子id", required = true, dataType = "Long"),
             @ApiImplicitParam(name = "userId", value = "用户id", required = true, dataType = "Long")
@@ -68,6 +90,28 @@ public class PostController {
     @DeleteMapping("/{post_id}/praises")
     public Map<String, Object> cancelPraisePost(@PathVariable("post_id") Long postId,
                                                 @RequestParam Long userId) {
+        return null;
+    }
+
+    @ApiOperation(value = "用户点赞帖子回复", notes = "根据用户id和帖子回复id增加点赞信息")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "replyId", value = "帖子回复id", required = true, dataType = "Long"),
+            @ApiImplicitParam(name = "userId", value = "用户id", required = true, dataType = "Long")
+    })
+    @PostMapping("/replies/{reply_id}/praises")
+    public Map<String, Object> praisePostReply(@PathVariable("replyId") Long replyId,
+                                               @RequestParam Long userId) {
+        return null;
+    }
+
+    @ApiOperation(value = "用户取消帖子回复点赞", notes = "根据用户id和帖子id删除帖子回复点赞信息")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "postId", value = "帖子id", required = true, dataType = "Long"),
+            @ApiImplicitParam(name = "userId", value = "用户id", required = true, dataType = "Long")
+    })
+    @DeleteMapping("/replies/{reply_id}/praises")
+    public Map<String, Object> cancelPraisePostReply(@PathVariable("reply_id") Long replyId,
+                                                     @RequestParam Long userId) {
         return null;
     }
 

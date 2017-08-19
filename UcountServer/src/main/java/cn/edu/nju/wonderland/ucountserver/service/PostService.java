@@ -38,6 +38,20 @@ public interface PostService {
     List<PostInfoVO> getPostsSharedByUser(Long userId);
 
     /**
+     * 用户收藏帖子
+     * @param userId        用户id
+     * @param postId        帖子id
+     */
+    void collectPost(Long userId, Long postId);
+
+    /**
+     * 用户取消收藏
+     * @param userId        用户id
+     * @param postId        帖子id
+     */
+    void deleteCollection(Long userId, Long postId);
+
+    /**
      * 获取用户收藏
      * @param userId        用户id
      * @return              帖子信息列表
@@ -47,16 +61,18 @@ public interface PostService {
     /**
      * 称赞帖子
      * @param userId        用户id
-     * @param postId        帖子id
+     * @param id            帖子id／回贴id
+     * @param isReply       是否为回贴
      */
-    void praisePost(Long userId, Long postId);
+    void praisePost(Long userId, Long id, boolean isReply);
 
     /**
      * 取消称赞
      * @param userId        用户id
-     * @param postId        帖子id
+     * @param postId        帖子id／回贴id
+     * @param isReply       是否为回贴
      */
-    void cancelPraisePost(Long userId, Long postId);
+    void cancelPraisePost(Long userId, Long postId, boolean isReply);
 
     /**
      * 回复帖子
