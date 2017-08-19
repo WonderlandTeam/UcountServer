@@ -21,6 +21,13 @@ public interface UserService {
     UserInfoVO getUserInfo(Long userId);
 
     /**
+     * 获取用户信息
+     * @param username  	用户名
+     * @param password  	密码
+     * @return              用户信息vo
+     */
+    UserInfoVO login(String username,String password);
+    /**
      * 修改用户信息
      * @param userId        用户id
      * @param userModifyVO  用户修改信息vo

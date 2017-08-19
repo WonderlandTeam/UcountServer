@@ -26,7 +26,7 @@ public interface AccountService {
      * @param accountAddVO      账户添加信息vo
      * @return                  账户id
      */
-    Long addAccount(AccountAddVO accountAddVO);
+    Long addAccount(AccountInfoVO accountInfoVO);
 
     /**
      * 删除账户
