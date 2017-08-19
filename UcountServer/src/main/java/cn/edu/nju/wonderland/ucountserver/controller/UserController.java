@@ -20,20 +20,20 @@ public class UserController {
         return null;
     }
 
-    @ApiOperation(value = "获取用户详细信息", notes = "根据url中用户id获取用户详细信息")
-    @ApiImplicitParam(name = "userId", value = "用户id", required = true, dataType = "Long")
-    @GetMapping(value = "/{user_id}")
-    public Map<String, Object> getUserInfo(@PathVariable("user_id") Long userId) {
+    @ApiOperation(value = "获取用户详细信息", notes = "根据用户名获取用户详细信息")
+    @ApiImplicitParam(name = "username", value = "用户名", required = true, dataType = "String")
+    @GetMapping(value = "/{username}")
+    public Map<String, Object> getUserInfo(@PathVariable String username) {
         return null;
     }
 
-    @ApiOperation(value = "更改用户详细信息", notes = "根据url中用户id更新响应用户,根据传的userModifyVO更新用户详细信息")
+    @ApiOperation(value = "更改用户详细信息", notes = "根据用户名更新相应用户,根据传的userModifyVO更新用户详细信息")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "userId", value = "用户id", required = true, dataType = "Long"),
+            @ApiImplicitParam(name = "username", value = "用户名", required = true, dataType = "String"),
             @ApiImplicitParam(name = "userModifyVO", value = "用户更新信息vo", required = true, dataType = "UserModifyVO")
     })
-    @PutMapping(value = "/{user_id}")
-    public Map<String, Object> modifyUserInfo(@PathVariable("user_id") Long userId,
+    @PutMapping(value = "/{username}")
+    public Map<String, Object> modifyUserInfo(@PathVariable String username,
                                               @RequestBody UserModifyVO userModifyVO) {
         return null;
     }
