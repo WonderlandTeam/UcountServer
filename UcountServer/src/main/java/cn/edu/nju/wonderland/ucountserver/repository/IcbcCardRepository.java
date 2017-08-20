@@ -1,6 +1,10 @@
 package cn.edu.nju.wonderland.ucountserver.repository;
 
 import cn.edu.nju.wonderland.ucountserver.entity.IcbcCard;
+
+import java.util.List;
+
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 /**
@@ -8,4 +12,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
  * Created by green-cherry on 2017/8/16.
  */
 public interface IcbcCardRepository extends JpaRepository<IcbcCard,Long> {
+	IcbcCard findByIdAndCardId(Long id,String cardId);
+	List<IcbcCard> findByCardId(String account,Pageable pageable) ;
+	List<IcbcCard> findByUsername(String username,Pageable pageable) ; 
 }

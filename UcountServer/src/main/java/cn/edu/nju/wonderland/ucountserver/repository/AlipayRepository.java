@@ -1,6 +1,10 @@
 package cn.edu.nju.wonderland.ucountserver.repository;
 
 import cn.edu.nju.wonderland.ucountserver.entity.Alipay;
+
+import java.util.List;
+
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 /**
@@ -8,4 +12,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
  * Created by green-cherry on 2017/8/16.
  */
 public interface AlipayRepository extends JpaRepository<Alipay,Long> {
+	Alipay findByIdAndCardId(Long id,String cardId);
+	List<Alipay> findByCardID(String cardId,Pageable pageable);
+	List<Alipay> findByUsername(String username,Pageable pageable);
 }

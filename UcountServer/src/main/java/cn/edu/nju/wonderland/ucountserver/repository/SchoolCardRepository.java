@@ -1,10 +1,17 @@
 package cn.edu.nju.wonderland.ucountserver.repository;
 
 import cn.edu.nju.wonderland.ucountserver.entity.SchoolCard;
+
+import java.util.List;
+
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 /** 校园卡（用户名username，账号card_id，消费方式，地点location，消费顺序，时间，收/支income_expenditure，余额，消费类型consume_type）
  * Created by green-cherry on 2017/8/16.
  */
 public interface SchoolCardRepository  extends JpaRepository<SchoolCard,Long> {
+	SchoolCard findByIdAndCardId(Long id,String cardId);
+	List<SchoolCard> findByCardId(String cardId,Pageable pageable) ;
+	List<SchoolCard> findByUsername(String username,Pageable pageable) ;
 }
