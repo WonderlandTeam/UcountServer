@@ -3,9 +3,10 @@ package cn.edu.nju.wonderland.ucountserver.service.impl;
 import cn.edu.nju.wonderland.ucountserver.service.BillService;
 import cn.edu.nju.wonderland.ucountserver.vo.BillAddVO;
 import cn.edu.nju.wonderland.ucountserver.vo.BillInfoVO;
+
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.awt.print.Pageable;
 import java.util.List;
 
 @Service
@@ -21,7 +22,7 @@ public class BillServiceImpl implements BillService {
     }
 
     @Override
-    public List<BillInfoVO> getBillsByUser(Long userId, Pageable pageable) {
+    public List<BillInfoVO> getBillsByUser(String username, Pageable pageable) {
         return null;
     }
 

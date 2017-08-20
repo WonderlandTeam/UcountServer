@@ -4,7 +4,6 @@ public class UserInfoVO {
     // TODO 用户信息VO
 	public String userName;
 	public String password;
-	public long userID;
 	public String tel;
 	public String email;
 	public long alipayID = -1;

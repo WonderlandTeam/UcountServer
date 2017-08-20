@@ -11,14 +11,14 @@ public interface UserService {
      * @param signUpVO      注册信息vo
      * @return              注册成功返回用户id
      */
-    Long signUp(SignUpVO signUpVO);
+    String signUp(SignUpVO signUpVO);
 
     /**
      * 获取用户信息
      * @param userId        用户id
      * @return              用户信息vo
      */
-    UserInfoVO getUserInfo(Long userId);
+    UserInfoVO getUserInfo(String username);
 
     /**
      * 获取用户信息
@@ -32,6 +32,6 @@ public interface UserService {
      * @param userId        用户id
      * @param userModifyVO  用户修改信息vo
      */
-    void modifyUserInfo(Long userId, UserModifyVO userModifyVO);
+    void modifyUserInfo(String username, UserModifyVO userModifyVO);
 
 }

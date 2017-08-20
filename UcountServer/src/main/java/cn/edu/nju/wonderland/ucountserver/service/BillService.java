@@ -3,8 +3,9 @@ package cn.edu.nju.wonderland.ucountserver.service;
 import cn.edu.nju.wonderland.ucountserver.vo.BillAddVO;
 import cn.edu.nju.wonderland.ucountserver.vo.BillInfoVO;
 
-import java.awt.print.Pageable;
 import java.util.List;
+
+import org.springframework.data.domain.Pageable;
 
 public interface BillService {
 
@@ -30,7 +31,7 @@ public interface BillService {
      * @param pageable          筛选信息
      * @return                  账目列表
      */
-    List<BillInfoVO> getBillsByUser(Long userId, Pageable pageable);
+    List<BillInfoVO> getBillsByUser(String username, Pageable pageable);
 
     /**
      * 用户手动记账

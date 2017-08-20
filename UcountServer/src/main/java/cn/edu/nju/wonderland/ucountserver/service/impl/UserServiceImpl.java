@@ -12,14 +12,16 @@ import java.security.MessageDigest;
 
 import org.springframework.stereotype.Service;
 
+import com.mysql.jdbc.interceptors.ServerStatusDiffInterceptor;
+
 @Service
 public class UserServiceImpl implements UserService {
 	private UserRepository userRepository;
 	
     @Override
-    public Long signUp(SignUpVO signUpVO) {
+    public String signUp(SignUpVO signUpVO) {
     	if(userRepository.findByUsername ( signUpVO.userName ) != null){
-    		return Long.valueOf(-1);
+    		return null;
     	}
         User user = new User();
         user.setUsername(signUpVO.userName);
@@ -27,22 +29,21 @@ public class UserServiceImpl implements UserService {
         user.setTel(signUpVO.tel);
         user.setEmail(signUpVO.email);
         userRepository.save(user);
-        return userRepository.findByUsername(user.getUsername()).getId();
+        return user.getUsername();
     }
 
     @Override
-    public UserInfoVO getUserInfo(Long userId) {
-        User user = userRepository.findById(userId);
+    public UserInfoVO getUserInfo(String username) {
+        User user = userRepository.findByUsername(username);
         UserInfoVO userInfoVO = new UserInfoVO();
         userInfoVO.userName = user.getUsername();
         userInfoVO.email = user.getEmail();
-        userInfoVO.userID = user.getId();
         userInfoVO.tel = user.getTel();
         return userInfoVO;
     }
 
     @Override
-    public void modifyUserInfo(Long userId, UserModifyVO userModifyVO) {
+    public void modifyUserInfo(String username, UserModifyVO userModifyVO) {
         // TODO
     }
 
@@ -54,7 +55,6 @@ public class UserServiceImpl implements UserService {
 	        UserInfoVO userInfoVO = new UserInfoVO();
 	        userInfoVO.userName = user.getUsername();
 	        userInfoVO.email = user.getEmail();
-	        userInfoVO.userID = user.getId();
 	        userInfoVO.tel = user.getTel();
 	        return userInfoVO;
 		}

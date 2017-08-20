@@ -19,7 +19,7 @@ public interface AccountService {
      * @param userId            用户id
      * @return                  账户信息列表
      */
-    List<AccountInfoVO> getAccountsByUser(Long userId);
+    List<AccountInfoVO> getAccountsByUser(String username);
 
     /**
      * 添加账户

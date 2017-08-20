@@ -32,8 +32,8 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public List<AccountInfoVO> getAccountsByUser(Long userId) {
-    	User user = userRepository.findById(userId);
+    public List<AccountInfoVO> getAccountsByUser(String username) {
+    	User user = userRepository.findByUsername(username);
     	List<Account> list = accountRepository.findByUsername( user.getUsername () );
     	List<AccountInfoVO> result = new ArrayList <AccountInfoVO> ();
     	for(int i = 0 ; i < list.size() ; i ++){
