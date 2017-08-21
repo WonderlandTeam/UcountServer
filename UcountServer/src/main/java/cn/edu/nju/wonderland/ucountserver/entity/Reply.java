@@ -1,6 +1,7 @@
 package cn.edu.nju.wonderland.ucountserver.entity;
 
 import javax.persistence.*;
+import java.sql.Timestamp;
 
 /**
  * 回复（用户名，回帖ID，帖子内容，时间，点赞数，原帖id）
@@ -11,7 +12,7 @@ public class Reply {
     private String username;
     private Long replyId;
     private String content;
-    private String time;
+    private Timestamp time;
     private Post post;
 
     @ManyToOne
@@ -24,7 +25,7 @@ public class Reply {
     }
 
     @Basic
-    @Column(name = "username", nullable = true, length = 50)
+    @Column(name = "username", nullable = false, length = 50)
     public String getUsername() {
         return username;
     }
@@ -44,7 +45,7 @@ public class Reply {
     }
 
     @Basic
-    @Column(name = "content", nullable = true, length = 100)
+    @Column(name = "content", nullable = false, length = 100)
     public String getContent() {
         return content;
     }
@@ -54,12 +55,12 @@ public class Reply {
     }
 
     @Basic
-    @Column(name = "time", nullable = true, length = 45)
-    public String getTime() {
+    @Column(name = "time", nullable = false)
+    public Timestamp getTime() {
         return time;
     }
 
-    public void setTime(String time) {
+    public void setTime(Timestamp time) {
         this.time = time;
     }
     

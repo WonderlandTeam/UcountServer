@@ -1,7 +1,7 @@
 package cn.edu.nju.wonderland.ucountserver.controller;
 
-import cn.edu.nju.wonderland.ucountserver.vo.PostReplyVO;
-import cn.edu.nju.wonderland.ucountserver.vo.PostShareVO;
+import cn.edu.nju.wonderland.ucountserver.vo.PostAddVO;
+import cn.edu.nju.wonderland.ucountserver.vo.PostReplyAddVO;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
@@ -29,9 +29,9 @@ public class PostController {
     }
 
     @ApiOperation(value = "新建帖子", notes = "用户发帖")
-    @ApiImplicitParam(name = "postShareVO", value = "发帖信息vo", required = true, dataType = "PostShareVO")
+    @ApiImplicitParam(name = "postAddVO", value = "发帖信息vo", required = true, dataType = "PostAddVO")
     @PostMapping
-    public Map<String, Object> addPost(@RequestBody PostShareVO postShareVO) {
+    public Map<String, Object> addPost(@RequestBody PostAddVO postAddVO) {
         return null;
     }
 
@@ -122,7 +122,7 @@ public class PostController {
     })
     @PostMapping("/{post_id}/replies")
     public Map<String, Object> replyPost(@PathVariable("post_id") Long postId,
-                                         @RequestBody PostReplyVO postReplyVO) {
+                                         @RequestBody PostReplyAddVO postReplyAddVO) {
         return null;
     }
 

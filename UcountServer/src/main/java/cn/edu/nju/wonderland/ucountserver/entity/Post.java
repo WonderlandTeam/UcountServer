@@ -1,6 +1,7 @@
 package cn.edu.nju.wonderland.ucountserver.entity;
 
 import javax.persistence.*;
+import java.sql.Timestamp;
 import java.util.List;
 
 /**
@@ -13,12 +14,12 @@ public class Post {
     private Long postId;
     private String title;
     private String content;
-    private String time;
+    private Timestamp time;
     private List<Reply> replies;
 
 
     @Basic
-    @Column(name = "username", nullable = true, length = 50)
+    @Column(name = "username", nullable = false, length = 50)
     public String getUsername() {
         return username;
     }
@@ -39,7 +40,7 @@ public class Post {
 
 
     @Basic
-    @Column(name = "title", nullable = true, length = 45)
+    @Column(name = "title", nullable = false, length = 45)
     public String getTitle() {
         return title;
     }
@@ -49,7 +50,7 @@ public class Post {
     }
 
     @Basic
-    @Column(name = "content", nullable = true)
+    @Column(name = "content", nullable = false)
     public String getContent() {
         return content;
     }
@@ -59,12 +60,12 @@ public class Post {
     }
 
     @Basic
-    @Column(name = "time", nullable = true, length = 45)
-    public String getTime() {
+    @Column(name = "time", nullable = false)
+    public Timestamp getTime() {
         return time;
     }
 
-    public void setTime(String time) {
+    public void setTime(Timestamp time) {
         this.time = time;
     }
 
