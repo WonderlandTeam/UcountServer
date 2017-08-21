@@ -90,7 +90,7 @@ public class BillServiceImpl implements BillService {
 				billInfoVOList.add(billInfoVO);
 			}
 		} else {
-			List<Alipay> alipayList = alipayRepository.findByCardID(String.valueOf(accountId), pageable);
+			List<Alipay> alipayList = alipayRepository.findByCardId(String.valueOf(accountId), pageable);
 			for (int i = 0; i < alipayList.size(); i++) {
 				BillInfoVO billInfoVO = new BillInfoVO();
 				billInfoVO.amount = alipayList.get(i).getMoney();

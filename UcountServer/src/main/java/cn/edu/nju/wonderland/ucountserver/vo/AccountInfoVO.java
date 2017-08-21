@@ -7,5 +7,6 @@ public class AccountInfoVO {
 	public String type;
 	public String username;
 	public String cardID;
-	
+	public double income;
+	public double expend;
 }

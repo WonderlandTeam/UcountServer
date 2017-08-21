@@ -13,6 +13,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
  */
 public interface AlipayRepository extends JpaRepository<Alipay,Long> {
 	Alipay findByIdAndCardId(Long id,String cardId);
-	List<Alipay> findByCardID(String cardId,Pageable pageable);
+	List<Alipay> findByCardId(String cardId,Pageable pageable);
 	List<Alipay> findByUsername(String username,Pageable pageable);
 }
