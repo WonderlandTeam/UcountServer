@@ -22,7 +22,7 @@ public class BudgetController {
 
     @ApiOperation(value = "获取用户所有预算信息", notes = "根据用户名获取预算信息")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "budgetId", value = "预算id", required = true, dataType = "Long"),
+            @ApiImplicitParam(name = "username", value = "用户名", required = true, dataType = "String"),
             @ApiImplicitParam(name = "date", value = "yyyy-mm-dd hh:mm:ss (比如\"2017-7-1 00:00:00\")", dataType = "String")
     })
     @GetMapping
