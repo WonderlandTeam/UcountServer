@@ -1,20 +1,11 @@
 package cn.edu.nju.wonderland.ucountserver.service.impl;
 
-import cn.edu.nju.wonderland.ucountserver.entity.Account;
-import cn.edu.nju.wonderland.ucountserver.entity.Alipay;
-import cn.edu.nju.wonderland.ucountserver.entity.IcbcCard;
-import cn.edu.nju.wonderland.ucountserver.entity.SchoolCard;
-import cn.edu.nju.wonderland.ucountserver.entity.User;
-import cn.edu.nju.wonderland.ucountserver.repository.AccountRepository;
-import cn.edu.nju.wonderland.ucountserver.repository.AlipayRepository;
-import cn.edu.nju.wonderland.ucountserver.repository.IcbcCardRepository;
-import cn.edu.nju.wonderland.ucountserver.repository.SchoolCardRepository;
-import cn.edu.nju.wonderland.ucountserver.repository.UserRepository;
+import cn.edu.nju.wonderland.ucountserver.entity.*;
+import cn.edu.nju.wonderland.ucountserver.repository.*;
 import cn.edu.nju.wonderland.ucountserver.service.AccountService;
-import cn.edu.nju.wonderland.ucountserver.vo.AccountAddVO;
 import cn.edu.nju.wonderland.ucountserver.vo.AccountInfoVO;
+import cn.edu.nju.wonderland.ucountserver.vo.TotalAccountVO;
 import org.springframework.stereotype.Service;
-import org.w3c.dom.ls.LSInput;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -99,4 +90,9 @@ public class AccountServiceImpl implements AccountService {
     public void deleteAccount(Long accountId) {
     	accountRepository.delete(accountId);;
     }
+
+	@Override
+	public TotalAccountVO getAccountByUserAndTime(String username, String time) {
+		return null;
+	}
 }

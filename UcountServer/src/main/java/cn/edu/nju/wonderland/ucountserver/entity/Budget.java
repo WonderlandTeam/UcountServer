@@ -18,6 +18,14 @@ public class Budget {
     private Timestamp consumeTime;
     private Timestamp createTime;
 
+    public Budget(String username, String consumeType, Double consumeMoney, Timestamp consumeTime, Timestamp createTime) {
+        this.username = username;
+        this.consumeType = consumeType;
+        this.consumeMoney = consumeMoney;
+        this.consumeTime = consumeTime;
+        this.createTime = createTime;
+    }
+
     public Long getId() {
         return id;
     }

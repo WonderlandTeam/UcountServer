@@ -6,13 +6,10 @@ import cn.edu.nju.wonderland.ucountserver.service.UserService;
 import cn.edu.nju.wonderland.ucountserver.vo.SignUpVO;
 import cn.edu.nju.wonderland.ucountserver.vo.UserInfoVO;
 import cn.edu.nju.wonderland.ucountserver.vo.UserModifyVO;
+import org.springframework.stereotype.Service;
 
 import java.math.BigInteger;
 import java.security.MessageDigest;
-
-import org.springframework.stereotype.Service;
-
-import com.mysql.jdbc.interceptors.ServerStatusDiffInterceptor;
 
 @Service
 public class UserServiceImpl implements UserService {

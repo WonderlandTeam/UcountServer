@@ -2,10 +2,9 @@ package cn.edu.nju.wonderland.ucountserver.service;
 
 import cn.edu.nju.wonderland.ucountserver.vo.BillAddVO;
 import cn.edu.nju.wonderland.ucountserver.vo.BillInfoVO;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
-
-import org.springframework.data.domain.Pageable;
 
 public interface BillService {
 
@@ -27,7 +26,7 @@ public interface BillService {
 
     /**
      * 获取账户所有账目信息
-     * @param userId            用户id
+     * @param username            用户id
      * @param pageable          筛选信息
      * @return                  账目列表
      */
@@ -54,5 +53,14 @@ public interface BillService {
      * @param billId            账目id
      */
     void deleteBill(Long accountId, Long billId);
+
+    /**
+     * 获取指定月份指定消费类型的已消费金额
+     * @param username          用户名
+     * @param consumeType       消费类型
+     * @param time              月份，格式：2017-08-01 00：00：00
+     * @return
+     */
+    double getConsumedMoneyByTypeAndTime(String username,String consumeType,String time);
 
 }

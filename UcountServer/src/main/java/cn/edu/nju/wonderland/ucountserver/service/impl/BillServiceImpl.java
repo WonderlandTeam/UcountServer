@@ -166,4 +166,9 @@ public class BillServiceImpl implements BillService {
 			alipayRepository.delete(billId);
 		}
 	}
+
+	@Override
+	public double getConsumedMoneyByTypeAndTime(String username, String consumeType, String time) {
+		return 0;
+	}
 }

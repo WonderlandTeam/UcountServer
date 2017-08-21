@@ -16,11 +16,20 @@ public interface BudgetService {
     BudgetInfoVO getBudget(Long budgetId);
 
     /**
-     * 获取用户预算
-     * @param userId            用户id
+     * 获取当月之后所有用户预算
+     * @param username            用户名
      * @return                  用户预算列表
      */
-    List<BudgetInfoVO> getBudgetsByUser(Long userId);
+    List<BudgetInfoVO> getBudgetsByUser(String username);
+
+    /**
+     * 根据月份获取用户预算
+     * @param username            用户名
+     * @param time                月份
+     * @return                  用户预算列表
+     */
+    List<BudgetInfoVO> getBudgetsByUserAndTime(String username,String time);
+
 
     /**
      * 添加预算
