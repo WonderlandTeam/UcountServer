@@ -16,7 +16,9 @@ public class TotalAccountVO {
         this.expend = expend;
         this.balance = balance;
     }
-
+    public TotalAccountVO(){
+    	
+    }
     public String getUsername() {
         return username;
     }

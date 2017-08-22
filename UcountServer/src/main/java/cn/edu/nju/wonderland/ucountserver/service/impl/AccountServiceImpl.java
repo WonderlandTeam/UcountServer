@@ -7,7 +7,12 @@ import cn.edu.nju.wonderland.ucountserver.vo.AccountInfoVO;
 import cn.edu.nju.wonderland.ucountserver.vo.TotalAccountVO;
 import org.springframework.stereotype.Service;
 
+import java.sql.Timestamp;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -32,6 +37,8 @@ public class AccountServiceImpl implements AccountService {
     	accountInfoVO.expend = 0;
     	if(icbcCardRepository.findByCardId(String.valueOf(account), null) != null){
     		List<IcbcCard> icbcCards = icbcCardRepository.findByCardId(String.valueOf(accountId), null);
+    		IcbcCard icbcCard = icbcCardRepository.getBalance(String.valueOf(accountId));
+    		accountInfoVO.balance = icbcCard.getBalance();
     		for ( int i = 0 ; i <icbcCards.size();i++){
     			if(icbcCards.get(i).getAccountAmountIncome() > 0){
     				accountInfoVO.income += icbcCards.get(i).getAccountAmountIncome();
@@ -42,6 +49,8 @@ public class AccountServiceImpl implements AccountService {
     		
     	}else if (schoolCardRepository.findByCardId(String.valueOf(accountId), null) != null) {
     		List<SchoolCard> schoolCards = schoolCardRepository.findByCardId(String.valueOf(accountId), null);
+    		SchoolCard schoolCard = schoolCardRepository.getBalance(String.valueOf(accountId));
+    		accountInfoVO.balance = schoolCard.getBalance();
     		for ( int i = 0 ; i <schoolCards.size();i++){
     			if(schoolCards.get(i).getIncomeExpenditure() > 0){
     				accountInfoVO.income += schoolCards.get(i).getIncomeExpenditure();
@@ -93,6 +102,47 @@ public class AccountServiceImpl implements AccountService {
 
 	@Override
 	public TotalAccountVO getAccountByUserAndTime(String username, String time) {
-		return null;
+		DateFormat sdf =  new  SimpleDateFormat("yyyy-MM-dd HH / mm / ss");
+		Date startDate  = new Date();
+		Date endDate = new Date();
+		Timestamp start = new Timestamp(0);
+		Timestamp end = new Timestamp(0);
+		TotalAccountVO totalAccountVO = new TotalAccountVO();
+		try {
+			startDate = sdf.parse(time);
+			Calendar calendar = Calendar.getInstance();
+			calendar.setTime(startDate);
+			calendar.add(Calendar.MONTH, 1);
+			endDate = calendar.getTime();
+			start = new Timestamp(startDate.getTime());
+			end = new Timestamp(endDate.getTime());
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+		List<Alipay> alipays = alipayRepository.getMouthBill(username, start, end);
+		for ( int i = 0 ; i <alipays.size();i++){
+			if(alipays.get(i).getIncomeExpenditureType().equals("收入")){
+				totalAccountVO.setIncome(totalAccountVO.getIncome() + alipays.get(i).getMoney());
+			}else{
+				totalAccountVO.setExpend(totalAccountVO.getExpend() + alipays.get(i).getMoney());
+			}
+		}
+		List<SchoolCard> schoolCards =schoolCardRepository.getMouthBill(username, start, end);
+		for ( int i = 0 ; i <schoolCards.size();i++){
+			if(schoolCards.get(i).getIncomeExpenditure() > 0){
+				totalAccountVO.setIncome(totalAccountVO.getIncome() + schoolCards.get(i).getIncomeExpenditure());
+			}else{
+				totalAccountVO.setExpend(totalAccountVO.getExpend() - schoolCards.get(i).getIncomeExpenditure());
+			}
+		}
+		List<IcbcCard> icbcCards = icbcCardRepository.getMouthBill(username, start, end);
+		for ( int i = 0 ; i <icbcCards.size();i++){
+			if(icbcCards.get(i).getAccountAmountIncome() > 0){
+				totalAccountVO.setIncome(totalAccountVO.getIncome() + icbcCards.get(i).getAccountAmountIncome());
+			}else{
+				totalAccountVO.setExpend(totalAccountVO.getExpend() + icbcCards.get(i).getAccountAmountExpense());
+			}
+		}
+		return totalAccountVO;
 	}
 }

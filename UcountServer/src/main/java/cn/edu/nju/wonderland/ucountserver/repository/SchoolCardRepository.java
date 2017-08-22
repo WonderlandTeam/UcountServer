@@ -2,6 +2,7 @@ package cn.edu.nju.wonderland.ucountserver.repository;
 
 import cn.edu.nju.wonderland.ucountserver.entity.SchoolCard;
 
+import java.sql.Timestamp;
 import java.util.List;
 
 import org.aspectj.weaver.ast.And;
@@ -16,6 +17,8 @@ public interface SchoolCardRepository  extends JpaRepository<SchoolCard,Long> {
 	SchoolCard findByIdAndCardId(Long id,String cardId);
 	List<SchoolCard> findByCardId(String cardId,Pageable pageable) ;
 	List<SchoolCard> findByUsername(String username,Pageable pageable) ;
-	@Query("SELECT s FROM SchoolCard s WHERE s.time = (SELECT max(p2.time) FROM School p2 whree p2.cardId = account) and s.cardId = account") 
-	SchoolCard getBalance(Long account);
+	@Query("SELECT s FROM SchoolCard s WHERE s.time = (SELECT max(p2.time) FROM SchoolCard p2 WHERE p2.cardId = ?1) and s.cardId = ?1 ")
+	SchoolCard getBalance(String account);
+	@Query("SELECT s FROM SchoolCard s WHERE  s.username = ?1 and s.time between ?2 and ?3")
+	List<SchoolCard> getMouthBill(String username,Timestamp start,Timestamp end);
 }

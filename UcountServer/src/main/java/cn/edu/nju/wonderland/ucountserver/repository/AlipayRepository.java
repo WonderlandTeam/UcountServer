@@ -2,10 +2,12 @@ package cn.edu.nju.wonderland.ucountserver.repository;
 
 import cn.edu.nju.wonderland.ucountserver.entity.Alipay;
 
+import java.sql.Timestamp;
 import java.util.List;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
 /**
  * 支付宝（用户名，账号，交易号 ，商户订单号，交易创建时间，付款时间，最近修改时间，交易来源地，交易类型，交易对方，商品名称 ，金额，收/支，交易状态，服务费，成功退款，备注，资金状态，消费类型）
@@ -15,4 +17,6 @@ public interface AlipayRepository extends JpaRepository<Alipay,Long> {
 	Alipay findByIdAndCardId(Long id,String cardId);
 	List<Alipay> findByCardId(String cardId,Pageable pageable);
 	List<Alipay> findByUsername(String username,Pageable pageable);
+	@Query("SELECT s FROM Alipay s WHERE  s.username = ?1 and s.createTime between ?2 and ?3")
+	List<Alipay> getMouthBill(String username,Timestamp start,Timestamp end);
 }

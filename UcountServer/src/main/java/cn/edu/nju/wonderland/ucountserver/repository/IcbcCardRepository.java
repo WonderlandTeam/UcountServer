@@ -1,7 +1,9 @@
 package cn.edu.nju.wonderland.ucountserver.repository;
 
 import cn.edu.nju.wonderland.ucountserver.entity.IcbcCard;
+import cn.edu.nju.wonderland.ucountserver.entity.SchoolCard;
 
+import java.sql.Timestamp;
 import java.util.List;
 
 import org.springframework.data.domain.Pageable;
@@ -16,6 +18,8 @@ public interface IcbcCardRepository extends JpaRepository<IcbcCard,Long> {
 	IcbcCard findByIdAndCardId(Long id,String cardId);
 	List<IcbcCard> findByCardId(String account,Pageable pageable) ;
 	List<IcbcCard> findByUsername(String username,Pageable pageable) ; 
-	@Query("SELECT p FROM IcbcCard p WHERE p.tradeDate = (SELECT max(p2.tradeDate) FROM IcbcCard p2)")
-	IcbcCard getBalance(long account);
+	@Query("SELECT p FROM IcbcCard p WHERE p.tradeDate = (SELECT max(p2.tradeDate) FROM IcbcCard p2 WHERE p2.cardId = ?1) and p.cardId = ?1")
+	IcbcCard getBalance(String account);
+	@Query("SELECT s FROM IcbcCard s WHERE  s.username = ?1 and s.tradeDate between ?2 and ?3")
+	List<IcbcCard> getMouthBill(String username,Timestamp start,Timestamp end);
 }
