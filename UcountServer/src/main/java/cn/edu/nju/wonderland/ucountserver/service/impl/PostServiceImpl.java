@@ -73,7 +73,11 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public List<PostInfoVO> getPosts(Pageable pageable) {
-        return null;
+        List<Post> posts = postRepository.findAll(pageable).getContent();
+        return posts
+                .stream()
+                .map(this::postEntityToVO)
+                .collect(Collectors.toList());
     }
 
     @Override

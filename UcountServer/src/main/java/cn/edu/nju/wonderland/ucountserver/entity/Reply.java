@@ -9,19 +9,31 @@ import java.sql.Timestamp;
  */
 @Entity
 public class Reply {
-    private String username;
     private Long replyId;
+    private String username;
     private String content;
     private Timestamp time;
     private Post post;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.ALL, optional = false)
+    @JoinColumn(name = "post_id")
     public Post getPost() {
         return post;
     }
 
     public void setPost(Post post) {
         this.post = post;
+    }
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "reply_id", nullable = false)
+    public Long getReplyId() {
+        return replyId;
+    }
+
+    public void setReplyId(Long replyId) {
+        this.replyId = replyId;
     }
 
     @Basic
@@ -32,16 +44,6 @@ public class Reply {
 
     public void setUsername(String username) {
         this.username = username;
-    }
-
-    @Id
-    @Column(name = "reply_id", nullable = false)
-    public Long getReplyId() {
-        return replyId;
-    }
-
-    public void setReplyId(Long replyId) {
-        this.replyId = replyId;
     }
 
     @Basic
