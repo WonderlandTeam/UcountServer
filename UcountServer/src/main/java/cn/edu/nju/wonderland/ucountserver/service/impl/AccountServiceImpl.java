@@ -145,4 +145,14 @@ public class AccountServiceImpl implements AccountService {
 		}
 		return totalAccountVO;
 	}
+
+	@Override
+	public double getBalanceByUser(String username) {
+		return 0;
+	}
+
+	@Override
+	public double getConsumedMoneyByDateAndUser(String username, String time) {
+		return 0;
+	}
 }

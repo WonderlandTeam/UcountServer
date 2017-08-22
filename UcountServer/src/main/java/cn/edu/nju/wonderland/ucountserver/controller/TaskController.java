@@ -20,6 +20,16 @@ public class TaskController {
         return null;
     }
 
+
+    @ApiOperation(value = "获取用户不同状态的攒钱计划信息", notes = "根据状态获取计划信息")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "username", value = "用户名", required = true, dataType = "String"),
+    })
+    @GetMapping("/{task_state}")
+    public Map<String, Object> getTasksByState(@RequestParam String username,@PathVariable("task_state") Long taskState) {
+        return null;
+    }
+
     @ApiOperation(value = "获取用户所有攒钱计划信息", notes = "根据用户名获取计划信息")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "username", value = "用户名", required = true, dataType = "String"),

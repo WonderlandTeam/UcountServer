@@ -5,7 +5,7 @@ import java.sql.Timestamp;
 
 /**
  *
- * 攒钱计划（用户名，攒钱内容，攒钱总额，建立时间，预计完成日期）
+ * 攒钱计划（用户名，攒钱内容，攒钱总额，建立时间，预计完成日期，计划状态）
  * Created by green-cherry on 2017/8/16.
  */
 @Entity
@@ -18,7 +18,16 @@ public class Task {
     private String taskContent;
     private Timestamp deadline;
     private Double upper;
+    private String taskState;
 
+    public Task(String username, Timestamp createTime, String taskContent, Timestamp deadline, Double upper, String taskState) {
+        this.username = username;
+        this.createTime = createTime;
+        this.taskContent = taskContent;
+        this.deadline = deadline;
+        this.upper = upper;
+        this.taskState = taskState;
+    }
 
     public Long getId() {
         return id;
@@ -80,6 +89,14 @@ public class Task {
         this.upper = upper;
     }
 
+    @Basic
+    @Column(name = "task_state", nullable = true, length = 100)
+    public String getTaskState() {
+        return taskState;
+    }
 
+    public void setTaskState(String taskState) {
+        this.taskState = taskState;
+    }
 
 }

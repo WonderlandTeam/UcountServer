@@ -16,12 +16,20 @@ public interface TaskService {
     TaskInfoVO getTask(Long taskID);
 
     /**
+     * 根据状态获取所有攒钱计划预算
+     * @param username          用户名
+     * @param taskState         计划状态
+     * @return                  用户计划列表
+     */
+    List<TaskInfoVO> getTasksByState(String username,String taskState);
+
+
+    /**
      * 获取所有攒钱计划预算
      * @param username          用户名
      * @return                  用户计划列表
      */
     List<TaskInfoVO> getTasksByUser(String username);
-
 
     /**
      * 添加攒钱计划

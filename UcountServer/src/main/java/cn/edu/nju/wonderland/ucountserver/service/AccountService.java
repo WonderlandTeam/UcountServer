@@ -43,4 +43,19 @@ public interface AccountService {
      */
     TotalAccountVO getAccountByUserAndTime(String username,String time);
 
+    /**
+     * 获取用户的所有的账户的总余额
+     * @param username              用户名
+     * @return
+     */
+    double getBalanceByUser(String username);
+
+    /**
+     * 获取用户某一天的已消费金额
+     * @param username              用户名
+     * @param time                  某天，格式：2017-08-01 00：00：00
+     * @return
+     */
+    double getConsumedMoneyByDateAndUser(String username,String time);
+
 }

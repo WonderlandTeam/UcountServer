@@ -1,5 +1,9 @@
 package cn.edu.nju.wonderland.ucountserver.vo;
 
+import cn.edu.nju.wonderland.ucountserver.entity.Task;
+
+import java.sql.Timestamp;
+
 /**
  * 新建任务(用户名，攒钱内容，计划开始时间,预计完成时间，攒钱总额)
  * Created by green-cherry on 2017/8/21.
@@ -18,6 +22,11 @@ public class TaskAddVO {
         this.deadline = deadline;
         this.upper = upper;
     }
+
+    public Task toTaskEntity(){
+         return new Task(username, Timestamp.valueOf(createTime),taskContent,Timestamp.valueOf(deadline),upper, "未开始");
+    }
+
 
     public String getUsername() {
         return username;
