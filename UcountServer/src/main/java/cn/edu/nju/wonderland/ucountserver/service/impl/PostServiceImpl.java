@@ -24,6 +24,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static cn.edu.nju.wonderland.ucountserver.util.Format.DATE_TIME_FORMATTER;
+
 @Service
 public class PostServiceImpl implements PostService {
 
@@ -49,8 +51,8 @@ public class PostServiceImpl implements PostService {
         vo.username = entity.getUsername();
         vo.title = entity.getTitle();
         vo.content = entity.getContent();
-        // TODO 时间格式
-        vo.time = entity.getTime().toString();
+        // 时间格式
+        vo.time = entity.getTime().toLocalDateTime().format(DATE_TIME_FORMATTER);
         vo.supportNum = supportRepository.countByPostId(entity.getPostId());
         return vo;
     }
@@ -64,8 +66,8 @@ public class PostServiceImpl implements PostService {
         PostReplyVO vo = new PostReplyVO();
         vo.username = entity.getUsername();
         vo.content = entity.getContent();
-        // TODO 时间格式
-        vo.time = entity.getTime().toString();
+        // 时间格式
+        vo.time = entity.getTime().toLocalDateTime().format(DATE_TIME_FORMATTER);
         vo.supportNum = supportRepository.countByReplyId(entity.getReplyId());
         return vo;
     }
