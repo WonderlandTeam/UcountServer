@@ -1,6 +1,7 @@
 package cn.edu.nju.wonderland.ucountserver.repository;
 
 import cn.edu.nju.wonderland.ucountserver.entity.Post;
+import cn.edu.nju.wonderland.ucountserver.entity.Reply;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +35,21 @@ public class PostRepositoryTest {
         System.out.println("标题：\t" + post.getTitle());
         System.out.println("内容：\t" + post.getContent());
         System.out.println("时间：\t" + post.getTime().toString());
+    }
+
+    @Test
+    public void testReply() {
+        Post post = postRepository.findOne(2L);
+
+        Reply reply = new Reply();
+        reply.setUsername("sigma");
+        reply.setPost(post);
+        reply.setContent("测试评论");
+        reply.setTime(Timestamp.valueOf(LocalDateTime.now()));
+
+        post.getReplies().add(reply);
+
+        postRepository.save(post);
     }
 
 }

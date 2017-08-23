@@ -13,6 +13,17 @@ import java.util.Map;
 @RequestMapping("/users")
 public class UserController {
 
+    @ApiOperation(value = "用户登陆")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "username", value = "用户名", required = true, dataType = "String"),
+            @ApiImplicitParam(name = "password", value = "密码", required = true, dataType = "String")
+    })
+    @PostMapping("/login")
+    public Map<String, Object> login(@RequestParam String username,
+                                     @RequestParam String password) {
+        return null;
+    }
+
     @ApiOperation(value = "创建用户", notes = "根据SignUpVO创建用户")
     @ApiImplicitParam(name = "signUpVO", value = "用户注册信息vo", required = true, dataType = "SignUpVO")
     @PostMapping

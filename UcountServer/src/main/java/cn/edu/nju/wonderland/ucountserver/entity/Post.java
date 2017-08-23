@@ -17,17 +17,6 @@ public class Post {
     private Timestamp time;
     private Set<Reply> replies;
 
-
-    @Basic
-    @Column(name = "username", nullable = false, length = 50)
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "post_id", nullable = false)
@@ -39,6 +28,15 @@ public class Post {
         this.postId = postId;
     }
 
+    @Basic
+    @Column(name = "username", nullable = false, length = 50)
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
 
     @Basic
     @Column(name = "title", nullable = false, length = 45)

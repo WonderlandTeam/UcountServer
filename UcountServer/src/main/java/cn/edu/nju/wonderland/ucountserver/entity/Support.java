@@ -9,25 +9,23 @@ import javax.persistence.*;
 @Entity
 @Table(name = "support", schema = "Ucount_data", catalog = "")
 public class Support {
-    @Id
-    @GeneratedValue(strategy= GenerationType.AUTO)
-    private long id;
+    private Long id;
     private String username;
     private Long postId;
     private Long replyId;
 
     @Id
-    @Column(name = "id", nullable = false)
-    public long getId() {
+    @GeneratedValue(strategy= GenerationType.AUTO)
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
     @Basic
-    @Column(name = "username", nullable = true, length = 50)
+    @Column(name = "username", nullable = false, length = 50)
     public String getUsername() {
         return username;
     }
