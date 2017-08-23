@@ -23,7 +23,7 @@ public class BudgetController {
     @ApiOperation(value = "获取用户当月之后的所有预算信息", notes = "根据用户名获取预算信息")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "username", value = "用户名", required = true, dataType = "String"),
-            @ApiImplicitParam(name = "date", value = "yyyy-mm-dd hh:mm:ss (比如\"2017-7-1 00:00:00\")", dataType = "String")
+            @ApiImplicitParam(name = "date", value = "yyyy-mm (比如\"2017-07\")", dataType = "String")
     })
     @GetMapping
     public Map<String, Object> getBudgetsByUser(@RequestParam String username,
@@ -32,7 +32,7 @@ public class BudgetController {
     }
 
     @ApiOperation(value = "用户添加预算")
-    @ApiImplicitParam(name = "budgetAddVO", value = "预算添加信息VO", required = true, dataType = "BudgetAddVO")
+    @ApiImplicitParam(name = "budgetAddVO", value = "预算添加信息VO,其中设置的时间格式仍为yyyy-mm", required = true, dataType = "BudgetAddVO")
     @PostMapping
     public Map<String, Object> addBudget(@RequestBody BudgetAddVO budgetAddVO) {
         return null;

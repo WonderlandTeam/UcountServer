@@ -1,7 +1,10 @@
 package cn.edu.nju.wonderland.ucountserver.vo;
 
+import cn.edu.nju.wonderland.ucountserver.entity.Task;
+
 /**
  * 计划信息（攒钱id，用户名，攒钱项目，攒钱总额，已攒金额，开始时间，预计完成日期，每日应攒金额）
+ * 时间格式为yyyy-MM-dd
  * Created by green-cherry on 2017/8/21.
  */
 public class TaskInfoVO {
@@ -23,6 +26,17 @@ public class TaskInfoVO {
         this.createTime = createTime;
         this.deadline = deadline;
         this.haveToSaveEveryday = haveToSaveEveryday;
+    }
+
+    public TaskInfoVO(Task task,double savedMoney,double haveToSaveEveryday){
+        id=task.getId();
+        username=task.getUsername();
+        taskContent=task.getTaskContent();
+        upper=task.getUpper();
+        createTime=task.getCreateTime().toString();
+        deadline=task.getDeadline().toString();
+        this.savedMoney=savedMoney;
+        this.haveToSaveEveryday=haveToSaveEveryday;
     }
 
     public Long getId() {

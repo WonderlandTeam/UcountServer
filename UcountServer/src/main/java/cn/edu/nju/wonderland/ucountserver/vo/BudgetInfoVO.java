@@ -1,10 +1,11 @@
 package cn.edu.nju.wonderland.ucountserver.vo;
 
 import cn.edu.nju.wonderland.ucountserver.entity.Budget;
+import cn.edu.nju.wonderland.ucountserver.util.DateHelper;
 
 /**
  * 预算信息（预算id，用户名，消费类别，预算金额，预算时间，已消费金额，剩余金额）
- * 其实时间格式为 yyyy-mm-dd hh:mm:ss
+ * 其实时间格式为 yyyy-mm , 年-月
  */
 public class BudgetInfoVO {
     private Long id;
@@ -30,7 +31,7 @@ public class BudgetInfoVO {
         username=budget.getUsername();
         consumeType=budget.getConsumeType();
         budgetMoney=budget.getConsumeMoney();
-        bugdetTime=budget.getConsumeTime().toString();
+        bugdetTime= DateHelper.toMonthByTimeStamp(budget.getConsumeTime());
         this.consume = consume;
         this.remain = remain;
     }

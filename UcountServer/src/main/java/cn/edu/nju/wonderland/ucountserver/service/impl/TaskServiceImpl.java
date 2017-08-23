@@ -2,20 +2,21 @@ package cn.edu.nju.wonderland.ucountserver.service.impl;
 
 import cn.edu.nju.wonderland.ucountserver.entity.Task;
 import cn.edu.nju.wonderland.ucountserver.exception.ResourceConflictException;
+import cn.edu.nju.wonderland.ucountserver.exception.ResourceNotFoundException;
 import cn.edu.nju.wonderland.ucountserver.repository.TaskRepository;
 import cn.edu.nju.wonderland.ucountserver.service.AccountService;
 import cn.edu.nju.wonderland.ucountserver.service.TaskService;
+import cn.edu.nju.wonderland.ucountserver.util.DateHelper;
 import cn.edu.nju.wonderland.ucountserver.vo.TaskAddVO;
 import cn.edu.nju.wonderland.ucountserver.vo.TaskInfoVO;
 import cn.edu.nju.wonderland.ucountserver.vo.TaskModifyVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.sql.Timestamp;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.sql.Date;
+import java.time.LocalDate;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Created by green-cherry on 2017/8/21.
@@ -30,18 +31,29 @@ public class TaskServiceImpl implements TaskService{
 
     @Override
     public TaskInfoVO getTask(Long taskID) {
-
-        return null;
+        Task task=taskRepository.findOne(taskID);
+        if (task==null){
+            throw new ResourceNotFoundException("攒钱计划不存在");
+        }
+        return getTaskInfo(task);
     }
 
     @Override
     public List<TaskInfoVO> getTasksByState(String username, String taskState) {
-        return null;
+        List<Task> tasks=taskRepository.findByUsernameAndTaskState(username,taskState);
+        if (tasks==null){
+            throw new ResourceNotFoundException("攒钱计划不存在");
+        }
+        return tasks.stream().map(task -> getTaskInfo(task)).collect(Collectors.toList());
     }
 
     @Override
     public List<TaskInfoVO> getTasksByUser(String username) {
-        return null;
+        List<Task> tasks=taskRepository.findByUsername(username);
+        if (tasks==null){
+            throw new ResourceNotFoundException("攒钱计划不存在");
+        }
+        return tasks.stream().map(task -> getTaskInfo(task)).collect(Collectors.toList());
     }
 
     @Override
@@ -59,12 +71,12 @@ public class TaskServiceImpl implements TaskService{
         }
 
         //检查这段时间是否已有攒钱计划
-        Task task=taskRepository.findByContentAndTime(username,taskContent, Timestamp.valueOf(createTime),Timestamp.valueOf(deadline));
+        Task task=taskRepository.findByContentAndTime(username,taskContent, Date.valueOf(createTime), Date.valueOf(deadline));
 
         // 如果有并且计划正在进行中，就抛出异常
         // 如果有但不在进行中，就更新攒钱金额
         if (task!=null){
-            boolean check=checkTime(task.getCreateTime().toString());
+            boolean check=checkTime(task.getCreateTime());
             if(check){
                 throw new ResourceConflictException("此项攒钱计划正在进行中，请制定其他内容的攒钱计划。");
             }else{
@@ -92,45 +104,46 @@ public class TaskServiceImpl implements TaskService{
     }
 
     /**
-     * 判断攒钱计划状态是否应该变为正在进行中
-     * @param time
+     * 获得taskinfovo
+     * @param task
      * @return
      */
-    private boolean checkTime(String time){
-        SimpleDateFormat sdf=new SimpleDateFormat("yyyy-MM-dd");
-        Date bt= null;
-        Date today=null;
-        boolean check=true;
-        try {
-            bt = sdf.parse(time);
-            today=sdf.parse(new Date().toString());
-            if (bt.before(today)){
-                check = false;
-            }
-        } catch (ParseException e) {
-            e.printStackTrace();
+    private TaskInfoVO getTaskInfo(Task task){
+        double savedMoney=0;
+        double haveToSave=0;
+        double upper=task.getUpper();
+        String state=task.getTaskState();
+
+        if (state.equals("进行中")){
+            int remainDays=getRemainDays(task.getDeadline());
+            savedMoney=getSavedMoney(task.getUsername(),remainDays,upper);
+            haveToSave=getHaveToSave(upper,savedMoney,remainDays);
+        }else if(state.equals("已完成")){
+            savedMoney=upper;
         }
-        return check;
+        return new TaskInfoVO(task,savedMoney,haveToSave);
+    }
+
+    /**
+     * 判断攒钱计划状态是否应该变为正在进行中
+     * 如果应该变，即传入时间到了今天，就返回true，否则返回false
+     * @param date
+     * @return
+     */
+    private boolean checkTime(Date date){
+        Date today=Date.valueOf(LocalDate.now());
+        return !date.before(today);
     }
 
     /**
      * 获得剩余的天数
-     * @param time
+     * @param date
      * @return
      */
-    private int getRemainDays(String time){
-        SimpleDateFormat sdf=new SimpleDateFormat("yyyy-MM-dd");
-        Date dtime= null;
-        Date today=null;
-        int days=0;
-        try {
-            dtime = sdf.parse(time);
-            today=sdf.parse(new Date().toString());
-            days= (int)(today.getTime()-dtime.getTime())/24*60*60*1000;
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-        return days;
+    private int getRemainDays(Date date){
+        Date today=Date.valueOf(LocalDate.now());
+        long days=(today.getTime()-date.getTime())/(24*60*60*1000);
+        return (int)days;
     }
 
     /**
@@ -161,7 +174,7 @@ public class TaskServiceImpl implements TaskService{
     private double getSavedMoney(String username, int remainDays,double upper){
         double savedMoney = 0;
         double remainedMoney=accountService.getBalanceByUser(username);
-        double consumedMoney=accountService.getConsumedMoneyByDateAndUser(username,getToday());
+        double consumedMoney=accountService.getConsumedMoneyByDateAndUser(username, DateHelper.getToday());
 
         if(remainDays!=0){
             savedMoney=remainedMoney/remainDays-consumedMoney;
@@ -171,18 +184,5 @@ public class TaskServiceImpl implements TaskService{
         return savedMoney;
     }
 
-    /**
-     * 获得日期格式yyyy-MM-dd的日期
-     * @return
-     */
-    private String getToday(){
-        SimpleDateFormat sdf=new SimpleDateFormat("yyyy-MM-dd");
-        Date today=null;
-        try {
-            today=sdf.parse(new Date().toString());
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-        return today.toString();
-    }
+
 }

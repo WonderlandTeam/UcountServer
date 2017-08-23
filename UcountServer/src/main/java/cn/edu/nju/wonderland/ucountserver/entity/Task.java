@@ -1,7 +1,7 @@
 package cn.edu.nju.wonderland.ucountserver.entity;
 
 import javax.persistence.*;
-import java.sql.Timestamp;
+import java.sql.Date;
 
 /**
  *
@@ -14,13 +14,13 @@ public class Task {
     @GeneratedValue(strategy= GenerationType.AUTO)
     private Long id;
     private String username;
-    private Timestamp createTime;
+    private Date createTime;
     private String taskContent;
-    private Timestamp deadline;
+    private Date deadline;
     private Double upper;
     private String taskState;
 
-    public Task(String username, Timestamp createTime, String taskContent, Timestamp deadline, Double upper, String taskState) {
+    public Task(String username, Date createTime, String taskContent, Date deadline, Double upper, String taskState) {
         this.username = username;
         this.createTime = createTime;
         this.taskContent = taskContent;
@@ -49,17 +49,17 @@ public class Task {
 
     @Basic
     @Column(name = "create_time", nullable = false)
-    public Timestamp getCreateTime() {
+    public Date getCreateTime() {
         return createTime;
     }
 
-    public void setCreateTime(Timestamp createTime) {
+    public void setCreateTime(Date createTime) {
         this.createTime = createTime;
     }
 
 
     @Basic
-    @Column(name = "task_content", nullable = true, length = 100)
+    @Column(name = "task_content", nullable = false, length = 100)
     public String getTaskContent() {
         return taskContent;
     }
@@ -69,18 +69,18 @@ public class Task {
     }
 
     @Basic
-    @Column(name = "deadline", nullable = true)
-    public Timestamp getDeadline() {
+    @Column(name = "deadline", nullable = false)
+    public Date getDeadline() {
         return deadline;
     }
 
-    public void setDeadline(Timestamp deadline) {
+    public void setDeadline(Date deadline) {
         this.deadline = deadline;
     }
 
 
     @Basic
-    @Column(name = "upper", nullable = true, precision = 0)
+    @Column(name = "upper", nullable = false, precision = 0)
     public Double getUpper() {
         return upper;
     }
@@ -90,7 +90,7 @@ public class Task {
     }
 
     @Basic
-    @Column(name = "task_state", nullable = true, length = 100)
+    @Column(name = "task_state", nullable = false, length = 100)
     public String getTaskState() {
         return taskState;
     }

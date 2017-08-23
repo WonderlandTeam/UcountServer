@@ -1,12 +1,14 @@
 package cn.edu.nju.wonderland.ucountserver.vo;
 
 import cn.edu.nju.wonderland.ucountserver.entity.Budget;
+import cn.edu.nju.wonderland.ucountserver.util.DateHelper;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
 /**
  * 添加预算（用户名，消费类型,消费金额，消费时间）
+ * 其中消费时间格式为yyyy-MM
  */
 public class BudgetAddVO {
     private String username;
@@ -22,7 +24,7 @@ public class BudgetAddVO {
     }
 
     public Budget toBudgetEntity(){
-        return new Budget(username,consumeType,consumeMoney, Timestamp.valueOf(consumeTime),Timestamp.valueOf(LocalDateTime.now()));
+        return new Budget(username,consumeType,consumeMoney, DateHelper.toTimestampByMonth(consumeTime),Timestamp.valueOf(LocalDateTime.now()));
     }
 
     public String getUsername() {

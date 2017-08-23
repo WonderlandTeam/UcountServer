@@ -25,7 +25,7 @@ public interface BudgetService {
     /**
      * 根据月份获取用户预算
      * @param username            用户名
-     * @param time                月份
+     * @param time                月份 格式为yyyy-mm
      * @return                  用户预算列表
      */
     List<BudgetInfoVO> getBudgetsByUserAndTime(String username,String time);

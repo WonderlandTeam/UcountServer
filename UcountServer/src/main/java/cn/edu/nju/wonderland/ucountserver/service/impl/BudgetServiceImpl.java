@@ -6,6 +6,7 @@ import cn.edu.nju.wonderland.ucountserver.exception.ResourceNotFoundException;
 import cn.edu.nju.wonderland.ucountserver.repository.BudgetRepository;
 import cn.edu.nju.wonderland.ucountserver.service.BillService;
 import cn.edu.nju.wonderland.ucountserver.service.BudgetService;
+import cn.edu.nju.wonderland.ucountserver.util.DateHelper;
 import cn.edu.nju.wonderland.ucountserver.vo.BudgetAddVO;
 import cn.edu.nju.wonderland.ucountserver.vo.BudgetInfoVO;
 import cn.edu.nju.wonderland.ucountserver.vo.BudgetModifyVO;
@@ -36,7 +37,7 @@ public class BudgetServiceImpl implements BudgetService {
 
         //添加已消费金额和余额
         double consume = 0;
-        consume=billService.getConsumedMoneyByTypeAndTime(budget.getUsername(),budget.getConsumeType(),budget.getConsumeTime().toString());
+        consume=billService.getConsumedMoneyByTypeAndTime(budget.getUsername(),budget.getConsumeType(), DateHelper.toTimeByTimeStamp(budget.getConsumeTime()));
         BudgetInfoVO budgetInfoVO = new BudgetInfoVO(budget, consume, budget.getConsumeMoney() - consume);
         return budgetInfoVO;
     }
@@ -54,10 +55,19 @@ public class BudgetServiceImpl implements BudgetService {
         return getBudgetInfoVO(budgets);
     }
 
+    /**
+     *
+     * @param username            用户名
+     * @param time                月份，格式为yyyy-mm
+     * @return
+     */
     @Override
     public List<BudgetInfoVO> getBudgetsByUserAndTime(String username, String time) {
+
+        Timestamp timestamp=DateHelper.toTimestampByMonth(time);
+
         //获取预算并检查
-        List<Budget> budgets = budgetRepository.findByUsernameAndConsumeTime(username, Timestamp.valueOf(time));
+        List<Budget> budgets = budgetRepository.findByUsernameAndConsumeTime(username,timestamp);
         if (budgets==null){
             throw new ResourceNotFoundException("预算信息不存在");
         }
@@ -90,7 +100,7 @@ public class BudgetServiceImpl implements BudgetService {
         }
 
         long budgetID = -1;
-        Budget budget = budgetRepository.findByUsernameAndConsumeTimeAndConsumeType(username, Timestamp.valueOf(time), type);
+        Budget budget = budgetRepository.findByUsernameAndConsumeTimeAndConsumeType(username, DateHelper.toTimestampByMonth(time), type);
 
         //判断新加的预算是否已经设置过
         //如果当月该类型预算已经有了，就只更新预算金额，否则新增预算

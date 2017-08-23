@@ -46,7 +46,7 @@ public class Budget {
     }
 
     @Basic
-    @Column(name = "consume_type", nullable = true, length = 45)
+    @Column(name = "consume_type", nullable = false, length = 45)
     public String getConsumeType() {
         return consumeType;
     }
@@ -56,7 +56,7 @@ public class Budget {
     }
 
     @Basic
-    @Column(name = "consume_money", nullable = true, precision = 0)
+    @Column(name = "consume_money", nullable = false, precision = 0)
     public Double getConsumeMoney() {
         return consumeMoney;
     }
@@ -66,7 +66,7 @@ public class Budget {
     }
 
     @Basic
-    @Column(name = "consume_time", nullable = true)
+    @Column(name = "consume_time", nullable = false)
     public Timestamp getConsumeTime() {
         return consumeTime;
     }

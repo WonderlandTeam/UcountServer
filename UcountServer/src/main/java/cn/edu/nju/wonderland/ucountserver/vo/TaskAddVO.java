@@ -2,10 +2,11 @@ package cn.edu.nju.wonderland.ucountserver.vo;
 
 import cn.edu.nju.wonderland.ucountserver.entity.Task;
 
-import java.sql.Timestamp;
+import java.sql.Date;
 
 /**
  * 新建任务(用户名，攒钱内容，计划开始时间,预计完成时间，攒钱总额)
+ * 时间格式为 yyyy-MM-dd
  * Created by green-cherry on 2017/8/21.
  */
 public class TaskAddVO {
@@ -24,7 +25,7 @@ public class TaskAddVO {
     }
 
     public Task toTaskEntity(){
-         return new Task(username, Timestamp.valueOf(createTime),taskContent,Timestamp.valueOf(deadline),upper, "未开始");
+         return new Task(username, Date.valueOf(createTime),taskContent,Date.valueOf(deadline),upper, "未开始");
     }
 
 
