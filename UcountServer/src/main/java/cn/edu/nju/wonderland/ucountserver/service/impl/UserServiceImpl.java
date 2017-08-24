@@ -48,7 +48,9 @@ public class UserServiceImpl implements UserService {
 	public UserInfoVO login(String username, String password) {
 		// TODO Auto-generated method stub
 		User user = userRepository.findByUsername(username);
-		if(user.getUsername() == username && user.getPassword() == MD5(password)){
+		if((user.getUsername() == username || user.getTel() == username )&& user.getPassword() == MD5(password)
+
+                ){
 	        UserInfoVO userInfoVO = new UserInfoVO();
 	        userInfoVO.userName = user.getUsername();
 	        userInfoVO.email = user.getEmail();
