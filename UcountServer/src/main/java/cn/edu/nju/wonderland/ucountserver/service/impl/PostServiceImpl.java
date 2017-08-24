@@ -73,7 +73,6 @@ public class PostServiceImpl implements PostService {
         return vo;
     }
 
-
     @Override
     public List<PostInfoVO> getPosts(Pageable pageable) {
         List<Post> posts = postRepository.findAll(pageable).getContent();
@@ -98,6 +97,9 @@ public class PostServiceImpl implements PostService {
         if (vo.username == null || vo.title == null || vo.content == null) {
             throw new InvalidRequestException("发帖信息缺失");
         }
+
+        // TODO 判断用户是否存在
+
         // 持久化
         Post post = new Post();
         post.setUsername(vo.username);
@@ -110,6 +112,8 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public List<PostInfoVO> getPostsSharedByUser(String username) {
+        // TODO 判断用户是否存在
+
         List<Post> posts = postRepository.findByUsernameOrderByTimeDesc(username);
         return posts.stream()
                 .map(this::postEntityToVO)
@@ -118,6 +122,8 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public void collectPost(String username, Long postId) {
+        // TODO 判断用户是否存在
+
         // 判断用户是否已经收藏
         Collection collection = collectionRepository.findByUsernameAndPostId(username, postId);
         if (collection != null) {
@@ -152,6 +158,8 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public void praisePost(String username, Long id, boolean isReply) {
+        // TODO 判断用户是否存在
+
         Support support = isReply
                 ? supportRepository.findByUsernameAndReplyId(username, id)
                 : supportRepository.findByUsernameAndPostId(username, id);

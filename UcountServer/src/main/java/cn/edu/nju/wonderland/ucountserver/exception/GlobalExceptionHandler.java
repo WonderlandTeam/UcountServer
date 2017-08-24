@@ -9,13 +9,15 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import java.util.HashMap;
 import java.util.Map;
 
+import static cn.edu.nju.wonderland.ucountserver.util.KeyName.ERROR;
+
 @ControllerAdvice
 @ResponseBody
 public class GlobalExceptionHandler {
 
     private Map<String, String> getResponseMap(String message) {
         Map<String, String> result = new HashMap<>();
-        result.put("error", message);
+        result.put(ERROR, message);
         return result;
     }
 

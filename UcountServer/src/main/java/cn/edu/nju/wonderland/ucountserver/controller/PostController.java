@@ -17,15 +17,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static cn.edu.nju.wonderland.ucountserver.util.KeyName.CONTENT;
+import static cn.edu.nju.wonderland.ucountserver.util.KeyName.MESSAGE;
+
 @RestController
 @RequestMapping("/posts")
 public class PostController {
-
-    /**
-     * 资源名称
-     */
-    private static final String RESOURCE_POST = "post";
-    private static final String RESOURCE_REPLY = "reply";
 
     private final PostService postService;
 
@@ -39,7 +36,7 @@ public class PostController {
     public Map<String, Object> getPosts(@PageableDefault(sort = {"time"}, direction = Sort.Direction.DESC) Pageable pageable) {
         Map<String, Object> result = new HashMap<>();
         List<PostInfoVO> posts = postService.getPosts(pageable);
-        result.put(RESOURCE_POST, posts);
+        result.put(CONTENT, posts);
         return result;
     }
 
@@ -48,7 +45,7 @@ public class PostController {
     public Map<String, Object> getPostInfo(@PathVariable("post_id") Long postId) {
         Map<String, Object> result = new HashMap<>();
         PostInfoVO vo = postService.getPostInfo(postId);
-        result.put(RESOURCE_POST, vo);
+        result.put(CONTENT, vo);
         return result;
     }
 
@@ -60,7 +57,7 @@ public class PostController {
         Map<String, Object> result = new HashMap<>();
         Long id = postService.addPost(postAddVO);
 
-        result.put(RESOURCE_POST + "Id", id);
+        result.put(CONTENT, id);
         return result;
     }
 
@@ -70,7 +67,7 @@ public class PostController {
     public Map<String, Object> getPostsSharedByUser(@RequestParam String username) {
         Map<String, Object> result = new HashMap<>();
         List<PostInfoVO> posts = postService.getPostsSharedByUser(username);
-        result.put(RESOURCE_POST, posts);
+        result.put(CONTENT, posts);
         return result;
     }
 
@@ -81,7 +78,7 @@ public class PostController {
                                            @RequestParam String username) {
         Map<String, Object> result = new HashMap<>();
         postService.collectPost(username, postId);
-        result.put("message", "收藏成功");
+        result.put(MESSAGE, "收藏成功");
         return result;
     }
 
@@ -93,7 +90,7 @@ public class PostController {
                                                 @RequestParam String username) {
         Map<String, Object> result = new HashMap<>();
         postService.collectPost(username, postId);
-        result.put("message", "取消收藏成功");
+        result.put(MESSAGE, "取消收藏成功");
         return result;
     }
 
@@ -111,7 +108,7 @@ public class PostController {
                                           @RequestParam String username) {
         Map<String, Object> result = new HashMap<>();
         postService.praisePost(username, postId, false);
-        result.put("message", "点赞成功");
+        result.put(MESSAGE, "点赞成功");
         return result;
     }
 
@@ -122,7 +119,7 @@ public class PostController {
                                                 @RequestParam String username) {
         Map<String, Object> result = new HashMap<>();
         postService.cancelPraisePost(username, postId, false);
-        result.put("message", "取消点赞成功");
+        result.put(MESSAGE, "取消点赞成功");
         return result;
     }
 
@@ -133,7 +130,7 @@ public class PostController {
                                                @RequestParam String username) {
         Map<String, Object> result = new HashMap<>();
         postService.praisePost(username, replyId, true);
-        result.put("message", "点赞成功");
+        result.put(MESSAGE, "点赞成功");
         return result;
     }
 
@@ -144,7 +141,7 @@ public class PostController {
                                                      @RequestParam String username) {
         Map<String, Object> result = new HashMap<>();
         postService.cancelPraisePost(username, replyId, true);
-        result.put("message", "取消点赞成功");
+        result.put(MESSAGE, "取消点赞成功");
         return result;
     }
 
@@ -156,7 +153,7 @@ public class PostController {
                                          @RequestBody PostReplyAddVO postReplyAddVO) {
         Map<String, Object> result = new HashMap<>();
         Long replyId = postService.replyPost(postId, postReplyAddVO);
-        result.put(RESOURCE_REPLY + "Id", replyId);
+        result.put(CONTENT, replyId);
         return result;
     }
 
@@ -165,7 +162,7 @@ public class PostController {
     public Map<String, Object> getPostReply(@PathVariable("reply_id") Long replyId) {
         Map<String, Object> result = new HashMap<>();
         PostReplyVO vo = postService.getPostReplyInfo(replyId);
-        result.put(RESOURCE_REPLY, vo);
+        result.put(CONTENT, vo);
         return result;
     }
 
@@ -174,7 +171,7 @@ public class PostController {
     public Map<String, Object> getPostReplies(@PathVariable("post_id") Long postId) {
         Map<String, Object> result = new HashMap<>();
         List<PostReplyVO> replies = postService.getPostReplies(postId);
-        result.put(RESOURCE_REPLY, replies);
+        result.put(CONTENT, replies);
         return result;
     }
 
