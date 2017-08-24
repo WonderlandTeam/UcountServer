@@ -76,6 +76,13 @@ public interface PostService {
     void cancelPraisePost(String username, Long id, boolean isReply);
 
     /**
+     * 获取帖子回复信息
+     * @param replyId           帖子id
+     * @return                  帖子回复信息vo
+     */
+    PostReplyVO getPostReplyInfo(Long replyId);
+
+    /**
      * 回复帖子
      * @param postId            帖子id
      * @param postReplyAddVO    帖子回复vo

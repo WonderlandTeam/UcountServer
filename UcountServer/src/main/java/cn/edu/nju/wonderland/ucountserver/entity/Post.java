@@ -2,7 +2,7 @@ package cn.edu.nju.wonderland.ucountserver.entity;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
-import java.util.Set;
+import java.util.List;
 
 /**
  * 理财经验（用户名，帖子ID，标题，帖子内容，时间）
@@ -15,7 +15,7 @@ public class Post {
     private String title;
     private String content;
     private Timestamp time;
-    private Set<Reply> replies;
+    private List<Reply> replies;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -68,13 +68,14 @@ public class Post {
         this.time = time;
     }
 
-
-    @OneToMany(mappedBy = "post")
-    public Set<Reply> getReplies() {
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JoinColumn(name = "post_id")
+    @OrderBy(value = "time desc")
+    public List<Reply> getReplies() {
         return replies;
     }
 
-    public void setReplies(Set<Reply> replies) {
+    public void setReplies(List<Reply> replies) {
         this.replies = replies;
     }
 

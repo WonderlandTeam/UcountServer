@@ -17,14 +17,12 @@ public class ReplyRepositoryTest {
     @Autowired
     public ReplyRepository replyRepository;
 
-    @Autowired
-    public PostRepository postRepository;
-
     @Test
     public void testSave() {
+
         Reply reply = new Reply();
         reply.setUsername("sigma");
-        reply.setPost(postRepository.findOne(2L));
+        reply.setPostId(2L);
         reply.setContent("测试评论");
         reply.setTime(Timestamp.valueOf(LocalDateTime.now()));
 

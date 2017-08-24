@@ -13,17 +13,7 @@ public class Reply {
     private String username;
     private String content;
     private Timestamp time;
-    private Post post;
-
-    @ManyToOne(cascade = CascadeType.ALL, optional = false)
-    @JoinColumn(name = "post_id")
-    public Post getPost() {
-        return post;
-    }
-
-    public void setPost(Post post) {
-        this.post = post;
-    }
+    private Long postId;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -65,6 +55,14 @@ public class Reply {
     public void setTime(Timestamp time) {
         this.time = time;
     }
-    
+
+    @Column(name = "post_id", nullable = false)
+    public Long getPostId() {
+        return postId;
+    }
+
+    public void setPostId(Long postId) {
+        this.postId = postId;
+    }
 
 }

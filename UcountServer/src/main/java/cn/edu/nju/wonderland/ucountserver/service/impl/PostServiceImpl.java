@@ -12,6 +12,7 @@ import cn.edu.nju.wonderland.ucountserver.repository.PostRepository;
 import cn.edu.nju.wonderland.ucountserver.repository.ReplyRepository;
 import cn.edu.nju.wonderland.ucountserver.repository.SupportRepository;
 import cn.edu.nju.wonderland.ucountserver.service.PostService;
+import cn.edu.nju.wonderland.ucountserver.util.DateHelper;
 import cn.edu.nju.wonderland.ucountserver.vo.PostAddVO;
 import cn.edu.nju.wonderland.ucountserver.vo.PostInfoVO;
 import cn.edu.nju.wonderland.ucountserver.vo.PostReplyAddVO;
@@ -23,8 +24,6 @@ import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import static cn.edu.nju.wonderland.ucountserver.util.Format.DATE_TIME_FORMATTER;
 
 @Service
 public class PostServiceImpl implements PostService {
@@ -48,11 +47,12 @@ public class PostServiceImpl implements PostService {
      */
     private PostInfoVO postEntityToVO(Post entity) {
         PostInfoVO vo = new PostInfoVO();
+        vo.postId = entity.getPostId();
         vo.username = entity.getUsername();
         vo.title = entity.getTitle();
         vo.content = entity.getContent();
         // 时间格式
-        vo.time = entity.getTime().toLocalDateTime().format(DATE_TIME_FORMATTER);
+        vo.time = DateHelper.toTimeByTimeStamp(entity.getTime());
         vo.supportNum = supportRepository.countByPostId(entity.getPostId());
         return vo;
     }
@@ -64,10 +64,11 @@ public class PostServiceImpl implements PostService {
      */
     private PostReplyVO replyEntityToVO(Reply entity) {
         PostReplyVO vo = new PostReplyVO();
+        vo.replyId = entity.getReplyId();
         vo.username = entity.getUsername();
         vo.content = entity.getContent();
         // 时间格式
-        vo.time = entity.getTime().toLocalDateTime().format(DATE_TIME_FORMATTER);
+        vo.time = DateHelper.toTimeByTimeStamp(entity.getTime());
         vo.supportNum = supportRepository.countByReplyId(entity.getReplyId());
         return vo;
     }
@@ -184,6 +185,15 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
+    public PostReplyVO getPostReplyInfo(Long replyId) {
+        Reply reply = replyRepository.findOne(replyId);
+        if (reply == null) {
+            throw new ResourceNotFoundException("未找到帖子回复");
+        }
+        return replyEntityToVO(reply);
+    }
+
+    @Override
     public Long replyPost(Long postId, PostReplyAddVO vo) {
         // 参数检查
         if (vo.username == null || vo.content == null) {
@@ -196,7 +206,7 @@ public class PostServiceImpl implements PostService {
         }
         // 持久化
         Reply reply = new Reply();
-        reply.setPost(post);
+        reply.setPostId(post.getPostId());
         reply.setUsername(vo.username);
         reply.setContent(vo.content);
         reply.setTime(Timestamp.valueOf(LocalDateTime.now()));
@@ -210,10 +220,12 @@ public class PostServiceImpl implements PostService {
             throw new ResourceNotFoundException("帖子不存在");
         }
 
+        // 按点赞数逆序排序
         return post
                 .getReplies()
                 .stream()
                 .map(this::replyEntityToVO)
+                .sorted((o1, o2) -> o2.supportNum - o1.supportNum)
                 .collect(Collectors.toList());
     }
 
