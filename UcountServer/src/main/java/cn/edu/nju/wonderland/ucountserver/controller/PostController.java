@@ -6,9 +6,10 @@ import cn.edu.nju.wonderland.ucountserver.vo.PostInfoVO;
 import cn.edu.nju.wonderland.ucountserver.vo.PostReplyAddVO;
 import cn.edu.nju.wonderland.ucountserver.vo.PostReplyVO;
 import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -35,7 +36,7 @@ public class PostController {
     @ApiOperation(value = "根据筛选条件获取帖子信息列表", notes = "根据过滤信息获取帖子列表")
     @ApiImplicitParam(name = "pageable", value = "过滤信息", dataType = "pageable")
     @GetMapping
-    public Map<String, Object> getPosts(Pageable pageable) {
+    public Map<String, Object> getPosts(@PageableDefault(sort = {"time"}, direction = Sort.Direction.DESC) Pageable pageable) {
         Map<String, Object> result = new HashMap<>();
         List<PostInfoVO> posts = postService.getPosts(pageable);
         result.put(RESOURCE_POST, posts);
@@ -43,7 +44,6 @@ public class PostController {
     }
 
     @ApiOperation(value = "获取单个帖子信息", notes = "根据帖子id获取帖子信息")
-    @ApiImplicitParam(name = "postId", value = "帖子id", required = true, dataType = "Long")
     @GetMapping("/{post_id}")
     public Map<String, Object> getPostInfo(@PathVariable("post_id") Long postId) {
         Map<String, Object> result = new HashMap<>();
@@ -75,10 +75,7 @@ public class PostController {
     }
 
     @ApiOperation(value = "用户收藏原贴", notes = "根据用户名和帖子id增加收藏信息")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "postId", value = "帖子id", required = true, dataType = "Long"),
-            @ApiImplicitParam(name = "username", value = "用户名", required = true, dataType = "String")
-    })
+    @ApiImplicitParam(name = "username", value = "用户名", required = true, dataType = "String")
     @PostMapping("/{post_id}/collections")
     public Map<String, Object> collectPost(@PathVariable("post_id") Long postId,
                                            @RequestParam String username) {
@@ -89,10 +86,7 @@ public class PostController {
     }
 
     @ApiOperation(value = "用户取消收藏", notes = "根据用户名和帖子id删除收藏信息")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "postId", value = "帖子id", required = true, dataType = "Long"),
-            @ApiImplicitParam(name = "username", value = "用户名", required = true, dataType = "String")
-    })
+    @ApiImplicitParam(name = "postId", value = "帖子id", required = true, dataType = "Long")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping("/{post_id}/collections")
     public Map<String, Object> deleteCollection(@PathVariable("post_id") Long postId,
@@ -111,10 +105,7 @@ public class PostController {
     }
 
     @ApiOperation(value = "用户点赞原贴", notes = "根据用户名和帖子id增加点赞信息")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "postId", value = "帖子id", required = true, dataType = "Long"),
-            @ApiImplicitParam(name = "username", value = "用户名", required = true, dataType = "String")
-    })
+    @ApiImplicitParam(name = "username", value = "用户名", required = true, dataType = "String")
     @PostMapping("/{post_id}/praises")
     public Map<String, Object> praisePost(@PathVariable("post_id") Long postId,
                                           @RequestParam String username) {
@@ -125,10 +116,7 @@ public class PostController {
     }
 
     @ApiOperation(value = "用户取消原贴点赞", notes = "根据用户名和帖子id删除原贴点赞信息")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "postId", value = "帖子id", required = true, dataType = "Long"),
-            @ApiImplicitParam(name = "username", value = "用户名", required = true, dataType = "String")
-    })
+    @ApiImplicitParam(name = "username", value = "用户名", required = true, dataType = "String")
     @DeleteMapping("/{post_id}/praises")
     public Map<String, Object> cancelPraisePost(@PathVariable("post_id") Long postId,
                                                 @RequestParam String username) {
@@ -139,10 +127,7 @@ public class PostController {
     }
 
     @ApiOperation(value = "用户点赞帖子回复", notes = "根据用户名和帖子回复id增加点赞信息")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "replyId", value = "帖子回复id", required = true, dataType = "Long"),
-            @ApiImplicitParam(name = "username", value = "用户名", required = true, dataType = "String")
-    })
+    @ApiImplicitParam(name = "username", value = "用户名", required = true, dataType = "String")
     @PostMapping("/replies/{reply_id}/praises")
     public Map<String, Object> praisePostReply(@PathVariable("replyId") Long replyId,
                                                @RequestParam String username) {
@@ -153,10 +138,7 @@ public class PostController {
     }
 
     @ApiOperation(value = "用户取消帖子回复点赞", notes = "根据用户名和帖子id删除帖子回复点赞信息")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "postId", value = "帖子id", required = true, dataType = "Long"),
-            @ApiImplicitParam(name = "username", value = "用户名", required = true, dataType = "String")
-    })
+    @ApiImplicitParam(name = "username", value = "用户名", required = true, dataType = "String")
     @DeleteMapping("/replies/{reply_id}/praises")
     public Map<String, Object> cancelPraisePostReply(@PathVariable("reply_id") Long replyId,
                                                      @RequestParam String username) {
@@ -167,10 +149,7 @@ public class PostController {
     }
 
     @ApiOperation(value = "用户回复帖子")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "postId", value = "帖子id", required = true, dataType = "Long"),
-            @ApiImplicitParam(name = "postReplyVO", value = "用户回复帖子信息vo", required = true, dataType = "postReplyVO")
-    })
+    @ApiImplicitParam(name = "postReplyVO", value = "用户回复帖子信息vo", required = true, dataType = "postReplyVO")
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/{post_id}/replies")
     public Map<String, Object> replyPost(@PathVariable("post_id") Long postId,
@@ -182,7 +161,6 @@ public class PostController {
     }
 
     @ApiOperation(value = "获取帖子回复信息", notes = "根据帖子回复id获取回复信息")
-    @ApiImplicitParam(name = "replyId", value = "帖子回复id", required = true, dataType = "Long")
     @GetMapping("/replies/{reply_id}")
     public Map<String, Object> getPostReply(@PathVariable("reply_id") Long replyId) {
         Map<String, Object> result = new HashMap<>();
@@ -192,7 +170,6 @@ public class PostController {
     }
 
     @ApiOperation(value = "获取帖子所有回复信息列表", notes = "根据帖子id获取帖子所有回复")
-    @ApiImplicitParam(name = "postId", value = "帖子id", required = true, dataType = "Long")
     @GetMapping("/{post_id}/replies")
     public Map<String, Object> getPostReplies(@PathVariable("post_id") Long postId) {
         Map<String, Object> result = new HashMap<>();
