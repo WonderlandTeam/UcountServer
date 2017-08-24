@@ -93,10 +93,13 @@ public class BudgetServiceImpl implements BudgetService {
         String type = budgetAddVO.getConsumeType();
         String time = budgetAddVO.getConsumeTime();
         String username = budgetAddVO.getUsername();
+        String regex="[0-9]{4}-[0-9]{1,2}";
 
         // 参数检查
         if(type==null ||time==null ||username==null ){
             throw new ResourceConflictException("预算信息缺失");
+        }else if(!time.matches(regex)){
+            throw new ResourceConflictException("日期格式有误，应为yyyy-MM-dd");
         }
 
         long budgetID = -1;

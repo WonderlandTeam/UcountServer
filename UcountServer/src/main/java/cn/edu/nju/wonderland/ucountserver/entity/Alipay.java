@@ -6,13 +6,12 @@ import java.sql.Timestamp;
 /**
  * 支付宝（用户名，账号，交易号 ，商户订单号，交易创建时间，付款时间，
  * 最近修改时间，交易来源地，交易类型，交易对方，商品名称 ，金额，
- * 收/支，交易状态，服务费，成功退款，备注，资金状态，消费类型）
+ * 收/支，交易状态，服务费，成功退款，备注，资金状态，消费类型，余额）
  * Created by green-cherry on 2017/8/16.
  */
 @Entity
 public class Alipay {
-    @Id
-    @GeneratedValue(strategy= GenerationType.AUTO)
+
     private Long id;
     private String username;
     private String cardId;
@@ -33,7 +32,12 @@ public class Alipay {
     private String remark;
     private String moneyState;
     private String consumeType;
+    private Double balance;
 
+
+
+    @Id
+    @GeneratedValue(strategy= GenerationType.AUTO)
     public Long getId() {
         return id;
     }
@@ -232,61 +236,15 @@ public class Alipay {
         this.consumeType = consumeType;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
 
-        Alipay alipay = (Alipay) o;
-
-        if (username != null ? !username.equals(alipay.username) : alipay.username != null) return false;
-        if (cardId != null ? !cardId.equals(alipay.cardId) : alipay.cardId != null) return false;
-        if (transactionId != null ? !transactionId.equals(alipay.transactionId) : alipay.transactionId != null)
-            return false;
-        if (orderId != null ? !orderId.equals(alipay.orderId) : alipay.orderId != null) return false;
-        if (createTime != null ? !createTime.equals(alipay.createTime) : alipay.createTime != null) return false;
-        if (payTime != null ? !payTime.equals(alipay.payTime) : alipay.payTime != null) return false;
-        if (lastUpdateTime != null ? !lastUpdateTime.equals(alipay.lastUpdateTime) : alipay.lastUpdateTime != null)
-            return false;
-        if (payFrom != null ? !payFrom.equals(alipay.payFrom) : alipay.payFrom != null) return false;
-        if (payTyoe != null ? !payTyoe.equals(alipay.payTyoe) : alipay.payTyoe != null) return false;
-        if (trader != null ? !trader.equals(alipay.trader) : alipay.trader != null) return false;
-        if (commodity != null ? !commodity.equals(alipay.commodity) : alipay.commodity != null) return false;
-        if (money != null ? !money.equals(alipay.money) : alipay.money != null) return false;
-        if (incomeExpenditureType != null ? !incomeExpenditureType.equals(alipay.incomeExpenditureType) : alipay.incomeExpenditureType != null)
-            return false;
-        if (tradeState != null ? !tradeState.equals(alipay.tradeState) : alipay.tradeState != null) return false;
-        if (serviceCharge != null ? !serviceCharge.equals(alipay.serviceCharge) : alipay.serviceCharge != null)
-            return false;
-        if (refund != null ? !refund.equals(alipay.refund) : alipay.refund != null) return false;
-        if (remark != null ? !remark.equals(alipay.remark) : alipay.remark != null) return false;
-        if (moneyState != null ? !moneyState.equals(alipay.moneyState) : alipay.moneyState != null) return false;
-        if (consumeType != null ? !consumeType.equals(alipay.consumeType) : alipay.consumeType != null) return false;
-
-        return true;
+    @Basic
+    @Column(name = "balance", nullable = true)
+    public Double getBalance() {
+        return balance;
     }
 
-    @Override
-    public int hashCode() {
-        int result = username != null ? username.hashCode() : 0;
-        result = 31 * result + (cardId != null ? cardId.hashCode() : 0);
-        result = 31 * result + (transactionId != null ? transactionId.hashCode() : 0);
-        result = 31 * result + (orderId != null ? orderId.hashCode() : 0);
-        result = 31 * result + (createTime != null ? createTime.hashCode() : 0);
-        result = 31 * result + (payTime != null ? payTime.hashCode() : 0);
-        result = 31 * result + (lastUpdateTime != null ? lastUpdateTime.hashCode() : 0);
-        result = 31 * result + (payFrom != null ? payFrom.hashCode() : 0);
-        result = 31 * result + (payTyoe != null ? payTyoe.hashCode() : 0);
-        result = 31 * result + (trader != null ? trader.hashCode() : 0);
-        result = 31 * result + (commodity != null ? commodity.hashCode() : 0);
-        result = 31 * result + (money != null ? money.hashCode() : 0);
-        result = 31 * result + (incomeExpenditureType != null ? incomeExpenditureType.hashCode() : 0);
-        result = 31 * result + (tradeState != null ? tradeState.hashCode() : 0);
-        result = 31 * result + (serviceCharge != null ? serviceCharge.hashCode() : 0);
-        result = 31 * result + (refund != null ? refund.hashCode() : 0);
-        result = 31 * result + (remark != null ? remark.hashCode() : 0);
-        result = 31 * result + (moneyState != null ? moneyState.hashCode() : 0);
-        result = 31 * result + (consumeType != null ? consumeType.hashCode() : 0);
-        return result;
+    public void setBalance(Double balance) {
+        this.balance = balance;
     }
+
 }

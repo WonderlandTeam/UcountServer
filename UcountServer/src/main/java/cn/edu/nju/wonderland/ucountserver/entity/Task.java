@@ -10,8 +10,6 @@ import java.sql.Date;
  */
 @Entity
 public class Task {
-    @Id
-    @GeneratedValue(strategy= GenerationType.AUTO)
     private Long id;
     private String username;
     private Date createTime;
@@ -19,6 +17,9 @@ public class Task {
     private Date deadline;
     private Double upper;
     private String taskState;
+
+    public Task() {
+    }
 
     public Task(String username, Date createTime, String taskContent, Date deadline, Double upper, String taskState) {
         this.username = username;
@@ -29,6 +30,18 @@ public class Task {
         this.taskState = taskState;
     }
 
+    public Task(Long id, String username, Date createTime, String taskContent, Date deadline, Double upper, String taskState) {
+        this.id = id;
+        this.username = username;
+        this.createTime = createTime;
+        this.taskContent = taskContent;
+        this.deadline = deadline;
+        this.upper = upper;
+        this.taskState = taskState;
+    }
+
+    @Id
+    @GeneratedValue(strategy= GenerationType.AUTO)
     public Long getId() {
         return id;
     }
@@ -97,6 +110,12 @@ public class Task {
 
     public void setTaskState(String taskState) {
         this.taskState = taskState;
+    }
+
+
+    public String toString(){
+        String s=id+" "+username+" "+taskContent+" " +createTime+" "+deadline+" "+upper+" "+taskState;
+        return s;
     }
 
 }

@@ -65,9 +65,15 @@ public class TaskServiceImpl implements TaskService{
         String deadline=taskAddVO.getDeadline();
         double upper=taskAddVO.getUpper();
 
+        String regex="[0-9]{4}-[0-9]{1,2}-[0-9]{1,2}";
+
         //信息检查
         if(username==null || taskContent==null || createTime==null ||deadline==null ){
             throw new ResourceConflictException("攒钱计划信息不完整");
+        }else if((!createTime.matches(regex)) || (!deadline.matches(regex))){
+            throw new ResourceConflictException("日期格式有误，应为yyyy-MM-dd");
+        } else if(Date.valueOf(createTime).before(Date.valueOf( DateHelper.getTodayDate()))){
+            throw new ResourceConflictException("攒钱计划开始时间不能设定在今天之前");
         }
 
         //检查这段时间是否已有攒钱计划

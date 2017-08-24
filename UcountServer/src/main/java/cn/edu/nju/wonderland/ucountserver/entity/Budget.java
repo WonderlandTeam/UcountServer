@@ -9,14 +9,16 @@ import java.sql.Timestamp;
  */
 @Entity
 public class Budget {
-    @Id
-    @GeneratedValue(strategy= GenerationType.AUTO)
     private Long id;
     private String username;
     private String consumeType;
     private Double consumeMoney;
     private Timestamp consumeTime;
     private Timestamp createTime;
+
+    public Budget(){
+
+    }
 
     public Budget(String username, String consumeType, Double consumeMoney, Timestamp consumeTime, Timestamp createTime) {
         this.username = username;
@@ -26,6 +28,17 @@ public class Budget {
         this.createTime = createTime;
     }
 
+    public Budget(Long id, String username, String consumeType, Double consumeMoney, Timestamp consumeTime, Timestamp createTime) {
+        this.id = id;
+        this.username = username;
+        this.consumeType = consumeType;
+        this.consumeMoney = consumeMoney;
+        this.consumeTime = consumeTime;
+        this.createTime = createTime;
+    }
+
+    @Id
+    @GeneratedValue(strategy= GenerationType.AUTO)
     public Long getId() {
         return id;
     }
@@ -83,6 +96,11 @@ public class Budget {
 
     public void setCreateTime(Timestamp createTime) {
         this.createTime = createTime;
+    }
+
+    public String toString(){
+        String s=this.getId()+" "+this.getUsername()+" "+this.getConsumeType()+" "+this.getConsumeMoney()+" "+this.getConsumeTime();
+        return s;
     }
 
 

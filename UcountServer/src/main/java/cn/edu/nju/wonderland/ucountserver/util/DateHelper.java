@@ -74,4 +74,12 @@ public class DateHelper {
         LocalDateTime localDateTime = LocalDateTime.now();
         return localDateTime.format(DATE_TIME_FORMATTER);
     }
+
+    /**
+     * 获得当前的时间，格式为日期格式
+     */
+    public static String getTodayDate(){
+        LocalDateTime localDateTime = LocalDateTime.now();
+        return localDateTime.format(DATE_FORMATTER);
+    }
 }
