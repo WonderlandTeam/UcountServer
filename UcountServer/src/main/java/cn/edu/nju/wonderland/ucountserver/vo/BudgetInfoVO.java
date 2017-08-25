@@ -16,6 +16,8 @@ public class BudgetInfoVO {
     private double consume;
     private double remain;
 
+    public BudgetInfoVO(){}
+
     public BudgetInfoVO(Long id, String username, String consumeType, double budgetMoney, String bugdetTime, double consume, double remain) {
         this.id = id;
         this.username = username;

@@ -16,6 +16,10 @@ public class BudgetAddVO {
     private double consumeMoney;
     private String consumeTime;
 
+
+    public BudgetAddVO(){
+
+    }
     public BudgetAddVO(String username, String consumeType, double consumeMoney, String consumeTime) {
         this.username = username;
         this.consumeType = consumeType;
@@ -47,7 +51,7 @@ public class BudgetAddVO {
         return consumeMoney;
     }
 
-    public void setConsumeMoney(Double consumeMoney) {
+    public void setConsumeMoney(double consumeMoney) {
         this.consumeMoney = consumeMoney;
     }
 

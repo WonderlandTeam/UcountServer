@@ -16,8 +16,12 @@ public class TaskInfoVO {
     private String createTime;
     private String deadline;
     private double haveToSaveEveryday;
+
+
     private String taskState;
 
+
+    public TaskInfoVO(){}
 
     public TaskInfoVO(Task task,double savedMoney,double haveToSaveEveryday){
         id=task.getId();
@@ -98,5 +102,14 @@ public class TaskInfoVO {
 
     public void setHaveToSaveEveryday(double haveToSaveEveryday) {
         this.haveToSaveEveryday = haveToSaveEveryday;
+    }
+
+
+    public String getTaskState() {
+        return taskState;
+    }
+
+    public void setTaskState(String taskState) {
+        this.taskState = taskState;
     }
 }

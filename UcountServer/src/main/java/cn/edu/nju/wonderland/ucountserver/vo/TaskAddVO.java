@@ -17,6 +17,7 @@ public class TaskAddVO {
     private String deadline;
     private Double upper;
 
+    public TaskAddVO(){}
     public TaskAddVO(String username, String taskContent, String createTime, String deadline, Double upper) {
         this.username = username;
         this.taskContent = taskContent;

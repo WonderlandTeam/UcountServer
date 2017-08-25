@@ -7,6 +7,8 @@ package cn.edu.nju.wonderland.ucountserver.vo;
 public class TaskModifyVO {
     double money;
 
+    public TaskModifyVO(){}
+
     public TaskModifyVO(double money) {
         this.money = money;
     }
