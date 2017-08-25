@@ -12,10 +12,16 @@ import cn.edu.nju.wonderland.ucountserver.service.BillService;
 import cn.edu.nju.wonderland.ucountserver.vo.BillAddVO;
 import cn.edu.nju.wonderland.ucountserver.vo.BillInfoVO;
 
+import cn.edu.nju.wonderland.ucountserver.vo.TotalAccountVO;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.sql.Timestamp;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -181,6 +187,50 @@ public class BillServiceImpl implements BillService {
 
 	@Override
 	public double getConsumedMoneyByTypeAndTime(String username, String consumeType, String time) {
-		return 0;
+		DateFormat sdf =  new SimpleDateFormat("yyyy-MM-dd HH / mm / ss");
+		Date startDate  = new Date();
+		Date endDate = new Date();
+		Timestamp start = new Timestamp(0);
+		Timestamp end = new Timestamp(0);
+		double result = 0;
+		TotalAccountVO totalAccountVO = new TotalAccountVO();
+		try {
+			startDate = sdf.parse(time);
+			Calendar calendar = Calendar.getInstance();
+			calendar.setTime(startDate);
+			calendar.add(Calendar.MONTH, 1);
+			endDate = calendar.getTime();
+			start = new Timestamp(startDate.getTime());
+			end = new Timestamp(endDate.getTime());
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+		List<Alipay> alipays = alipayRepository.getMouthBill(username, start, end);
+		for ( int i = 0 ; i <alipays.size();i++){
+			if(alipays.get(i).getConsumeType().equals(consumeType)){
+				result += alipays.get(i).getMoney();
+			}
+		}
+		List<SchoolCard> schoolCards =schoolCardRepository.getMouthBill(username, start, end);
+		for ( int i = 0 ; i <schoolCards.size();i++){
+			if(schoolCards.get(i).getConsumeType().equals(consumeType)){
+				if(schoolCards.get(i).getIncomeExpenditure() > 0 ) {
+					result += schoolCards.get(i).getIncomeExpenditure();
+				}else {
+					result -= schoolCards.get(i).getIncomeExpenditure();
+				}
+			}
+		}
+		List<IcbcCard> icbcCards = icbcCardRepository.getMouthBill(username, start, end);
+		for ( int i = 0 ; i <icbcCards.size();i++){
+			if(icbcCards.get(i).getConsumeType().equals(consumeType)){
+				if(icbcCards.get(i).getAccountAmountExpense() > 0 ){
+					result += icbcCards.get(i).getAccountAmountExpense();
+				}else{
+					result += icbcCards.get(i).getAccountAmountIncome();
+				}
+			}
+		}
+		return result;
 	}
 }

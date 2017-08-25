@@ -156,6 +156,7 @@ public class AccountServiceImpl implements AccountService {
 			}else if (schoolCardRepository.findByCardId(accounts.get(i).getCardId(),null) != null) {
 				result += schoolCardRepository.getBalance(accounts.get(i).getCardId()).getBalance();
 			}else {
+				result += alipayRepository.getBalance(accounts.get(i).getCardId()).getBalance();
 			}
 		}
 		return 0;
