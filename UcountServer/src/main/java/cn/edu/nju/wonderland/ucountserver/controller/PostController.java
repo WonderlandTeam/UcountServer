@@ -6,7 +6,9 @@ import cn.edu.nju.wonderland.ucountserver.vo.PostInfoVO;
 import cn.edu.nju.wonderland.ucountserver.vo.PostReplyAddVO;
 import cn.edu.nju.wonderland.ucountserver.vo.PostReplyVO;
 import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -30,21 +32,24 @@ public class PostController {
         this.postService = postService;
     }
 
-    @ApiOperation(value = "根据筛选条件获取帖子信息列表", notes = "根据过滤信息获取帖子列表")
-    @ApiImplicitParam(name = "pageable", value = "过滤信息", dataType = "pageable")
+    @ApiOperation(value = "分页获取帖子信息", notes = "根据Pageable获取帖子分页信息")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "pageable", value = "分页信息，提供参数：page（页数），size（每页大小），sort（排序方式，格式为\"property,asc|desc\"）"),
+            @ApiImplicitParam(name = "username", value = "查看帖子用户的用户名", required = false, dataType = "String")
+    })
     @GetMapping
-    public Map<String, Object> getPosts(@PageableDefault(sort = {"time"}, direction = Sort.Direction.DESC) Pageable pageable) {
-        Map<String, Object> result = new HashMap<>();
-        List<PostInfoVO> posts = postService.getPosts(pageable);
-        result.put(CONTENT, posts);
-        return result;
+    public Page<PostInfoVO> getPosts(@PageableDefault(sort = {"time"}, direction = Sort.Direction.DESC) Pageable pageable,
+                                     @RequestParam(required = false) String username) {
+        return postService.getPosts(pageable, username);
     }
 
     @ApiOperation(value = "获取单个帖子信息", notes = "根据帖子id获取帖子信息")
+    @ApiImplicitParam(name = "username", value = "查看帖子用户的用户名", required = false, dataType = "String")
     @GetMapping("/{post_id}")
-    public Map<String, Object> getPostInfo(@PathVariable("post_id") Long postId) {
+    public Map<String, Object> getPostInfo(@PathVariable("post_id") Long postId,
+                                           @RequestParam(required = false) String username) {
         Map<String, Object> result = new HashMap<>();
-        PostInfoVO vo = postService.getPostInfo(postId);
+        PostInfoVO vo = postService.getPostInfo(postId, username);
         result.put(CONTENT, vo);
         return result;
     }

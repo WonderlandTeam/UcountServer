@@ -11,17 +11,7 @@ public class PostInfoVO {
     public String content;              // 内容
     public String time;                 // 时间
     public int supportNum;              // 点赞数
-
-    public PostInfoVO() {
-    }
-
-    public PostInfoVO(Long postId, String username, String title, String content, String time, int supportNum) {
-        this.postId = postId;
-        this.username = username;
-        this.title = title;
-        this.content = content;
-        this.time = time;
-        this.supportNum = supportNum;
-    }
+    public boolean isCollected;         // 用户是否收藏
+    public boolean isSupported;         // 用户是否点赞
 
 }

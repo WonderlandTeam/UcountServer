@@ -17,6 +17,7 @@ import cn.edu.nju.wonderland.ucountserver.vo.PostAddVO;
 import cn.edu.nju.wonderland.ucountserver.vo.PostInfoVO;
 import cn.edu.nju.wonderland.ucountserver.vo.PostReplyAddVO;
 import cn.edu.nju.wonderland.ucountserver.vo.PostReplyVO;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -45,15 +46,21 @@ public class PostServiceImpl implements PostService {
      * @param entity    entity
      * @return          vo
      */
-    private PostInfoVO postEntityToVO(Post entity) {
+    private PostInfoVO postEntityToVO(Post entity, String username) {
         PostInfoVO vo = new PostInfoVO();
+
         vo.postId = entity.getPostId();
         vo.username = entity.getUsername();
         vo.title = entity.getTitle();
         vo.content = entity.getContent();
-        // 时间格式
         vo.time = DateHelper.toTimeByTimeStamp(entity.getTime());
         vo.supportNum = supportRepository.countByPostId(entity.getPostId());
+
+        if (username != null) {
+            vo.isSupported = supportRepository.findByUsernameAndPostId(username, entity.getPostId()) != null;
+            vo.isCollected = collectionRepository.findByUsernameAndPostId(username, entity.getPostId()) != null;
+        }
+
         return vo;
     }
 
@@ -74,21 +81,18 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public List<PostInfoVO> getPosts(Pageable pageable) {
-        List<Post> posts = postRepository.findAll(pageable).getContent();
-        return posts
-                .stream()
-                .map(this::postEntityToVO)
-                .collect(Collectors.toList());
+    public Page<PostInfoVO> getPosts(Pageable pageable, String username) {
+        Page<Post> posts = postRepository.findAll(pageable);
+        return posts.map(e -> postEntityToVO(e, username));
     }
 
     @Override
-    public PostInfoVO getPostInfo(Long postId) {
+    public PostInfoVO getPostInfo(Long postId, String username) {
         Post post = postRepository.findOne(postId);
         if (post == null) {
             throw new ResourceNotFoundException("未找到帖子");
         }
-        return postEntityToVO(post);
+        return postEntityToVO(post, username);
     }
 
     @Override
@@ -116,7 +120,7 @@ public class PostServiceImpl implements PostService {
 
         List<Post> posts = postRepository.findByUsernameOrderByTimeDesc(username);
         return posts.stream()
-                .map(this::postEntityToVO)
+                .map(e -> postEntityToVO(e, username))
                 .collect(Collectors.toList());
     }
 
@@ -152,7 +156,7 @@ public class PostServiceImpl implements PostService {
         List<Collection> collections = collectionRepository.findByUsernameOrderByColTimeDesc(username);
         return collections
                 .stream()
-                .map(c -> postEntityToVO(postRepository.findOne(c.getPostId())))
+                .map(c -> postEntityToVO(postRepository.findOne(c.getPostId()), username))
                 .collect(Collectors.toList());
     }
 

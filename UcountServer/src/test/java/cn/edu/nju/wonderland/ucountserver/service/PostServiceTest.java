@@ -28,7 +28,7 @@ public class PostServiceTest {
 
     @Test
     public void testGetPostInfo() {
-        PostInfoVO vo = postService.getPostInfo(1L);
+        PostInfoVO vo = postService.getPostInfo(1L, null);
         System.out.println("标题：\t" + vo.title);
         System.out.println("作者：\t" + vo.username);
         System.out.println("时间：\t" + vo.time);
