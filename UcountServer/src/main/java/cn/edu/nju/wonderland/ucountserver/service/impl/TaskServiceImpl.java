@@ -11,6 +11,7 @@ import cn.edu.nju.wonderland.ucountserver.vo.TaskAddVO;
 import cn.edu.nju.wonderland.ucountserver.vo.TaskInfoVO;
 import cn.edu.nju.wonderland.ucountserver.vo.TaskModifyVO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.sql.Date;
@@ -26,6 +27,9 @@ public class TaskServiceImpl implements TaskService{
 
     @Autowired
     TaskRepository taskRepository;
+
+//    @Qualifier("accountServiceStub")
+    @Qualifier("accountServiceImpl")
     @Autowired
     AccountService accountService;
 
@@ -63,7 +67,6 @@ public class TaskServiceImpl implements TaskService{
         String taskContent=taskAddVO.getTaskContent();
         String createTime=taskAddVO.getCreateTime();
         String deadline=taskAddVO.getDeadline();
-        double upper=taskAddVO.getUpper();
 
         String regex="[0-9]{4}-[0-9]{1,2}-[0-9]{1,2}";
 
@@ -115,17 +118,15 @@ public class TaskServiceImpl implements TaskService{
      * @return
      */
     private TaskInfoVO getTaskInfo(Task task){
-        double savedMoney=0;
+        double savedMoney=task.getSavedMoney();
         double haveToSave=0;
         double upper=task.getUpper();
         String state=task.getTaskState();
 
         if (state.equals("进行中")){
             int remainDays=getRemainDays(task.getDeadline());
-            savedMoney=getSavedMoney(task.getUsername(),remainDays,upper);
+            savedMoney=getSavedMoney(task,DateHelper.getToday());
             haveToSave=getHaveToSave(upper,savedMoney,remainDays);
-        }else if(state.equals("已完成")){
-            savedMoney=upper;
         }
         return new TaskInfoVO(task,savedMoney,haveToSave);
     }
@@ -138,7 +139,7 @@ public class TaskServiceImpl implements TaskService{
      */
     private boolean checkTime(Date date){
         Date today=Date.valueOf(LocalDate.now());
-        return !date.before(today);
+        return date.equals(today);
     }
 
     /**
@@ -147,8 +148,8 @@ public class TaskServiceImpl implements TaskService{
      * @return
      */
     private int getRemainDays(Date date){
-        Date today=Date.valueOf(LocalDate.now());
-        long days=(today.getTime()-date.getTime())/(24*60*60*1000);
+        Date today=Date.valueOf(DateHelper.getTodayDate());
+        long days=(date.getTime()-today.getTime())/(24*60*60*1000)+1;
         return (int)days;
     }
 
@@ -173,20 +174,22 @@ public class TaskServiceImpl implements TaskService{
      * 计算已攒金额
      * 已攒金额（用每日理论平均消费（日平均=账户余额/剩余天数）-当日实际消费）
      *
-     * @param username
-     * @param remainDays
+     * @param task
      * @return
      */
-    private double getSavedMoney(String username, int remainDays,double upper){
-        double savedMoney = 0;
+    public double getSavedMoney(Task task,String date){
+
+        String username=task.getUsername();
+        int remainDays=getRemainDays(task.getDeadline());
+        double savedMoney=task.getSavedMoney();
+
         double remainedMoney=accountService.getBalanceByUser(username);
-        double consumedMoney=accountService.getConsumedMoneyByDateAndUser(username, DateHelper.getToday());
+        double consumedMoney=accountService.getConsumedMoneyByDateAndUser(username, date);
 
         if(remainDays!=0){
-            savedMoney=remainedMoney/remainDays-consumedMoney;
-        }else{
-            savedMoney=upper;
+            savedMoney+=remainedMoney/remainDays-consumedMoney;
         }
+
         return savedMoney;
     }
 

@@ -5,7 +5,7 @@ import java.sql.Date;
 
 /**
  *
- * 攒钱计划（用户名，攒钱内容，攒钱总额，建立时间，预计完成日期，计划状态）
+ * 攒钱计划（用户名，攒钱内容，攒钱总额，建立时间，预计完成日期，计划状态，已攒金额）
  * Created by green-cherry on 2017/8/16.
  */
 @Entity
@@ -18,6 +18,10 @@ public class Task {
     private Double upper;
     private String taskState;
 
+
+
+    private Double savedMoney;
+
     public Task() {
     }
 
@@ -28,17 +32,9 @@ public class Task {
         this.deadline = deadline;
         this.upper = upper;
         this.taskState = taskState;
+        this.savedMoney=0.0;
     }
 
-    public Task(Long id, String username, Date createTime, String taskContent, Date deadline, Double upper, String taskState) {
-        this.id = id;
-        this.username = username;
-        this.createTime = createTime;
-        this.taskContent = taskContent;
-        this.deadline = deadline;
-        this.upper = upper;
-        this.taskState = taskState;
-    }
 
     @Id
     @GeneratedValue(strategy= GenerationType.AUTO)
@@ -113,8 +109,18 @@ public class Task {
     }
 
 
+    @Basic
+    @Column(name = "saved_money", nullable = false, precision = 0)
+    public Double getSavedMoney() {
+        return savedMoney;
+    }
+
+    public void setSavedMoney(Double savedMoney) {
+        this.savedMoney = savedMoney;
+    }
+
     public String toString(){
-        String s=id+" "+username+" "+taskContent+" " +createTime+" "+deadline+" "+upper+" "+taskState;
+        String s=id+" "+username+" "+taskContent+" " +createTime+" "+deadline+" "+upper+" "+taskState+" "+savedMoney;
         return s;
     }
 

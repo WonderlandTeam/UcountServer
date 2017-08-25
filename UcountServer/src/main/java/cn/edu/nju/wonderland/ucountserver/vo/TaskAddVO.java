@@ -3,6 +3,7 @@ package cn.edu.nju.wonderland.ucountserver.vo;
 import cn.edu.nju.wonderland.ucountserver.entity.Task;
 
 import java.sql.Date;
+import java.time.LocalDate;
 
 /**
  * 新建任务(用户名，攒钱内容，计划开始时间,预计完成时间，攒钱总额)
@@ -25,7 +26,11 @@ public class TaskAddVO {
     }
 
     public Task toTaskEntity(){
-         return new Task(username, Date.valueOf(createTime),taskContent,Date.valueOf(deadline),upper, "未开始");
+        String taskState="未开始";
+        if(Date.valueOf(createTime).equals(Date.valueOf(LocalDate.now()))){
+            taskState="进行中";
+        }
+         return new Task(username, Date.valueOf(createTime),taskContent,Date.valueOf(deadline),upper, taskState);
     }
 
 

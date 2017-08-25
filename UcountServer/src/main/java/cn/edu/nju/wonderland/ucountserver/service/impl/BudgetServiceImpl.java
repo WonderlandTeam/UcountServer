@@ -11,6 +11,7 @@ import cn.edu.nju.wonderland.ucountserver.vo.BudgetAddVO;
 import cn.edu.nju.wonderland.ucountserver.vo.BudgetInfoVO;
 import cn.edu.nju.wonderland.ucountserver.vo.BudgetModifyVO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
@@ -23,6 +24,9 @@ public class BudgetServiceImpl implements BudgetService {
 
     @Autowired
     private BudgetRepository budgetRepository;
+
+    //    @Qualifier("billServiceStub")
+    @Qualifier("billServiceImpl")
     @Autowired
     private BillService billService;
 
@@ -31,24 +35,24 @@ public class BudgetServiceImpl implements BudgetService {
 
         //获取预算并检查
         Budget budget = budgetRepository.findOne(budgetId);
-        if (budget==null){
+        if (budget == null) {
             throw new ResourceNotFoundException("预算信息不存在");
         }
 
         //添加已消费金额和余额
         double consume = 0;
-        consume=billService.getConsumedMoneyByTypeAndTime(budget.getUsername(),budget.getConsumeType(), DateHelper.toTimeByTimeStamp(budget.getConsumeTime()));
+        consume = billService.getConsumedMoneyByTypeAndTime(budget.getUsername(), budget.getConsumeType(), DateHelper.toTimeByTimeStamp(budget.getConsumeTime()));
         BudgetInfoVO budgetInfoVO = new BudgetInfoVO(budget, consume, budget.getConsumeMoney() - consume);
         return budgetInfoVO;
     }
 
     @Override
     public List<BudgetInfoVO> getBudgetsByUser(String username) {
-        LocalDateTime localDateTime=LocalDateTime.of(LocalDateTime.now().getYear(),LocalDateTime.now().getMonth().getValue(),1,0,0);
+        LocalDateTime localDateTime = LocalDateTime.of(LocalDateTime.now().getYear(), LocalDateTime.now().getMonth().getValue(), 1, 0, 0);
 
         //获取预算并检查
         List<Budget> budgets = budgetRepository.findByUsernameAndConsumeTimeGreaterThanEqual(username, Timestamp.valueOf(localDateTime));
-        if (budgets==null){
+        if (budgets == null) {
             throw new ResourceNotFoundException("预算信息不存在");
         }
 
@@ -56,19 +60,18 @@ public class BudgetServiceImpl implements BudgetService {
     }
 
     /**
-     *
-     * @param username            用户名
-     * @param time                月份，格式为yyyy-mm
+     * @param username 用户名
+     * @param time     月份，格式为yyyy-mm
      * @return
      */
     @Override
     public List<BudgetInfoVO> getBudgetsByUserAndTime(String username, String time) {
 
-        Timestamp timestamp=DateHelper.toTimestampByMonth(time);
+        Timestamp timestamp = DateHelper.toTimestampByMonth(time);
 
         //获取预算并检查
-        List<Budget> budgets = budgetRepository.findByUsernameAndConsumeTime(username,timestamp);
-        if (budgets==null){
+        List<Budget> budgets = budgetRepository.findByUsernameAndConsumeTime(username, timestamp);
+        if (budgets == null) {
             throw new ResourceNotFoundException("预算信息不存在");
         }
         return getBudgetInfoVO(budgets);
@@ -76,14 +79,15 @@ public class BudgetServiceImpl implements BudgetService {
 
     /**
      * 将budget转化为budgetinfovo
+     *
      * @param budgets
      * @return
      */
-    private List<BudgetInfoVO> getBudgetInfoVO(List<Budget> budgets){
+    private List<BudgetInfoVO> getBudgetInfoVO(List<Budget> budgets) {
         return budgets.stream()
                 .map(budget -> {
                     double consume = 0;
-                    consume=billService.getConsumedMoneyByTypeAndTime(budget.getUsername(),budget.getConsumeType(),budget.getConsumeTime().toString());
+                    consume = billService.getConsumedMoneyByTypeAndTime(budget.getUsername(), budget.getConsumeType(), budget.getConsumeTime().toString());
                     return new BudgetInfoVO(budget, consume, budget.getConsumeMoney() - consume);
                 }).collect(Collectors.toList());
     }
@@ -93,13 +97,13 @@ public class BudgetServiceImpl implements BudgetService {
         String type = budgetAddVO.getConsumeType();
         String time = budgetAddVO.getConsumeTime();
         String username = budgetAddVO.getUsername();
-        String regex="[0-9]{4}-[0-9]{1,2}";
+        String regex = "[0-9]{4}-[0-9]{1,2}";
 
         // 参数检查
-        if(type==null ||time==null ||username==null ){
+        if (type == null || time == null || username == null) {
             throw new ResourceConflictException("预算信息缺失");
-        }else if(!time.matches(regex)){
-            throw new ResourceConflictException("日期格式有误，应为yyyy-MM-dd");
+        } else if (!time.matches(regex)) {
+            throw new ResourceConflictException("月份格式有误，应为yyyy-MM");
         }
 
         long budgetID = -1;

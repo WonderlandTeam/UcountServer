@@ -31,6 +31,8 @@ public interface TaskRepository  extends JpaRepository<Task,Long> {
      */
     List<Task> findByUsernameAndTaskState(String username,String state);
 
+    List<Task> findByTaskState(String state);
+
     /**
      * 根据用户名，计划内容，计划开始时间，结束时间 查找攒钱计划
      * @param username
@@ -60,7 +62,7 @@ public interface TaskRepository  extends JpaRepository<Task,Long> {
      */
     @Modifying
     @Transactional
-    @Query("update Task t set t.taskState = ?2 where t.taskState = ?1 and t.deadline=?3")
+    @Query("update Task t set t.taskState = ?2 where t.taskState = ?1 and t.deadline<?3")
     int updateStateToFinish(String oldState,String newState,Date today);
 
     /**
@@ -71,5 +73,14 @@ public interface TaskRepository  extends JpaRepository<Task,Long> {
     @Transactional
     @Query("update Task t set t.taskState = ?2 where t.taskState = ?1 and t.createTime=?3")
     int updateStateToInProcess(String oldState,String newState,Date today);
+
+    /**
+     * 更新已攒金额
+     * @return
+     */
+    @Modifying
+    @Transactional
+    @Query("update Task t set t.savedMoney = ?2 where t.id=?1")
+    int updateSavedMoney(Long id, Double money);
 }
 

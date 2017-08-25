@@ -1,5 +1,6 @@
 package cn.edu.nju.wonderland.ucountserver.util;
 
+import java.sql.Date;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -76,10 +77,22 @@ public class DateHelper {
     }
 
     /**
-     * 获得当前的时间，格式为日期格式
+     * 获得当前的日期，格式为日期格式
      */
     public static String getTodayDate(){
         LocalDateTime localDateTime = LocalDateTime.now();
         return localDateTime.format(DATE_FORMATTER);
     }
+
+    /**
+     * 获得昨天的时间，格式为日期时间格式
+     */
+    public static String getYesterday(){
+        Date date=Date.valueOf(getTodayDate());
+        long i=date.getTime();
+        i-=1000;
+        date=new Date(i);
+        return date.toString()+" 23:59:59";
+    }
+
 }

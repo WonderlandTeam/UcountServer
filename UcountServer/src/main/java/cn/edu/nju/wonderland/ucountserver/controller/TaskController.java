@@ -11,6 +11,7 @@ import java.util.Map;
 
 /**
  * 其中涉及到的时间格式为yyyy-MM-dd
+ * 如果已攒金额小于0，说明已经超额消费，根本攒不到钱
  */
 @RestController
 @RequestMapping("/tasks")

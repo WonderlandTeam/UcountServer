@@ -1,5 +1,6 @@
 package cn.edu.nju.wonderland.ucountserver.service;
 
+import cn.edu.nju.wonderland.ucountserver.entity.Task;
 import cn.edu.nju.wonderland.ucountserver.vo.TaskAddVO;
 import cn.edu.nju.wonderland.ucountserver.vo.TaskInfoVO;
 import cn.edu.nju.wonderland.ucountserver.vo.TaskModifyVO;
@@ -50,4 +51,14 @@ public interface TaskService {
      * @param taskID            计划id
      */
     void deleteTask(Long taskID);
+
+    /**
+     * 计算已攒金额
+     * 已攒金额（用每日理论平均消费（日平均=账户余额/剩余天数）-当日实际消费）
+     *
+     * @param task
+     * @param date
+     * @return
+     */
+    double getSavedMoney(Task task, String date);
 }

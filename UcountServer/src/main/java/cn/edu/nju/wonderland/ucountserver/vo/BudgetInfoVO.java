@@ -36,6 +36,11 @@ public class BudgetInfoVO {
         this.remain = remain;
     }
 
+    public String toString(){
+        String s=id+" "+username+" "+consumeType+" "+budgetMoney+" "+bugdetTime+" "+consume+" "+remain;
+        return s;
+    }
+
     public Long getId() {
         return id;
     }
