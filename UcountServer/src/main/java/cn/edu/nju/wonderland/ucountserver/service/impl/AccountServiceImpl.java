@@ -148,11 +148,56 @@ public class AccountServiceImpl implements AccountService {
 
 	@Override
 	public double getBalanceByUser(String username) {
+    	double result =  0;
+    	List<Account> accounts = accountRepository.findByUsername(username);
+		for(int i = 0 ; i < accounts.size() ;i ++ ) {
+			if(icbcCardRepository.findByCardId(accounts.get(i).getCardId(),null) != null){
+				result += icbcCardRepository.getBalance(accounts.get(i).getCardId()).getBalance();
+			}else if (schoolCardRepository.findByCardId(accounts.get(i).getCardId(),null) != null) {
+				result += schoolCardRepository.getBalance(accounts.get(i).getCardId()).getBalance();
+			}else {
+			}
+		}
 		return 0;
 	}
 
 	@Override
 	public double getConsumedMoneyByDateAndUser(String username, String time) {
-		return 0;
+		DateFormat sdf =  new  SimpleDateFormat("yyyy-MM-dd HH / mm / ss");
+		Date startDate  = new Date();
+		Date endDate = new Date();
+		Timestamp start = new Timestamp(0);
+		Timestamp end = new Timestamp(0);
+		double result = 0 ;
+		try {
+			startDate = sdf.parse(time);
+			Calendar calendar = Calendar.getInstance();
+			calendar.setTime(startDate);
+			calendar.add(Calendar.DATE , 1);
+			endDate = calendar.getTime();
+			start = new Timestamp(startDate.getTime());
+			end = new Timestamp(endDate.getTime());
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+		List<Alipay> alipays = alipayRepository.getMouthBill(username, start, end);
+		for ( int i = 0 ; i <alipays.size();i++){
+			if(alipays.get(i).getIncomeExpenditureType().equals("支出")){
+				result += Double.valueOf(alipays.get(i).getIncomeExpenditureType());
+			}
+		}
+		List<SchoolCard> schoolCards =schoolCardRepository.getMouthBill(username, start, end);
+		for ( int i = 0 ; i <schoolCards.size();i++){
+			if(schoolCards.get(i).getIncomeExpenditure() < 0){
+				result -= schoolCards.get(i).getIncomeExpenditure();
+			}
+		}
+		List<IcbcCard> icbcCards = icbcCardRepository.getMouthBill(username, start, end);
+		for ( int i = 0 ; i <icbcCards.size();i++){
+			if(icbcCards.get(i).getAccountAmountExpense() > 0){
+				result += icbcCards.get(i).getAccountAmountExpense();
+			}
+		}
+		return result;
 	}
 }

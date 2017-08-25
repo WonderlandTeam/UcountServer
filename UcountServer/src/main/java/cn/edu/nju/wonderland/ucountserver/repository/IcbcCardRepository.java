@@ -20,6 +20,6 @@ public interface IcbcCardRepository extends JpaRepository<IcbcCard,Long> {
 	List<IcbcCard> findByUsername(String username,Pageable pageable) ; 
 	@Query("SELECT p FROM IcbcCard p WHERE p.tradeDate = (SELECT max(p2.tradeDate) FROM IcbcCard p2 WHERE p2.cardId = ?1) and p.cardId = ?1")
 	IcbcCard getBalance(String account);
-	@Query("SELECT s FROM IcbcCard s WHERE  s.username = ?1 and s.tradeDate between ?2 and ?3")
-	List<IcbcCard> getMouthBill(String username,Timestamp start,Timestamp end);
+	@Query("SELECT s FROM IcbcCard s WHERE  s.cardId = ?1 and s.tradeDate between ?2 and ?3")
+	List<IcbcCard> getMouthBill(String account,Timestamp start,Timestamp end);
 }

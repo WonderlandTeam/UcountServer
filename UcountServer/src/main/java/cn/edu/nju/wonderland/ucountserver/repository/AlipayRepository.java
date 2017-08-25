@@ -17,6 +17,8 @@ public interface AlipayRepository extends JpaRepository<Alipay,Long> {
 	Alipay findByIdAndCardId(Long id,String cardId);
 	List<Alipay> findByCardId(String cardId,Pageable pageable);
 	List<Alipay> findByUsername(String username,Pageable pageable);
+	@Query("SELECT p FROM Alipay p WHERE p.payTime = (SELECT max(p2.payTime) FROM Alipay p2 WHERE p2.cardId = ?1) and p.cardId = ?1")
+	Alipay getBalance(String account);
 	@Query("SELECT s FROM Alipay s WHERE  s.username = ?1 and s.createTime between ?2 and ?3")
 	List<Alipay> getMouthBill(String username,Timestamp start,Timestamp end);
 }

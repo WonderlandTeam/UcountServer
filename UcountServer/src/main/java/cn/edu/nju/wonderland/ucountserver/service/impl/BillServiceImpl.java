@@ -2,9 +2,11 @@ package cn.edu.nju.wonderland.ucountserver.service.impl;
 
 import cn.edu.nju.wonderland.ucountserver.entity.Alipay;
 import cn.edu.nju.wonderland.ucountserver.entity.IcbcCard;
+import cn.edu.nju.wonderland.ucountserver.entity.ManualBilling;
 import cn.edu.nju.wonderland.ucountserver.entity.SchoolCard;
 import cn.edu.nju.wonderland.ucountserver.repository.AlipayRepository;
 import cn.edu.nju.wonderland.ucountserver.repository.IcbcCardRepository;
+import cn.edu.nju.wonderland.ucountserver.repository.ManualBillingRepository;
 import cn.edu.nju.wonderland.ucountserver.repository.SchoolCardRepository;
 import cn.edu.nju.wonderland.ucountserver.service.BillService;
 import cn.edu.nju.wonderland.ucountserver.vo.BillAddVO;
@@ -21,7 +23,7 @@ public class BillServiceImpl implements BillService {
 	private IcbcCardRepository icbcCardRepository;
 	private SchoolCardRepository schoolCardRepository;
 	private AlipayRepository alipayRepository;
-
+	private ManualBillingRepository manualBillingRepository;
 	@Override
 	public BillInfoVO getBill(Long accountId, Long billId) {
 		BillInfoVO billInfoVO = new BillInfoVO();
@@ -148,7 +150,17 @@ public class BillServiceImpl implements BillService {
 
 	@Override
 	public Long addBillManually(Long accountId, BillAddVO billAddVO) {
-		return null;
+		ManualBilling manualBilling = new ManualBilling();
+		manualBilling.setCardId(String.valueOf(accountId));
+		manualBilling.setCardType(billAddVO.cardType);
+		manualBilling.setCommodity(billAddVO.commodity);
+		manualBilling.setConsumeType(billAddVO.consumeType);
+		manualBilling.setIncomeExpenditure(billAddVO.incomeExpenditure);
+		manualBilling.setTime(billAddVO.time);
+		manualBilling.setUsername(billAddVO.username);
+		manualBilling.setRemark(billAddVO.remark);
+		manualBilling = manualBillingRepository.save(manualBilling);
+		return manualBilling.getId();
 	}
 
 	@Override
