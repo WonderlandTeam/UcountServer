@@ -81,9 +81,10 @@ public interface PostService {
     /**
      * 获取帖子回复信息
      * @param replyId           帖子id
+     * @param username          查看帖子回复用户用户名
      * @return                  帖子回复信息vo
      */
-    PostReplyVO getPostReplyInfo(Long replyId);
+    PostReplyVO getPostReplyInfo(Long replyId, String username);
 
     /**
      * 回复帖子
@@ -96,8 +97,9 @@ public interface PostService {
     /**
      * 获取帖子回复信息
      * @param postId            帖子id
+     * @param username          查看帖子回复用户用户名
      * @return                  帖子回复信息列表
      */
-    List<PostReplyVO> getPostReplies(Long postId);
+    List<PostReplyVO> getPostReplies(Long postId, String username);
 
 }

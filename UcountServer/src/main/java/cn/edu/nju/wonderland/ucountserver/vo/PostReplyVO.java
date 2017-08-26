@@ -9,6 +9,7 @@ public class PostReplyVO {
     public String content;
     public String time;
     public int supportNum;
+    public boolean isSupported;
 
     public PostReplyVO() {
     }

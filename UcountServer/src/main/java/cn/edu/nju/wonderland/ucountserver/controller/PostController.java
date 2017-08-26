@@ -78,6 +78,7 @@ public class PostController {
 
     @ApiOperation(value = "用户收藏原贴", notes = "根据用户名和帖子id增加收藏信息")
     @ApiImplicitParam(name = "username", value = "用户名", required = true, dataType = "String")
+    @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/{post_id}/collections")
     public Map<String, Object> collectPost(@PathVariable("post_id") Long postId,
                                            @RequestParam String username) {
@@ -89,7 +90,7 @@ public class PostController {
 
     @ApiOperation(value = "用户取消收藏", notes = "根据用户名和帖子id删除收藏信息")
     @ApiImplicitParam(name = "postId", value = "帖子id", required = true, dataType = "Long")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
+//    @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping("/{post_id}/collections")
     public Map<String, Object> deleteCollection(@PathVariable("post_id") Long postId,
                                                 @RequestParam String username) {
@@ -108,6 +109,7 @@ public class PostController {
 
     @ApiOperation(value = "用户点赞原贴", notes = "根据用户名和帖子id增加点赞信息")
     @ApiImplicitParam(name = "username", value = "用户名", required = true, dataType = "String")
+    @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/{post_id}/praises")
     public Map<String, Object> praisePost(@PathVariable("post_id") Long postId,
                                           @RequestParam String username) {
@@ -119,6 +121,7 @@ public class PostController {
 
     @ApiOperation(value = "用户取消原贴点赞", notes = "根据用户名和帖子id删除原贴点赞信息")
     @ApiImplicitParam(name = "username", value = "用户名", required = true, dataType = "String")
+//    @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping("/{post_id}/praises")
     public Map<String, Object> cancelPraisePost(@PathVariable("post_id") Long postId,
                                                 @RequestParam String username) {
@@ -130,8 +133,9 @@ public class PostController {
 
     @ApiOperation(value = "用户点赞帖子回复", notes = "根据用户名和帖子回复id增加点赞信息")
     @ApiImplicitParam(name = "username", value = "用户名", required = true, dataType = "String")
+    @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/replies/{reply_id}/praises")
-    public Map<String, Object> praisePostReply(@PathVariable("replyId") Long replyId,
+    public Map<String, Object> praisePostReply(@PathVariable("reply_id") Long replyId,
                                                @RequestParam String username) {
         Map<String, Object> result = new HashMap<>();
         postService.praisePost(username, replyId, true);
@@ -141,6 +145,7 @@ public class PostController {
 
     @ApiOperation(value = "用户取消帖子回复点赞", notes = "根据用户名和帖子id删除帖子回复点赞信息")
     @ApiImplicitParam(name = "username", value = "用户名", required = true, dataType = "String")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping("/replies/{reply_id}/praises")
     public Map<String, Object> cancelPraisePostReply(@PathVariable("reply_id") Long replyId,
                                                      @RequestParam String username) {
@@ -163,19 +168,23 @@ public class PostController {
     }
 
     @ApiOperation(value = "获取帖子回复信息", notes = "根据帖子回复id获取回复信息")
+    @ApiImplicitParam(name = "username", value = "查看帖子回复用户的用户名", required = false, dataType = "String")
     @GetMapping("/replies/{reply_id}")
-    public Map<String, Object> getPostReply(@PathVariable("reply_id") Long replyId) {
+    public Map<String, Object> getPostReply(@PathVariable("reply_id") Long replyId,
+                                            @RequestParam(required = false) String username) {
         Map<String, Object> result = new HashMap<>();
-        PostReplyVO vo = postService.getPostReplyInfo(replyId);
+        PostReplyVO vo = postService.getPostReplyInfo(replyId, username);
         result.put(CONTENT, vo);
         return result;
     }
 
     @ApiOperation(value = "获取帖子所有回复信息列表", notes = "根据帖子id获取帖子所有回复")
+    @ApiImplicitParam(name = "username", value = "查看帖子回复用户的用户名", required = false, dataType = "String")
     @GetMapping("/{post_id}/replies")
-    public Map<String, Object> getPostReplies(@PathVariable("post_id") Long postId) {
+    public Map<String, Object> getPostReplies(@PathVariable("post_id") Long postId,
+                                              @RequestParam(required = false) String username) {
         Map<String, Object> result = new HashMap<>();
-        List<PostReplyVO> replies = postService.getPostReplies(postId);
+        List<PostReplyVO> replies = postService.getPostReplies(postId, username);
         result.put(CONTENT, replies);
         return result;
     }

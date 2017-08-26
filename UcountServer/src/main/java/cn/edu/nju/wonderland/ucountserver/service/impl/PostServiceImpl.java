@@ -69,7 +69,7 @@ public class PostServiceImpl implements PostService {
      * @param entity    entity
      * @return          vo
      */
-    private PostReplyVO replyEntityToVO(Reply entity) {
+    private PostReplyVO replyEntityToVO(Reply entity, String username) {
         PostReplyVO vo = new PostReplyVO();
         vo.replyId = entity.getReplyId();
         vo.username = entity.getUsername();
@@ -77,6 +77,11 @@ public class PostServiceImpl implements PostService {
         // 时间格式
         vo.time = DateHelper.toTimeByTimeStamp(entity.getTime());
         vo.supportNum = supportRepository.countByReplyId(entity.getReplyId());
+
+        if (username != null) {
+            vo.isSupported = supportRepository.findByUsernameAndReplyId(username, entity.getReplyId()) != null ;
+        }
+
         return vo;
     }
 
@@ -197,12 +202,12 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public PostReplyVO getPostReplyInfo(Long replyId) {
+    public PostReplyVO getPostReplyInfo(Long replyId, String username) {
         Reply reply = replyRepository.findOne(replyId);
         if (reply == null) {
             throw new ResourceNotFoundException("未找到帖子回复");
         }
-        return replyEntityToVO(reply);
+        return replyEntityToVO(reply, username);
     }
 
     @Override
@@ -226,7 +231,7 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public List<PostReplyVO> getPostReplies(Long postId) {
+    public List<PostReplyVO> getPostReplies(Long postId, String username) {
         Post post = postRepository.findOne(postId);
         if (post == null) {
             throw new ResourceNotFoundException("帖子不存在");
@@ -236,7 +241,7 @@ public class PostServiceImpl implements PostService {
         return post
                 .getReplies()
                 .stream()
-                .map(this::replyEntityToVO)
+                .map(e -> replyEntityToVO(e, username))
                 .sorted((o1, o2) -> o2.supportNum - o1.supportNum)
                 .collect(Collectors.toList());
     }
