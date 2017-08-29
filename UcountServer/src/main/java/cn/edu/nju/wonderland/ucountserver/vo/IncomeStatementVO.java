@@ -5,6 +5,10 @@ package cn.edu.nju.wonderland.ucountserver.vo;
  */
 public class IncomeStatementVO {
 
+    public String beginDate;            // 开始日期
+    public String endDate;              // 结束日期
+
+
     /************************** 收入部分 **************************/
 
     public double salary;               // 工资收入

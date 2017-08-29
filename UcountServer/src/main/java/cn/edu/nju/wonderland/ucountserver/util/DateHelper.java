@@ -29,8 +29,8 @@ public class DateHelper {
     /**
      * 将数据库时间转化为年月的形式
      *
-     * @param time      数据库时间
-     * @return          年月格式字符串
+     * @param time 数据库时间
+     * @return 年月格式字符串
      */
     public static String toMonthByTimeStamp(Timestamp time) {
         return time.toLocalDateTime().format(YEAR_MONTH_FORMATTER);
@@ -40,8 +40,8 @@ public class DateHelper {
     /**
      * 将数据库时间转化为年月日的形式
      *
-     * @param time      数据库时间
-     * @return          日期格式字符串
+     * @param time 数据库时间
+     * @return 日期格式字符串
      */
     public static String toDateByTimeStamp(Timestamp time) {
         return time.toLocalDateTime().format(DATE_FORMATTER);
@@ -50,8 +50,8 @@ public class DateHelper {
     /**
      * 将数据库时间转化为年月日时分秒的形式
      *
-     * @param time      数据库时间
-     * @return          日期时间格式字符串
+     * @param time 数据库时间
+     * @return 日期时间格式字符串
      */
     public static String toTimeByTimeStamp(Timestamp time) {
         return time.toLocalDateTime().format(DATE_TIME_FORMATTER);
@@ -60,8 +60,8 @@ public class DateHelper {
     /**
      * 将年月转化为数据库时间
      *
-     * @param time      年月格式字符串
-     * @return          数据库时间
+     * @param time 年月格式字符串
+     * @return 数据库时间
      */
     public static Timestamp toTimestampByMonth(String time) {
         time += "-01 00:00:00";
@@ -79,7 +79,7 @@ public class DateHelper {
     /**
      * 获得当前的日期，格式为日期格式
      */
-    public static String getTodayDate(){
+    public static String getTodayDate() {
         LocalDateTime localDateTime = LocalDateTime.now();
         return localDateTime.format(DATE_FORMATTER);
     }
@@ -87,12 +87,12 @@ public class DateHelper {
     /**
      * 获得昨天的时间，格式为日期时间格式
      */
-    public static String getYesterday(){
-        Date date=Date.valueOf(getTodayDate());
-        long i=date.getTime();
-        i-=1000;
-        date=new Date(i);
-        return date.toString()+" 23:59:59";
+    public static String getYesterday() {
+        Date date = Date.valueOf(getTodayDate());
+        long i = date.getTime();
+        i -= 1000;
+        date = new Date(i);
+        return date.toString() + " 23:59:59";
     }
 
 }
