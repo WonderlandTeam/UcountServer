@@ -116,6 +116,40 @@ public class BillServiceImpl implements BillService {
 	public List<BillInfoVO> getBillsByUser(String username, Pageable pageable) {
 		List<BillInfoVO> billInfoVOList = new ArrayList<BillInfoVO>();
 		List<IcbcCard> icbcCardList = icbcCardRepository.findByUsername(username, pageable);
+		List<SchoolCard> schoolCardList = schoolCardRepository.findByUsername(username, pageable);
+		List<Alipay> alipayList = alipayRepository.findByUsername(username, pageable);
+		for(int i = 0 ; i < icbcCardList.size(); i ++ ){
+			for(int j = 0; j < alipayList.size();j ++ ) {
+				if ( icbcCardList.get(i).getAccountAmountExpense() == alipayList.get(j).getMoney()
+						&& icbcCardList.get(i).getTradeDate() == alipayList.get(j).getPayTime() ){
+						if(alipayList.get(j).getCommodity().equals("充值-普通充值")){
+							alipayList.remove(j);
+							icbcCardList.remove(i);
+						}else{
+							alipayRepository.delete(alipayList.get(j));
+							alipayList.remove(j);
+						}
+				}else if ((  alipayList.get(j).getMoney() - icbcCardList.get(i).getAccountAmountIncome() < 10)
+							&& (icbcCardList.get(i).getTradeDate().getTime() - alipayList.get(j).getPayTime().getTime() <= (2  * 60 * 1000) )
+								&& (alipayList.get(j).getCommodity().equals("提现-快速提现"))){
+					alipayList.remove(j);
+					icbcCardList.remove(i);
+					BillInfoVO billInfoVO = new BillInfoVO();
+					billInfoVO.trader = "支付宝提现";
+					billInfoVO.amount = alipayList.get(j).getMoney() - icbcCardList.get(i).getAccountAmountIncome();
+					billInfoVO.tradeDate = alipayList.get(i).getPayTime();
+					billInfoVO.type = "支付宝提现";
+					billInfoVOList.add(billInfoVO);
+				}
+			}
+			for(int j = 0 ; j < schoolCardList.size(); j ++){
+				if(icbcCardList.get(i).getAccountAmountExpense() == schoolCardList.get(j).getIncomeExpenditure() &&
+						icbcCardList.get(i).getTradeDate() == schoolCardList.get(j).getTime()){
+					schoolCardList.remove(j);
+					icbcCardList.remove(i);
+				}
+			}
+		}
 		for (int i = 0; i < icbcCardList.size(); i++) {
 			BillInfoVO billInfoVO = new BillInfoVO();
 			billInfoVO.trader = icbcCardList.get(i).getOtherAccount();
@@ -129,7 +163,6 @@ public class BillServiceImpl implements BillService {
 			}
 			billInfoVOList.add(billInfoVO);
 		}
-		List<SchoolCard> schoolCardList = schoolCardRepository.findByUsername(username, pageable);
 		for (int i = 0; i < schoolCardList.size(); i++) {
 			BillInfoVO billInfoVO = new BillInfoVO();
 			billInfoVO.tradeDate = schoolCardList.get(i).getTime();
@@ -142,7 +175,6 @@ public class BillServiceImpl implements BillService {
 			}
 			billInfoVOList.add(billInfoVO);
 		}
-		List<Alipay> alipayList = alipayRepository.findByUsername(username, pageable);
 		for (int i = 0; i < alipayList.size(); i++) {
 			BillInfoVO billInfoVO = new BillInfoVO();
 			billInfoVO.amount = alipayList.get(i).getMoney();

@@ -25,7 +25,7 @@ public interface BillService {
     List<BillInfoVO> getBillsByAccount(Long accountId, Pageable pageable);
 
     /**
-     * 获取账户所有账目信息
+     * 获取用户所有账目信息
      * @param username            用户id
      * @param pageable          筛选信息
      * @return                  账目列表

@@ -15,7 +15,7 @@ public interface UserService {
 
     /**
      * 获取用户信息
-     * @param userId        用户id
+     * @param username        用户名
      * @return              用户信息vo
      */
     UserInfoVO getUserInfo(String username);
@@ -29,9 +29,14 @@ public interface UserService {
     UserInfoVO login(String username,String password);
     /**
      * 修改用户信息
-     * @param userId        用户id
+     * @param username        用户名
      * @param userModifyVO  用户修改信息vo
      */
     void modifyUserInfo(String username, UserModifyVO userModifyVO);
+    /**
+     * 修改用户信息
+     * @param username        用户名
+     */
+    int findPasswordByMail(String username);
 
 }
