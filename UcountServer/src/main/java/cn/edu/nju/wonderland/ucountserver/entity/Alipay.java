@@ -21,7 +21,7 @@ public class Alipay {
     private Timestamp payTime;
     private Timestamp lastUpdateTime;
     private String payFrom;
-    private String payTyoe;
+    private String payType;
     private String trader;
     private String commodity;
     private Double money;
@@ -128,12 +128,12 @@ public class Alipay {
 
     @Basic
     @Column(name = "pay_type", nullable = true, length = 45)
-    public String getPayTyoe() {
-        return payTyoe;
+    public String getPayType() {
+        return payType;
     }
 
-    public void setPayTyoe(String payTyoe) {
-        this.payTyoe = payTyoe;
+    public void setPayType(String payType) {
+        this.payType = payType;
     }
 
     @Basic
