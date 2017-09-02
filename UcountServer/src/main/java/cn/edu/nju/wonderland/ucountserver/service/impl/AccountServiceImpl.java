@@ -4,16 +4,15 @@ import cn.edu.nju.wonderland.ucountserver.entity.*;
 import cn.edu.nju.wonderland.ucountserver.repository.*;
 import cn.edu.nju.wonderland.ucountserver.service.AccountService;
 import cn.edu.nju.wonderland.ucountserver.vo.AccountInfoVO;
+import cn.edu.nju.wonderland.ucountserver.vo.BillInfoVO;
 import cn.edu.nju.wonderland.ucountserver.vo.TotalAccountVO;
 import org.springframework.stereotype.Service;
 
+import javax.validation.constraints.Null;
 import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Service
 public class AccountServiceImpl implements AccountService {
@@ -135,12 +134,20 @@ public class AccountServiceImpl implements AccountService {
 				totalAccountVO.setExpend(totalAccountVO.getExpend() - schoolCards.get(i).getIncomeExpenditure());
 			}
 		}
-		List<IcbcCard> icbcCards = icbcCardRepository.getMouthBill(username, start, end);
-		for ( int i = 0 ; i <icbcCards.size();i++){
-			if(icbcCards.get(i).getAccountAmountIncome() > 0){
-				totalAccountVO.setIncome(totalAccountVO.getIncome() + icbcCards.get(i).getAccountAmountIncome());
-			}else{
-				totalAccountVO.setExpend(totalAccountVO.getExpend() + icbcCards.get(i).getAccountAmountExpense());
+		List<Account> accounts = accountRepository.findByUsername(username);
+		Map<Integer,List<IcbcCard>> icbcCardmap = new HashMap<>();
+		for ( int i = 0 ; i < accounts.size();i++){
+			icbcCardmap.put(i,icbcCardRepository.getMouthBill(accounts.get(i).getCardId(),start,end));
+			//获取所有银行卡当月账单
+		}
+		for(int k = 0 ; k <accounts.size();k ++ ) {
+			List<IcbcCard> icbcCardList = icbcCardmap.get(k);
+			for (int i = 0; i < icbcCardList.size(); i++) {
+				if (icbcCardList.get(i).getAccountAmountIncome() > 0) {
+					totalAccountVO.setIncome(totalAccountVO.getIncome() + icbcCardList.get(i).getAccountAmountIncome());
+				} else {
+					totalAccountVO.setExpend(totalAccountVO.getExpend() + icbcCardList.get(i).getAccountAmountExpense());
+				}
 			}
 		}
 		return totalAccountVO;
@@ -181,22 +188,29 @@ public class AccountServiceImpl implements AccountService {
 		} catch (Exception e) {
 			// TODO: handle exception
 		}
-		List<Alipay> alipays = alipayRepository.getMouthBill(username, start, end);
-		for ( int i = 0 ; i <alipays.size();i++){
-			if(alipays.get(i).getIncomeExpenditureType().equals("支出")){
-				result += Double.valueOf(alipays.get(i).getIncomeExpenditureType());
+		List<Alipay> alipayList = alipayRepository.getMouthBill(username, start, end);
+		List<SchoolCard> schoolCardList =schoolCardRepository.getMouthBill(username, start, end);
+		List<Account> accounts = accountRepository.findByUsername(username);
+		Map<Integer,List<IcbcCard>> icbcCardmap = new HashMap<>();
+		for ( int i = 0 ; i < accounts.size();i++){
+			icbcCardmap.put(i,icbcCardRepository.getMouthBill(accounts.get(i).getCardId(),start,end));
+		}
+		for ( int i = 0 ; i <alipayList.size();i++){
+			if(alipayList.get(i).getIncomeExpenditureType().equals("支出")){
+				result += Double.valueOf(alipayList.get(i).getIncomeExpenditureType());
 			}
 		}
-		List<SchoolCard> schoolCards =schoolCardRepository.getMouthBill(username, start, end);
-		for ( int i = 0 ; i <schoolCards.size();i++){
-			if(schoolCards.get(i).getIncomeExpenditure() < 0){
-				result -= schoolCards.get(i).getIncomeExpenditure();
+		for ( int i = 0 ; i <schoolCardList.size();i++){
+			if(schoolCardList.get(i).getIncomeExpenditure() < 0){
+				result -= schoolCardList.get(i).getIncomeExpenditure();
 			}
 		}
-		List<IcbcCard> icbcCards = icbcCardRepository.getMouthBill(username, start, end);
-		for ( int i = 0 ; i <icbcCards.size();i++){
-			if(icbcCards.get(i).getAccountAmountExpense() > 0){
-				result += icbcCards.get(i).getAccountAmountExpense();
+		for(int k = 0; k < accounts.size() ;k++) {
+			List<IcbcCard> icbcCardList = icbcCardmap.get(k);
+			for (int i = 0; i < icbcCardList.size(); i++) {
+				if (icbcCardList.get(i).getAccountAmountExpense() > 0) {
+					result += icbcCardList.get(i).getAccountAmountExpense();
+				}
 			}
 		}
 		return result;

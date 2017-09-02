@@ -21,7 +21,7 @@ public interface UserService {
     UserInfoVO getUserInfo(String username);
 
     /**
-     * 获取用户信息
+     * 登录
      * @param username  	用户名
      * @param password  	密码
      * @return              用户信息vo
@@ -32,7 +32,7 @@ public interface UserService {
      * @param username        用户名
      * @param userModifyVO  用户修改信息vo
      */
-    void modifyUserInfo(String username, UserModifyVO userModifyVO);
+    void modifyUserInfo(String username, UserInfoVO userModifyVO);
     /**
      * 修改用户信息
      * @param username        用户名

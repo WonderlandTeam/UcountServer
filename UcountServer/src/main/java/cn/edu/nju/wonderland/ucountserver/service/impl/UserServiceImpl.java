@@ -19,13 +19,13 @@
 //
 //@Service
 //public class UserServiceImpl implements UserService {
-//	private UserRepository userRepository;
+//    private UserRepository userRepository;
 //
 //    @Override
 //    public String signUp(SignUpVO signUpVO) {
-//    	if(userRepository.findByUsername ( signUpVO.userName ) != null){
-//    		return null;
-//    	}
+//        if(userRepository.findByUsername ( signUpVO.userName ) != null){
+//            return null;
+//        }
 //        User user = new User();
 //        user.setUsername(signUpVO.userName);
 //        user.setPassword(MD5(signUpVO.password));
@@ -46,8 +46,11 @@
 //    }
 //
 //    @Override
-//    public void modifyUserInfo(String username, UserModifyVO userModifyVO) {
-//        // TODO
+//    public void modifyUserInfo(String username, UserInfoVO userInfoVO) {
+//        User user = userRepository.findByUsername(username);
+//        user.setEmail(userInfoVO.email);
+//        user.setTel(userInfoVO.tel);
+//        user.setPassword(userInfoVO.password);
 //    }
 //
 //    @Override
@@ -121,29 +124,29 @@
 //    }
 //
 //    @Override
-//	public UserInfoVO login(String username, String password) {
-//		// TODO Auto-generated method stub
-//		User user = userRepository.findByUsername(username);
-//		if((user.getUsername() == username || user.getTel() == username )&& user.getPassword() == MD5(password)
+//    public UserInfoVO login(String username, String password) {
+//        // TODO Auto-generated method stub
+//        User user = userRepository.findByUsername(username);
+//        if((user.getUsername() == username || user.getTel() == username )&& user.getPassword() == MD5(password)
 //
 //                ){
-//	        UserInfoVO userInfoVO = new UserInfoVO();
-//	        userInfoVO.userName = user.getUsername();
-//	        userInfoVO.email = user.getEmail();
-//	        userInfoVO.tel = user.getTel();
-//	        return userInfoVO;
-//		}
-//		return null;
-//	}
-//	private String MD5(String str) {
-//        try{
-//        	MessageDigest md = MessageDigest.getInstance("MD5");
-//        	md.update(str.getBytes());
-//        	return new BigInteger(1, md.digest()).toString(16);
-//        }catch(Exception exception){
-//        	exception.printStackTrace();
+//            UserInfoVO userInfoVO = new UserInfoVO();
+//            userInfoVO.userName = user.getUsername();
+//            userInfoVO.email = user.getEmail();
+//            userInfoVO.tel = user.getTel();
+//            return userInfoVO;
 //        }
 //        return null;
-//	}
+//    }
+//    private String MD5(String str) {
+//        try{
+//            MessageDigest md = MessageDigest.getInstance("MD5");
+//            md.update(str.getBytes());
+//            return new BigInteger(1, md.digest()).toString(16);
+//        }catch(Exception exception){
+//            exception.printStackTrace();
+//        }
+//        return null;
+//    }
 //
 //}
