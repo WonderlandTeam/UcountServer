@@ -46,8 +46,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void modifyUserInfo(String username, UserModifyVO userModifyVO) {
-        // TODO
+    public void modifyUserInfo(String username, UserInfoVO userInfoVO) {
+        User user = userRepository.findByUsername(username);
+        user.setEmail(userInfoVO.email);
+        user.setTel(userInfoVO.tel);
+        user.setPassword(userInfoVO.password);
     }
 
     @Override
