@@ -11,5 +11,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
  */
 public interface ManualBillingRepository extends JpaRepository<ManualBilling, Long> {
     ManualBilling findByIdAndCardId(Long id, String cardId);
+
     Page<ManualBilling> findByCardId(String cardId, Pageable pageable);
+
+    void deleteByCardId(String cardId);
 }
