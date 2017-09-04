@@ -1,12 +1,14 @@
 package cn.edu.nju.wonderland.ucountserver.service.impl;
 
 import cn.edu.nju.wonderland.ucountserver.entity.*;
+import cn.edu.nju.wonderland.ucountserver.exception.ResourceNotFoundException;
 import cn.edu.nju.wonderland.ucountserver.repository.*;
 import cn.edu.nju.wonderland.ucountserver.service.BillService;
+import cn.edu.nju.wonderland.ucountserver.util.DateHelper;
 import cn.edu.nju.wonderland.ucountserver.vo.BillAddVO;
 import cn.edu.nju.wonderland.ucountserver.vo.BillInfoVO;
-
 import cn.edu.nju.wonderland.ucountserver.vo.TotalAccountVO;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -15,45 +17,112 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+import static cn.edu.nju.wonderland.ucountserver.util.AccountType.*;
+
 @Service
 public class BillServiceImpl implements BillService {
+
 	private IcbcCardRepository icbcCardRepository;
 	private SchoolCardRepository schoolCardRepository;
 	private AlipayRepository alipayRepository;
 	private ManualBillingRepository manualBillingRepository;
 	private AccountRepository accountRepository;
-	@Override
+
+	@Autowired
+    public BillServiceImpl(IcbcCardRepository icbcCardRepository, SchoolCardRepository schoolCardRepository, AlipayRepository alipayRepository, ManualBillingRepository manualBillingRepository, AccountRepository accountRepository) {
+        this.icbcCardRepository = icbcCardRepository;
+        this.schoolCardRepository = schoolCardRepository;
+        this.alipayRepository = alipayRepository;
+        this.manualBillingRepository = manualBillingRepository;
+        this.accountRepository = accountRepository;
+    }
+
+    /**
+     * 支付宝账目记录转vo
+     */
+    private BillInfoVO alipayToVO(Alipay alipay) {
+	    BillInfoVO vo = new BillInfoVO();
+	    vo.type = alipay.getConsumeType();
+	    // TODO 正负判断
+	    vo.amount = alipay.getMoney();
+	    vo.trader = alipay.getTrader();
+	    vo.time = DateHelper.toTimeByTimeStamp(alipay.getPayTime());
+        return vo;
+    }
+
+    /**
+     * 工行卡账目记录转vo
+     */
+    private BillInfoVO icbcCardToVO(IcbcCard icbcCard) {
+        BillInfoVO vo = new BillInfoVO();
+        vo.type = icbcCard.getConsumeType();
+        vo.amount = icbcCard.getAccountAmountIncome() - icbcCard.getAccountAmountExpense();
+        vo.trader = icbcCard.getLocation();
+        vo.time = DateHelper.toTimeByTimeStamp(icbcCard.getTradeDate());
+	    return vo;
+    }
+
+    /**
+     * 校园卡账目记录转vo
+     */
+    private BillInfoVO schoolCardToVO(SchoolCard schoolCard) {
+        BillInfoVO vo = new BillInfoVO();
+        vo.type = schoolCard.getConsumeType();
+        vo.amount = schoolCard.getIncomeExpenditure();
+        vo.time = DateHelper.toTimeByTimeStamp(schoolCard.getTime());
+        vo.trader = schoolCard.getLocation();
+        return null;
+    }
+
+    /**
+     * 手动记账账目记录转vo
+     */
+    private BillInfoVO manualBillingToVO(ManualBilling manualBilling) {
+        BillInfoVO vo = new BillInfoVO();
+        vo.type = manualBilling.getConsumeType();
+        vo.amount = manualBilling.getIncomeExpenditure();
+        vo.time = DateHelper.toTimeByTimeStamp(manualBilling.getTime());
+        vo.trader = manualBilling.getCommodity();
+	    return vo;
+    }
+
+    @Override
 	public BillInfoVO getBill(Long accountId, Long billId) {
 		BillInfoVO billInfoVO = new BillInfoVO();
-		if (icbcCardRepository.findByIdAndCardId(billId, String.valueOf(accountId)) != null) {
-			IcbcCard icbcCard = icbcCardRepository.findByIdAndCardId(billId, String.valueOf(accountId));
-			billInfoVO.trader = icbcCard.getOtherAccount();
-			billInfoVO.tradeDate = icbcCard.getTradeDate();
-			if (icbcCard.getAccountAmountIncome() > 0) {
-				billInfoVO.type = "收入";
-				billInfoVO.amount = icbcCard.getAccountAmountIncome();
-			} else {
-				billInfoVO.type = "支出";
-				billInfoVO.amount = icbcCard.getAccountAmountExpense();
-			}
-		} else if (schoolCardRepository.findByIdAndCardId(billId, String.valueOf(accountId)) != null) {
-			SchoolCard schoolCard = schoolCardRepository.findByIdAndCardId(billId, String.valueOf(accountId));
-			billInfoVO.tradeDate = schoolCard.getTime();
-			billInfoVO.trader = schoolCard.getLocation();
-			billInfoVO.amount = schoolCard.getIncomeExpenditure();
-			if (billInfoVO.amount > 0) {
-				billInfoVO.type = "收入";
-			} else {
-				billInfoVO.type = "支出";
-			}
-		} else {
-			Alipay alipay = alipayRepository.findByIdAndCardId(billId, String.valueOf(accountId));
-			billInfoVO.amount = alipay.getMoney();
-			billInfoVO.type = alipay.getIncomeExpenditureType();
-			billInfoVO.tradeDate = alipay.getCreateTime();
-			billInfoVO.trader = alipay.getTrader();
-		}
-		return billInfoVO;
+		Account account = accountRepository.findOne(accountId);
+		if (account == null) {
+		    throw new ResourceNotFoundException("账户不存在");
+        }
+        String cardId = account.getCardId();
+        String accountType = account.getCardType();
+
+        if (accountType.equals(ALIPAY.toString())) {                    // 支付宝
+            Alipay alipay = alipayRepository.findByIdAndCardId(billId, cardId);
+            if (alipay == null) {
+                throw new ResourceNotFoundException("账目不存在");
+            }
+            billInfoVO = alipayToVO(alipay);
+        } else if (accountType.equals(ICBC_CARD.toString())) {          // 工行卡
+            IcbcCard icbcCard = icbcCardRepository.findByIdAndCardId(billId, cardId);
+            if (icbcCard == null) {
+                throw new ResourceNotFoundException("账目不存在");
+            }
+            billInfoVO = icbcCardToVO(icbcCard);
+        } else if (accountType.equals(SCHOOL_CARD.toString())) {        // 校园卡
+            SchoolCard schoolCard = schoolCardRepository.findByIdAndCardId(billId, cardId);
+            if (schoolCard == null) {
+                throw new ResourceNotFoundException("账目不存在");
+            }
+            billInfoVO = schoolCardToVO(schoolCard);
+        } else if (accountType.equals(MANUAL.toString())) {             // 手动记账
+            ManualBilling manualBilling = manualBillingRepository.findByIdAndCardId(billId, cardId);
+            if (manualBilling == null) {
+                throw new ResourceNotFoundException("账目不存在");
+            }
+            billInfoVO = manualBillingToVO(manualBilling);
+        }
+
+        return billInfoVO;
 	}
 
 	@Override
