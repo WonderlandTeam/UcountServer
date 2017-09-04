@@ -1,10 +1,9 @@
 package cn.edu.nju.wonderland.ucountserver.repository;
 
 import cn.edu.nju.wonderland.ucountserver.entity.Account;
+import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
-
-import org.springframework.data.jpa.repository.JpaRepository;
 
 
 
@@ -15,6 +14,10 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface AccountRepository extends JpaRepository<Account,Long> {
 	Account findById(long id);
+
+	Account findByCardIdAndCardTypeAndUsername(String cardId, String cardType, String username);
+
 	List<Account> findByUsername(String username);
+
 	Account findByCardId(String id);
 }

@@ -7,6 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.util.List;
+
 @RunWith(SpringRunner.class)
 @SpringBootTest
 public class BillServiceTest {
@@ -21,6 +23,12 @@ public class BillServiceTest {
 //        System.out.println(vo.type);
         System.out.println(vo.time);
         System.out.println(vo.trader);
+    }
+
+    @Test
+    public void testGetBillsByAccount() {
+        List<BillInfoVO> bills = billService.getBillsByAccount(1L, null);
+        System.out.println(bills.size());
     }
 
 }

@@ -1,31 +1,66 @@
 package cn.edu.nju.wonderland.ucountserver.service.impl;
 
-import cn.edu.nju.wonderland.ucountserver.entity.*;
-import cn.edu.nju.wonderland.ucountserver.repository.*;
+import cn.edu.nju.wonderland.ucountserver.entity.Account;
+import cn.edu.nju.wonderland.ucountserver.entity.Alipay;
+import cn.edu.nju.wonderland.ucountserver.entity.IcbcCard;
+import cn.edu.nju.wonderland.ucountserver.entity.SchoolCard;
+import cn.edu.nju.wonderland.ucountserver.exception.InvalidRequestException;
+import cn.edu.nju.wonderland.ucountserver.exception.ResourceConflictException;
+import cn.edu.nju.wonderland.ucountserver.exception.ResourceNotFoundException;
+import cn.edu.nju.wonderland.ucountserver.repository.AccountRepository;
+import cn.edu.nju.wonderland.ucountserver.repository.AlipayRepository;
+import cn.edu.nju.wonderland.ucountserver.repository.IcbcCardRepository;
+import cn.edu.nju.wonderland.ucountserver.repository.SchoolCardRepository;
 import cn.edu.nju.wonderland.ucountserver.service.AccountService;
+import cn.edu.nju.wonderland.ucountserver.util.AccountType;
 import cn.edu.nju.wonderland.ucountserver.vo.AccountInfoVO;
-import cn.edu.nju.wonderland.ucountserver.vo.BillInfoVO;
 import cn.edu.nju.wonderland.ucountserver.vo.TotalAccountVO;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.validation.constraints.Null;
 import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+import static cn.edu.nju.wonderland.ucountserver.util.AccountType.*;
+
 @Service
 public class AccountServiceImpl implements AccountService {
 	private AccountRepository accountRepository;
-	private UserRepository userRepository;
 	private IcbcCardRepository icbcCardRepository;
 	private SchoolCardRepository schoolCardRepository;
 	private AlipayRepository alipayRepository;
+
+	@Autowired
+    public AccountServiceImpl(AccountRepository accountRepository, IcbcCardRepository icbcCardRepository, SchoolCardRepository schoolCardRepository, AlipayRepository alipayRepository) {
+        this.accountRepository = accountRepository;
+        this.icbcCardRepository = icbcCardRepository;
+        this.schoolCardRepository = schoolCardRepository;
+        this.alipayRepository = alipayRepository;
+    }
+
+    private AccountType stringToAccountType(String type) {
+        if (type.equals(ALIPAY.accountType)) {
+            return ALIPAY;
+        }
+        if (type.equals(ICBC_CARD.accountType)) {
+            return ICBC_CARD;
+        }
+        if (type.equals(SCHOOL_CARD.accountType)) {
+            return SCHOOL_CARD;
+        }
+        if (type.equals(MANUAL.accountType)) {
+            return MANUAL;
+        }
+        return null;
+    }
+
     @Override
     public AccountInfoVO getAccountById(Long accountId) {
     	Account account = accountRepository.findById(accountId);
     	if(account == null){
-    		return null;
+    		throw new ResourceNotFoundException("账户不存在");
     	}
     	AccountInfoVO accountInfoVO = new AccountInfoVO();
     	accountInfoVO.id = account.getId();
@@ -35,7 +70,7 @@ public class AccountServiceImpl implements AccountService {
     	accountInfoVO.income = 0;
     	accountInfoVO.expend = 0;
     	if(icbcCardRepository.findByCardId(String.valueOf(account), null) != null){
-    		List<IcbcCard> icbcCards = icbcCardRepository.findByCardId(String.valueOf(accountId), null);
+    		List<IcbcCard> icbcCards = icbcCardRepository.findByCardId(String.valueOf(accountId), null).getContent();
     		IcbcCard icbcCard = icbcCardRepository.getBalance(String.valueOf(accountId));
     		accountInfoVO.balance = icbcCard.getBalance();
     		for ( int i = 0 ; i <icbcCards.size();i++){
@@ -47,7 +82,7 @@ public class AccountServiceImpl implements AccountService {
     		}
     		
     	}else if (schoolCardRepository.findByCardId(String.valueOf(accountId), null) != null) {
-    		List<SchoolCard> schoolCards = schoolCardRepository.findByCardId(String.valueOf(accountId), null);
+    		List<SchoolCard> schoolCards = schoolCardRepository.findByCardId(String.valueOf(accountId), null).getContent();
     		SchoolCard schoolCard = schoolCardRepository.getBalance(String.valueOf(accountId));
     		accountInfoVO.balance = schoolCard.getBalance();
     		for ( int i = 0 ; i <schoolCards.size();i++){
@@ -58,7 +93,7 @@ public class AccountServiceImpl implements AccountService {
     			}
     		}
 		}else {
-    		List<Alipay> alipays = alipayRepository.findByCardId(String.valueOf(accountId), null);
+    		List<Alipay> alipays = alipayRepository.findByCardId(String.valueOf(accountId), null).getContent();
 			Alipay alipay = alipayRepository.getBalance(String.valueOf(accountId));
     		accountInfoVO.balance = alipay.getBalance();
     		for ( int i = 0 ; i <alipays.size();i++){
@@ -74,9 +109,8 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public List<AccountInfoVO> getAccountsByUser(String username) {
-    	User user = userRepository.findByUsername(username);
-    	List<Account> list = accountRepository.findByUsername( user.getUsername () );
-    	List<AccountInfoVO> result = new ArrayList <AccountInfoVO> ();
+    	List<Account> list = accountRepository.findByUsername(username);
+    	List<AccountInfoVO> result = new ArrayList<>();
     	for(int i = 0 ; i < list.size() ; i ++){
     		result.add(this.getAccountById(list.get(i).getId()));
     	}
@@ -85,25 +119,33 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public Long addAccount(AccountInfoVO accountInfoVO) {
-    	if(accountRepository.findByCardId(accountInfoVO.cardID) != null){
-    		return Long.valueOf(-1);
+        AccountType accountType = stringToAccountType(accountInfoVO.type);
+        if (accountType == null) {
+            throw new InvalidRequestException("不支持的账户类型");
+        }
+
+    	if(accountRepository.findByCardIdAndCardTypeAndUsername(accountInfoVO.cardID, accountType.accountType, accountInfoVO.username) != null) {
+    		throw new ResourceConflictException("账户已存在");
     	}
+
     	Account account = new Account();
     	account.setCardId(accountInfoVO.cardID);
     	account.setCardType(accountInfoVO.type);
     	account.setUsername(accountInfoVO.username);
-    	account = accountRepository.save(account);
-        return account.getId();
+    	return accountRepository.save(account).getId();
     }
 
     @Override
     public void deleteAccount(Long accountId) {
-    	accountRepository.delete(accountId);;
+	    if (accountRepository.findOne(accountId) == null) {
+	        throw new ResourceNotFoundException("账户不存在");
+        }
+    	accountRepository.delete(accountId);
     }
 
 	@Override
 	public TotalAccountVO getAccountByUserAndTime(String username, String time) {
-		DateFormat sdf =  new  SimpleDateFormat("yyyy-MM-dd HH / mm / ss");
+		DateFormat sdf =  new  SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		Date startDate  = new Date();
 		Date endDate = new Date();
 		Timestamp start = new Timestamp(0);
@@ -203,7 +245,7 @@ public class AccountServiceImpl implements AccountService {
 
 	@Override
 	public double getConsumedMoneyByDateAndUser(String username, String time) {
-		DateFormat sdf =  new  SimpleDateFormat("yyyy-MM-dd HH / mm / ss");
+		DateFormat sdf =  new  SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		Date startDate  = new Date();
 		Date endDate = new Date();
 		Timestamp start = new Timestamp(0);

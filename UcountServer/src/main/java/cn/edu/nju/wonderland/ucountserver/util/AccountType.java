@@ -5,9 +5,9 @@ public enum AccountType {
     ICBC_CARD   ("工行卡"),
     SCHOOL_CARD ("校园卡"),
     MANUAL      ("手动"),
-
     ;
-    String accountType;
+
+    public String accountType;
 
     AccountType(String accountType) {
         this.accountType = accountType;
