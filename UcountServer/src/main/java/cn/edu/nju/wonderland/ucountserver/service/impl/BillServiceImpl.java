@@ -1,6 +1,7 @@
 package cn.edu.nju.wonderland.ucountserver.service.impl;
 
 import cn.edu.nju.wonderland.ucountserver.entity.*;
+import cn.edu.nju.wonderland.ucountserver.exception.InvalidRequestException;
 import cn.edu.nju.wonderland.ucountserver.exception.ResourceNotFoundException;
 import cn.edu.nju.wonderland.ucountserver.repository.*;
 import cn.edu.nju.wonderland.ucountserver.service.BillService;
@@ -18,8 +19,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
-import static cn.edu.nju.wonderland.ucountserver.util.AccountType.*;
+import static cn.edu.nju.wonderland.ucountserver.util.AutoAccountType.*;
 import static cn.edu.nju.wonderland.ucountserver.util.DateHelper.DATE_TIME_FORMATTER;
 
 @Service
@@ -90,34 +92,35 @@ public class BillServiceImpl implements BillService {
 
     @Override
     public BillInfoVO getBill(Long accountId, Long billId) {
-        BillInfoVO billInfoVO = new BillInfoVO();
         Account account = accountRepository.findOne(accountId);
         if (account == null) {
             throw new ResourceNotFoundException("账户不存在");
         }
+        BillInfoVO billInfoVO;
+
         String cardId = account.getCardId();
         String accountType = account.getCardType();
 
-        if (accountType.equals(ALIPAY.accountType)) {                    // 支付宝
+        if (accountType.equals(ALIPAY.accountType)) {                   // 支付宝
             Alipay alipay = alipayRepository.findByIdAndCardId(billId, cardId);
             if (alipay == null) {
                 throw new ResourceNotFoundException("账目不存在");
             }
             billInfoVO = alipayToVO(alipay);
-        } else if (accountType.equals(ICBC_CARD.accountType)) {          // 工行卡
+        } else if (accountType.equals(ICBC_CARD.accountType)) {         // 工行卡
             IcbcCard icbcCard = icbcCardRepository.findByIdAndCardId(billId, cardId);
             if (icbcCard == null) {
                 throw new ResourceNotFoundException("账目不存在");
             }
             billInfoVO = icbcCardToVO(icbcCard);
-        } else if (accountType.equals(SCHOOL_CARD.accountType)) {        // 校园卡
+        } else if (accountType.equals(SCHOOL_CARD.accountType)) {       // 校园卡
             SchoolCard schoolCard = schoolCardRepository.findByIdAndCardId(billId, cardId);
             if (schoolCard == null) {
                 throw new ResourceNotFoundException("账目不存在");
             }
             billInfoVO = schoolCardToVO(schoolCard);
-        } else if (accountType.equals(MANUAL.accountType)) {             // 手动记账
-            ManualBilling manualBilling = manualBillingRepository.findByIdAndCardId(billId, cardId);
+        } else  {                                                       // 手动记账
+            ManualBilling manualBilling = manualBillingRepository.findByUsernameAndCardTypeAndCardIdAndId(account.getUsername(), accountType, cardId, billId);
             if (manualBilling == null) {
                 throw new ResourceNotFoundException("账目不存在");
             }
@@ -129,13 +132,15 @@ public class BillServiceImpl implements BillService {
 
     @Override
     public List<BillInfoVO> getBillsByAccount(Long accountId, Pageable pageable) {
-        List<BillInfoVO> bills = new ArrayList<>();
         Account account = accountRepository.findOne(accountId);
         if (account == null) {
             throw new ResourceNotFoundException("账户不存在");
         }
+        List<BillInfoVO> bills;
+
         String cardId = account.getCardId();
         String accountType = account.getCardType();
+
         if (accountType.equals(ALIPAY.accountType)) {
             // 支付宝
             Page<Alipay> alipayPage = alipayRepository.findByCardId(cardId, pageable);
@@ -148,10 +153,13 @@ public class BillServiceImpl implements BillService {
             // 校园卡
             Page<SchoolCard> schoolCardPage = schoolCardRepository.findByCardId(cardId, pageable);
             bills = schoolCardPage.map(this::schoolCardToVO).getContent();
-        } else if (accountType.equals(MANUAL.accountType)) {
+        } else {
             // 手动记账
-            Page<ManualBilling> manualBillingPage = manualBillingRepository.findByCardId(cardId, pageable);
-            bills = manualBillingPage.map(this::manualBillingToVO).getContent();
+            List<ManualBilling> manualBillingPage = manualBillingRepository.findByUsernameAndCardTypeAndCardId(account.getUsername(), accountType, cardId);
+            bills = manualBillingPage
+                    .stream()
+                    .map(this::manualBillingToVO)
+                    .collect(Collectors.toList());
         }
         return bills;
     }
@@ -249,22 +257,38 @@ public class BillServiceImpl implements BillService {
         return billInfoVOList;
     }
 
+    /**
+     * 账目添加vo转ManualBilling实体
+     */
+    private ManualBilling billAddVOToEntity(Account account, BillAddVO vo) {
+
+        ManualBilling manualBilling = new ManualBilling();
+        manualBilling.setUsername(account.getUsername());
+        manualBilling.setCardType(account.getCardType());
+        manualBilling.setCardId(account.getCardId());
+
+        manualBilling.setCommodity(vo.commodity);
+        manualBilling.setConsumeType(vo.consumeType);
+        manualBilling.setIncomeExpenditure(vo.incomeExpenditure);
+        manualBilling.setTime(DateHelper.toTimestampByMonth(vo.time));
+        manualBilling.setRemark(vo.remark);
+
+        return manualBilling;
+    }
+
     @Override
     public Long addBillManually(Long accountId, BillAddVO billAddVO) {
         Account account = accountRepository.findOne(accountId);
         if (account == null) {
             throw new ResourceNotFoundException("账户不存在");
         }
-        ManualBilling manualBilling = new ManualBilling();
-        manualBilling.setCardId(String.valueOf(accountId));
-        manualBilling.setCardType(billAddVO.cardType);
-        manualBilling.setCommodity(billAddVO.commodity);
-        manualBilling.setConsumeType(billAddVO.consumeType);
-        manualBilling.setIncomeExpenditure(billAddVO.incomeExpenditure);
-        manualBilling.setTime(DateHelper.toTimestampByMonth(billAddVO.time));
-        // TODO 判断用户是否存在
-        manualBilling.setUsername(billAddVO.username);
-        manualBilling.setRemark(billAddVO.remark);
+        String accountType = account.getCardType();
+        if (accountType.equals(ALIPAY.accountType) || accountType.equals(ICBC_CARD.accountType) || accountType.equals(SCHOOL_CARD.accountType)) {
+            throw new InvalidRequestException("可同步账户无法添加账目");
+        }
+
+        ManualBilling manualBilling = billAddVOToEntity(account, billAddVO);
+
         return manualBillingRepository.save(manualBilling).getId();
     }
 
@@ -300,8 +324,8 @@ public class BillServiceImpl implements BillService {
                 throw new ResourceNotFoundException("账目不存在");
             }
             schoolCardRepository.delete(schoolCard);
-        } else if (accountType.equals(MANUAL.accountType)) {
-            ManualBilling manualBilling = manualBillingRepository.findByIdAndCardId(billId, cardId);
+        } else {
+            ManualBilling manualBilling = manualBillingRepository.findByUsernameAndCardTypeAndCardIdAndId(account.getUsername(), accountType, cardId, billId);
             if (manualBilling == null) {
                 throw new ResourceNotFoundException("账目不存在");
             }
@@ -319,7 +343,6 @@ public class BillServiceImpl implements BillService {
         Timestamp start = Timestamp.valueOf(startDate);
         Timestamp end = Timestamp.valueOf(endDate);
         double result = 0;
-//        TotalAccountVO totalAccountVO = new TotalAccountVO();
 
         List<Alipay> alipays = alipayRepository.getMouthBill(username, start, end);
         for (int i = 0; i < alipays.size(); i++) {
@@ -347,6 +370,9 @@ public class BillServiceImpl implements BillService {
                 }
             }
         }
+
+        // TODO 手动记账
+
         return result;
     }
 }

@@ -1,12 +1,12 @@
 package cn.edu.nju.wonderland.ucountserver.service.impl;
 
 import cn.edu.nju.wonderland.ucountserver.entity.*;
-import cn.edu.nju.wonderland.ucountserver.exception.InvalidRequestException;
 import cn.edu.nju.wonderland.ucountserver.exception.ResourceConflictException;
 import cn.edu.nju.wonderland.ucountserver.exception.ResourceNotFoundException;
 import cn.edu.nju.wonderland.ucountserver.repository.*;
 import cn.edu.nju.wonderland.ucountserver.service.AccountService;
-import cn.edu.nju.wonderland.ucountserver.util.AccountType;
+import cn.edu.nju.wonderland.ucountserver.util.AutoAccountType;
+import cn.edu.nju.wonderland.ucountserver.vo.AccountAddVO;
 import cn.edu.nju.wonderland.ucountserver.vo.AccountInfoVO;
 import cn.edu.nju.wonderland.ucountserver.vo.TotalAccountVO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,12 +14,12 @@ import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
-import static cn.edu.nju.wonderland.ucountserver.util.AccountType.*;
+import static cn.edu.nju.wonderland.ucountserver.util.AutoAccountType.*;
 import static cn.edu.nju.wonderland.ucountserver.util.DateHelper.DATE_TIME_FORMATTER;
 
 @Service
@@ -40,10 +40,10 @@ public class AccountServiceImpl implements AccountService {
     }
 
     /**
-     * 字符串转资产账户类型
+     * 字符串转自动资产账户类型
      * 若无对应则返回null
      */
-    private AccountType stringToAccountType(String type) {
+    private AutoAccountType stringToAccountType(String type) {
         if (type.equals(ALIPAY.accountType)) {
             return ALIPAY;
         }
@@ -53,9 +53,7 @@ public class AccountServiceImpl implements AccountService {
         if (type.equals(SCHOOL_CARD.accountType)) {
             return SCHOOL_CARD;
         }
-        if (type.equals(MANUAL.accountType)) {
-            return MANUAL;
-        }
+
         return null;
     }
 
@@ -106,9 +104,10 @@ public class AccountServiceImpl implements AccountService {
                     accountInfoVO.expend -= schoolCards.get(i).getIncomeExpenditure();
                 }
             }
-        } else if (account.getCardType().equals(MANUAL.accountType)) {
-            List<ManualBilling> manualBillings = manualBillingRepository.findByCardId(account.getCardId(), null).getContent();
+        } else {
+            List<ManualBilling> manualBillings = manualBillingRepository.findByUsernameAndCardTypeAndCardId(account.getUsername(), account.getCardType(), account.getCardId());
             // TODO 手动记账处理
+
         }
 
         return accountInfoVO;
@@ -116,29 +115,27 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public List<AccountInfoVO> getAccountsByUser(String username) {
-        List<Account> list = accountRepository.findByUsername(username);
-        List<AccountInfoVO> result = new ArrayList<>();
-        for (int i = 0; i < list.size(); i++) {
-            result.add(this.getAccountById(list.get(i).getId()));
-        }
-        return result;
+        List<Account> accounts = accountRepository.findByUsername(username);
+        return accounts
+                .stream()
+                .map(e -> getAccountById(e.getId()))
+                .collect(Collectors.toList());
     }
 
     @Override
-    public Long addAccount(AccountInfoVO accountInfoVO) {
-        AccountType accountType = stringToAccountType(accountInfoVO.type);
-        if (accountType == null) {
-            throw new InvalidRequestException("不支持的账户类型");
-        }
+    public Long addAccount(AccountAddVO vo) {
+        // TODO 判断用户是否存在
 
-        if (accountRepository.findByCardIdAndCardTypeAndUsername(accountInfoVO.cardID, accountType.accountType, accountInfoVO.username) != null) {
+        // 判断用户是否已有该账户
+        if (accountRepository.findByUsernameAndCardTypeAndCardId(vo.username, vo.accountType, vo.accountId) != null) {
             throw new ResourceConflictException("账户已存在");
         }
 
         Account account = new Account();
-        account.setCardId(accountInfoVO.cardID);
-        account.setCardType(accountInfoVO.type);
-        account.setUsername(accountInfoVO.username);
+        account.setCardType(vo.accountType);
+        account.setUsername(vo.username);
+        account.setCardId(vo.accountId);
+
         return accountRepository.save(account).getId();
     }
 
@@ -156,8 +153,8 @@ public class AccountServiceImpl implements AccountService {
             icbcCardRepository.deleteByCardId(account.getCardId());
         } else if (account.getCardType().equals(SCHOOL_CARD.accountType)) {
             schoolCardRepository.deleteByCardId(account.getCardId());
-        } else if (account.getCardType().equals(MANUAL.accountType)) {
-            manualBillingRepository.deleteByCardId(account.getCardId());
+        } else {
+            manualBillingRepository.deleteByUsernameAndCardTypeAndCardId(account.getUsername(), account.getCardType(), account.getCardId());
         }
 
         accountRepository.delete(accountId);
@@ -249,7 +246,7 @@ public class AccountServiceImpl implements AccountService {
                 result += icbcCardRepository.getBalance(account.getCardId()).getBalance();
             } else if (account.getCardType().equals(SCHOOL_CARD.accountType)) {
                 result += schoolCardRepository.getBalance(account.getCardId()).getBalance();
-            } else if (account.getCardType().equals(MANUAL.accountType)) {
+            } else {
                 // TODO 手动记账处理
             }
         }

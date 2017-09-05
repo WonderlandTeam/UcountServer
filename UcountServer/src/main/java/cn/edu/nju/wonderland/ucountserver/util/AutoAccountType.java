@@ -1,15 +1,17 @@
 package cn.edu.nju.wonderland.ucountserver.util;
 
-public enum AccountType {
+/**
+ * 自动记账类型
+ */
+public enum AutoAccountType {
     ALIPAY      ("支付宝"),
     ICBC_CARD   ("工行卡"),
     SCHOOL_CARD ("校园卡"),
-    MANUAL      ("手动"),
     ;
 
     public String accountType;
 
-    AccountType(String accountType) {
+    AutoAccountType(String accountType) {
         this.accountType = accountType;
     }
 

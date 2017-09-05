@@ -5,6 +5,7 @@ import cn.edu.nju.wonderland.ucountserver.vo.AccountAddVO;
 import cn.edu.nju.wonderland.ucountserver.vo.AccountInfoVO;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -17,14 +18,21 @@ import static cn.edu.nju.wonderland.ucountserver.util.KeyName.MESSAGE;
 @RestController
 @RequestMapping("/accounts")
 public class AccountController {
-    AccountService accountService;
+
+    private final AccountService accountService;
+
+    @Autowired
+    public AccountController(AccountService accountService) {
+        this.accountService = accountService;
+    }
+
     @ApiOperation(value = "获取资产账户信息", notes = "根据账户id获取账户信息")
     @ApiImplicitParam(name = "accountId", value = "账户id", required = true, dataType = "Long")
     @GetMapping("/{account_id}")
     public Map<String, Object> getAccount(@PathVariable("account_id") Long accountId) {
-        Map<String,Object> result = new HashMap<>();
+        Map<String, Object> result = new HashMap<>();
         AccountInfoVO accountInfoVO = accountService.getAccountById(accountId);
-        result.put(CONTENT,accountInfoVO);
+        result.put(CONTENT, accountInfoVO);
         return result;
     }
 
@@ -32,19 +40,19 @@ public class AccountController {
     @ApiImplicitParam(name = "username", value = "用户名", required = true, dataType = "String")
     @GetMapping
     public Map<String, Object> getAccountsByUser(@RequestParam String username) {
-        Map<String,Object> result = new HashMap<>();
+        Map<String, Object> result = new HashMap<>();
         List<AccountInfoVO> accountInfoVOList = accountService.getAccountsByUser(username);
-        result.put(CONTENT,accountInfoVOList);
+        result.put(CONTENT, accountInfoVOList);
         return result;
     }
 
     @ApiOperation(value = "添加资产账户")
     @ApiImplicitParam(name = "accountAddVO", value = "账户添加信息vo", required = true, dataType = "AccountAddVO")
     @PostMapping
-    public Map<String, Object> addAccount(@RequestBody AccountInfoVO accountInfoVO) {
-        Map<String,Object> result = new HashMap<>();
-        Long id = accountService.addAccount(accountInfoVO);
-        result.put(CONTENT,id);
+    public Map<String, Object> addAccount(@RequestBody AccountAddVO vo) {
+        Map<String, Object> result = new HashMap<>();
+        Long id = accountService.addAccount(vo);
+        result.put(CONTENT, id);
         return result;
     }
 
@@ -53,9 +61,9 @@ public class AccountController {
     @DeleteMapping("/{account_id}")
     public Map<String, Object> deleteAccount(@PathVariable("account_id") Long accountId) {
         accountService.deleteAccount(accountId);
-        Map<String,Object> result = new HashMap<>();
-        result.put(MESSAGE,"删除成功");
-        return null;
+        Map<String, Object> result = new HashMap<>();
+        result.put(MESSAGE, "删除成功");
+        return result;
     }
 
 }
