@@ -28,8 +28,10 @@ public interface StatementService {
     /**
      * 获取现金流量
      * @param username          用户名
+     * @param beginDate         开始日期
+     * @param endDate           结束日期（可能为空）
      * @return                  现金流量列表
      */
-    List<BillInfoVO> getCashFlow(String username);
+    List<BillInfoVO> getCashFlows(String username, String beginDate, String endDate);
 
 }

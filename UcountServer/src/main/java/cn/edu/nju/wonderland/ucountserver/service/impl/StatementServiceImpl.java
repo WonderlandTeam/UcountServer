@@ -40,8 +40,9 @@ public class StatementServiceImpl implements StatementService {
     }
 
     @Override
-    public List<BillInfoVO> getCashFlow(String username) {
+    public List<BillInfoVO> getCashFlows(String username, String beginDate, String endDate) {
         return null;
     }
+
 
 }

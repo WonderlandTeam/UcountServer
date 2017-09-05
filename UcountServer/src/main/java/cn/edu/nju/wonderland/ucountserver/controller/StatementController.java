@@ -56,13 +56,15 @@ public class StatementController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "username", value = "用户名", required = true, dataType = "String"),
             @ApiImplicitParam(name = "beginDate", value = "开始日期，格式为：yyyy-MM-dd", required = true, dataType = "String"),
-            @ApiImplicitParam(name = "endDate", value = "截止日期，格式为：yyyy-MM-dd", required = true, dataType = "String")
+            @ApiImplicitParam(name = "endDate", value = "截止日期，格式为：yyyy-MM-dd", required = false, dataType = "String")
     })
-    @GetMapping("/cashFlowsStatement")
+    @GetMapping("/cashFlows")
     public Map<String, Object> getCashFlowsStatement(@RequestParam String username,
                                                      @RequestParam String beginDate,
                                                      @RequestParam String endDate) {
-        return null;
+        Map<String, Object> result = new HashMap<>();
+        result.put(CONTENT, statementService.getCashFlows(username, beginDate, endDate));
+        return result;
     }
 
 }
