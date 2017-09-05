@@ -13,11 +13,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.*;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static cn.edu.nju.wonderland.ucountserver.util.AccountType.*;
+import static cn.edu.nju.wonderland.ucountserver.util.DateHelper.DATE_TIME_FORMATTER;
 
 @Service
 public class AccountServiceImpl implements AccountService {
@@ -105,7 +108,7 @@ public class AccountServiceImpl implements AccountService {
     		}
 		} else if (account.getCardType().equals(MANUAL.accountType)) {
             List<ManualBilling> manualBillings = manualBillingRepository.findByCardId(account.getCardId(), null).getContent();
-            // TODO
+            // TODO 手动记账处理
 		}
 
         return accountInfoVO;
@@ -162,23 +165,14 @@ public class AccountServiceImpl implements AccountService {
 
 	@Override
 	public TotalAccountVO getAccountByUserAndTime(String username, String time) {
-		DateFormat sdf =  new  SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-		Date startDate  = new Date();
-		Date endDate = new Date();
-		Timestamp start = new Timestamp(0);
-		Timestamp end = new Timestamp(0);
+
+        LocalDateTime starDate = LocalDateTime.parse(time, DATE_TIME_FORMATTER);
+        LocalDateTime endDate = starDate.plusDays(1);
+
+        Timestamp start = Timestamp.valueOf(starDate);
+        Timestamp end = Timestamp.valueOf(endDate);
 		TotalAccountVO totalAccountVO = new TotalAccountVO();
-		try {
-			startDate = sdf.parse(time);
-			Calendar calendar = Calendar.getInstance();
-			calendar.setTime(startDate);
-			calendar.add(Calendar.MONTH, 1);
-			endDate = calendar.getTime();
-			start = new Timestamp(startDate.getTime());
-			end = new Timestamp(endDate.getTime());
-		} catch (Exception e) {
-			// TODO: handle exception
-		}
+
 		List<Alipay> alipayList = alipayRepository.getMouthBill(username, start, end);
 		List<SchoolCard> schoolCardList =schoolCardRepository.getMouthBill(username, start, end);
 		List<Account> accounts = accountRepository.findByUsername(username);
@@ -262,48 +256,41 @@ public class AccountServiceImpl implements AccountService {
 
 	@Override
 	public double getConsumedMoneyByDateAndUser(String username, String time) {
-		DateFormat sdf =  new  SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-		Date startDate  = new Date();
-		Date endDate = new Date();
-		Timestamp start = new Timestamp(0);
-		Timestamp end = new Timestamp(0);
-		double result = 0 ;
-		try {
-			startDate = sdf.parse(time);
-			Calendar calendar = Calendar.getInstance();
-			calendar.setTime(startDate);
-			calendar.add(Calendar.DATE , 1);
-			endDate = calendar.getTime();
-			start = new Timestamp(startDate.getTime());
-			end = new Timestamp(endDate.getTime());
-		} catch (Exception e) {
-			// TODO: handle exception
-		}
-		List<Alipay> alipayList = alipayRepository.getMouthBill(username, start, end);
-		List<SchoolCard> schoolCardList =schoolCardRepository.getMouthBill(username, start, end);
-		List<Account> accounts = accountRepository.findByUsername(username);
-		Map<Integer,List<IcbcCard>> icbcCardmap = new HashMap<>();
-		for ( int i = 0 ; i < accounts.size();i++){
-			icbcCardmap.put(i,icbcCardRepository.getMouthBill(accounts.get(i).getCardId(),start,end));
-		}
-		for ( int i = 0 ; i <alipayList.size();i++){
-			if(alipayList.get(i).getIncomeExpenditureType().equals("支出")){
-				result += Double.valueOf(alipayList.get(i).getIncomeExpenditureType());
-			}
-		}
-		for ( int i = 0 ; i <schoolCardList.size();i++){
-			if(schoolCardList.get(i).getIncomeExpenditure() < 0){
-				result -= schoolCardList.get(i).getIncomeExpenditure();
-			}
-		}
-		for(int k = 0; k < accounts.size() ;k++) {
-			List<IcbcCard> icbcCardList = icbcCardmap.get(k);
-			for (int i = 0; i < icbcCardList.size(); i++) {
-				if (icbcCardList.get(i).getAccountAmountExpense() > 0) {
-					result += icbcCardList.get(i).getAccountAmountExpense();
-				}
-			}
-		}
+        LocalDateTime starDate = LocalDateTime.parse(time, DATE_TIME_FORMATTER);
+        LocalDateTime endDate = starDate.plusDays(1);
+
+		Timestamp start = Timestamp.valueOf(starDate);
+		Timestamp end = Timestamp.valueOf(endDate);
+		double result = 0;
+
+		// TODO 根据用户名分别查找计算四种资产账户消费账目
+//        List<Account> accounts = accountRepository.findByUsername(username);
+//
+//		List<Alipay> alipayList = alipayRepository.getMouthBill(username, start, end);
+//		List<SchoolCard> schoolCardList = schoolCardRepository.getMouthBill(username, start, end);
+//
+//		Map<Integer,List<IcbcCard>> icbcCardmap = new HashMap<>();
+//		for ( int i = 0 ; i < accounts.size();i++){
+//			icbcCardmap.put(i,icbcCardRepository.getMouthBill(accounts.get(i).getCardId(),start,end));
+//		}
+//		for ( int i = 0 ; i <alipayList.size();i++){
+//			if(alipayList.get(i).getIncomeExpenditureType().equals("支出")){
+//				result += Double.valueOf(alipayList.get(i).getIncomeExpenditureType());
+//			}
+//		}
+//		for ( int i = 0 ; i <schoolCardList.size();i++){
+//			if(schoolCardList.get(i).getIncomeExpenditure() < 0){
+//				result -= schoolCardList.get(i).getIncomeExpenditure();
+//			}
+//		}
+//		for(int k = 0; k < accounts.size() ;k++) {
+//			List<IcbcCard> icbcCardList = icbcCardmap.get(k);
+//			for (int i = 0; i < icbcCardList.size(); i++) {
+//				if (icbcCardList.get(i).getAccountAmountExpense() > 0) {
+//					result += icbcCardList.get(i).getAccountAmountExpense();
+//				}
+//			}
+//		}
 		return result;
 	}
 }
