@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Map;
 
 import static cn.edu.nju.wonderland.ucountserver.util.AccountType.*;
-import static cn.edu.nju.wonderland.ucountserver.util.DateHelper.DATE_FORMATTER;
+import static cn.edu.nju.wonderland.ucountserver.util.DateHelper.DATE_TIME_FORMATTER;
 
 @Service
 public class BillServiceImpl implements BillService {
@@ -313,7 +313,7 @@ public class BillServiceImpl implements BillService {
     @Override
     public double getConsumedMoneyByTypeAndTime(String username, String consumeType, String time) {
 
-        LocalDateTime startDate = LocalDateTime.parse(time, DATE_FORMATTER);
+        LocalDateTime startDate = LocalDateTime.parse(time, DATE_TIME_FORMATTER);
         LocalDateTime endDate = startDate.plusMonths(1);
 
         Timestamp start = Timestamp.valueOf(startDate);
