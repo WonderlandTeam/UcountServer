@@ -7,18 +7,20 @@ import cn.edu.nju.wonderland.ucountserver.service.BillService;
 import cn.edu.nju.wonderland.ucountserver.util.DateHelper;
 import cn.edu.nju.wonderland.ucountserver.vo.BillAddVO;
 import cn.edu.nju.wonderland.ucountserver.vo.BillInfoVO;
-import cn.edu.nju.wonderland.ucountserver.vo.TotalAccountVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.*;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static cn.edu.nju.wonderland.ucountserver.util.AccountType.*;
+import static cn.edu.nju.wonderland.ucountserver.util.DateHelper.DATE_FORMATTER;
 
 @Service
 public class BillServiceImpl implements BillService {
@@ -44,7 +46,6 @@ public class BillServiceImpl implements BillService {
     private BillInfoVO alipayToVO(Alipay alipay) {
         BillInfoVO vo = new BillInfoVO();
         vo.type = alipay.getConsumeType();
-        // TODO 正负判断
         vo.amount = alipay.getMoney();
         vo.trader = alipay.getTrader();
         vo.time = DateHelper.toTimeByTimeStamp(alipay.getPayTime());
@@ -57,7 +58,7 @@ public class BillServiceImpl implements BillService {
     private BillInfoVO icbcCardToVO(IcbcCard icbcCard) {
         BillInfoVO vo = new BillInfoVO();
         vo.type = icbcCard.getConsumeType();
-        vo.amount = icbcCard.getAccountAmountIncome() - icbcCard.getAccountAmountExpense();
+        vo.amount = icbcCard.getAccountAmountIncome() + icbcCard.getAccountAmountExpense();
         vo.trader = icbcCard.getLocation();
         vo.time = DateHelper.toTimeByTimeStamp(icbcCard.getTradeDate());
         return vo;
@@ -69,7 +70,7 @@ public class BillServiceImpl implements BillService {
     private BillInfoVO schoolCardToVO(SchoolCard schoolCard) {
         BillInfoVO vo = new BillInfoVO();
         vo.type = schoolCard.getConsumeType();
-        vo.amount = schoolCard.getIncomeExpenditure();
+        vo.amount = Math.abs(schoolCard.getIncomeExpenditure());
         vo.time = DateHelper.toTimeByTimeStamp(schoolCard.getTime());
         vo.trader = schoolCard.getLocation();
         return vo;
@@ -156,12 +157,14 @@ public class BillServiceImpl implements BillService {
     }
 
     @Override
-    public List<BillInfoVO> getBillsByUser(String username, Pageable pageable) {
+    public List<BillInfoVO> getMonthBillsByUser(String username, String month) {
+        // TODO 月份处理
+
         List<BillInfoVO> billInfoVOList = new ArrayList<>();
         Map<Integer, List<IcbcCard>> icbcCardmap = new HashMap<>();
         /* 工行卡的表*/
-        List<SchoolCard> schoolCardList = schoolCardRepository.findByUsername(username, pageable);
-        List<Alipay> alipayList = alipayRepository.findByUsername(username, pageable);
+        List<SchoolCard> schoolCardList = schoolCardRepository.findByUsername(username, null);
+        List<Alipay> alipayList = alipayRepository.findByUsername(username, null);
         List<Account> accounts = accountRepository.findByUsername(username);
         for (int i = 0; i < accounts.size(); i++) {
             if (!accounts.get(i).getCardType().contains("银行卡")) {
@@ -169,7 +172,7 @@ public class BillServiceImpl implements BillService {
             }
         }
         for (int i = 0; i < accounts.size(); i++) {
-            icbcCardmap.put(i, icbcCardRepository.findByCardId(accounts.get(i).getCardId(), pageable).getContent());
+            icbcCardmap.put(i, icbcCardRepository.findByCardId(accounts.get(i).getCardId(), null).getContent());
         }
         for (int k = 0; k < accounts.size(); k++) {
             List<IcbcCard> icbcCardList = icbcCardmap.get(k);
@@ -309,24 +312,15 @@ public class BillServiceImpl implements BillService {
 
     @Override
     public double getConsumedMoneyByTypeAndTime(String username, String consumeType, String time) {
-        DateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        Date startDate = new Date();
-        Date endDate = new Date();
-        Timestamp start = new Timestamp(0);
-        Timestamp end = new Timestamp(0);
+
+        LocalDateTime startDate = LocalDateTime.parse(time, DATE_FORMATTER);
+        LocalDateTime endDate = startDate.plusMonths(1);
+
+        Timestamp start = Timestamp.valueOf(startDate);
+        Timestamp end = Timestamp.valueOf(endDate);
         double result = 0;
-        TotalAccountVO totalAccountVO = new TotalAccountVO();
-        try {
-            startDate = sdf.parse(time);
-            Calendar calendar = Calendar.getInstance();
-            calendar.setTime(startDate);
-            calendar.add(Calendar.MONTH, 1);
-            endDate = calendar.getTime();
-            start = new Timestamp(startDate.getTime());
-            end = new Timestamp(endDate.getTime());
-        } catch (Exception e) {
-            // TODO: handle exception
-        }
+//        TotalAccountVO totalAccountVO = new TotalAccountVO();
+
         List<Alipay> alipays = alipayRepository.getMouthBill(username, start, end);
         for (int i = 0; i < alipays.size(); i++) {
             if (alipays.get(i).getConsumeType().equals(consumeType)) {
