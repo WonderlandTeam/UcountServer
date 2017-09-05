@@ -6,6 +6,7 @@ import cn.edu.nju.wonderland.ucountserver.service.UserService;
 import cn.edu.nju.wonderland.ucountserver.vo.SignUpVO;
 import cn.edu.nju.wonderland.ucountserver.vo.UserInfoVO;
 import com.sun.mail.util.MailSSLSocketFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.mail.*;
@@ -18,11 +19,13 @@ import java.util.Properties;
 
 @Service
 public class UserServiceImpl implements UserService {
+    @Autowired
     private UserRepository userRepository;
 
     @Override
     public String signUp(SignUpVO signUpVO) {
-        if(userRepository.findByUsername ( signUpVO.userName ) != null){
+        User getuser = userRepository.findByUsername ( signUpVO.userName );
+        if( getuser != null){
             return null;
         }
         User user = new User();
