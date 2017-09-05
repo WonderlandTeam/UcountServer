@@ -34,14 +34,14 @@ public class BillController {
         return null;
     }
 
-    @ApiOperation(value = "获取用户所有账户账目列表", notes = "根据用户名及筛选条件获取账目信息列表")
+    @ApiOperation(value = "获取用户某月账户账目列表", notes = "根据用户名及月份获取账目信息列表")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "username", value = "用户名", required = true, dataType = "String"),
-            @ApiImplicitParam(name = "pageable", value = "过滤信息", dataType = "Pageable")
+            @ApiImplicitParam(name = "month", value = "年份-月份，如\"2017-09\"", required = false, dataType = "String")
     })
     @GetMapping("users/{username}/bills")
     public Map<String, Object> getBillsByUser(@PathVariable String username,
-                                              Pageable pageable) {
+                                              @RequestParam(required = false) String month) {
         return null;
     }
 

@@ -1,7 +1,10 @@
 package cn.edu.nju.wonderland.ucountserver.service;
 
 import cn.edu.nju.wonderland.ucountserver.vo.BalanceSheetVO;
+import cn.edu.nju.wonderland.ucountserver.vo.BillInfoVO;
 import cn.edu.nju.wonderland.ucountserver.vo.IncomeStatementVO;
+
+import java.util.List;
 
 public interface StatementService {
 
@@ -21,5 +24,12 @@ public interface StatementService {
      * @return                  利润表vo
      */
     IncomeStatementVO getIncomeStatement(String username, String beginDate, String endDate);
+
+    /**
+     * 获取现金流量
+     * @param username          用户名
+     * @return                  现金流量列表
+     */
+    List<BillInfoVO> getCashFlow(String username);
 
 }

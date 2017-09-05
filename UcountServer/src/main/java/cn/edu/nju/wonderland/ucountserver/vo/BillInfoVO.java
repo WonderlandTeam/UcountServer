@@ -1,11 +1,11 @@
 package cn.edu.nju.wonderland.ucountserver.vo;
 
-import java.sql.Timestamp;
-
+/**
+ * 账目信息vo
+ */
 public class BillInfoVO {
-    // TODO 账目信息VO
-	public String type ;
-	public String trader ;
-	public double amount ;
-	public Timestamp tradeDate ;
+	public String type ; 			//交易类型
+	public String trader ; 			//交易对象
+	public double amount ; 			//交易金额
+	public String time;				//交易时间
 }

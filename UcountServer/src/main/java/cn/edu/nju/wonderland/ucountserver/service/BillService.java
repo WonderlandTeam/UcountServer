@@ -26,11 +26,11 @@ public interface BillService {
 
     /**
      * 获取用户所有账目信息
-     * @param username            用户id
-     * @param pageable          筛选信息
+     * @param username          用户id
+     * @param month             年份-月份
      * @return                  账目列表
      */
-    List<BillInfoVO> getBillsByUser(String username, Pageable pageable);
+    List<BillInfoVO> getMonthBillsByUser(String username, String month);
 
     /**
      * 用户手动记账
