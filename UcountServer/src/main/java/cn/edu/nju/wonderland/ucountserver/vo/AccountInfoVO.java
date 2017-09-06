@@ -1,7 +1,9 @@
 package cn.edu.nju.wonderland.ucountserver.vo;
 
+/**
+ * 用户账户信息vo
+ */
 public class AccountInfoVO {
-    // TODO 用户账户信息vo
 	public long   id;
 	public double balance; 		//余额
 	public String type; 		//类型

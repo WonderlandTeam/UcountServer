@@ -1,5 +1,7 @@
 package cn.edu.nju.wonderland.ucountserver.vo;
 
+import java.lang.reflect.Field;
+
 /**
  * 收支储蓄表（利润表）VO
  */
@@ -61,5 +63,17 @@ public class IncomeStatementVO {
 
     /* 支出合计 */
     public double totalExpenditure;     // 支出合计
+
+
+    /**
+     * 根据字段名获取字段
+     */
+    public static Field getFieldByFieldName(String fieldName) {
+        try {
+            return IncomeStatementVO.class.getField(fieldName);
+        } catch (NoSuchFieldException e) {
+            return null;
+        }
+    }
 
 }
