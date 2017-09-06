@@ -21,12 +21,11 @@ public class UserServiceTest {
     @Autowired
     UserService userService;
 
-    @Test
     public void testSignUp() {
         SignUpVO signUpVO = new SignUpVO();
         signUpVO.userName = "456";
         signUpVO.email = "123@qq.com";
-        signUpVO.password = MD5("123");
+        signUpVO.password = "123";
         signUpVO.tel = "123";
         String username = userService.signUp(signUpVO);
         assertEquals(username, "456");
@@ -34,8 +33,8 @@ public class UserServiceTest {
 
     @Test
     public void testLogin() {
-        UserInfoVO userInfoVO = userService.login("456", MD5("123"));
-        assertEquals(userInfoVO.userName, "456");
+        UserInfoVO userInfoVO = userService.login("123", "123");
+        assertEquals(userInfoVO.userName, "123");
     }
 
     @Test
@@ -47,16 +46,25 @@ public class UserServiceTest {
     @Test
     public void testModefyUserInfo() {
         UserInfoVO user = new UserInfoVO();
-        user.tel = "789";
+        user.tel = "15050582710";
         user.userName = "456";
-        user.password = MD5("123");
-        user.email = "456@qq.com";
+        user.password = "123";
+        user.email = "151250089@smail.nju.edu.cn";
         userService.modifyUserInfo(user.userName, user);
         user = userService.getUserInfo("456");
-        assertEquals(user.email, "456@qq.com");
-        assertEquals(user.tel, "789");
+        assertEquals(user.email, "151250089@smail.nju.edu.cn");
+        assertEquals(user.tel, "15050582710");
     }
-
+    @Test
+    public void testfindPasswordByMail(){
+        String result = userService.findPasswordByMail("456");
+        System.out.println(result);
+    }
+    @Test
+    public void testFindPasswordByTel() {
+        String result = userService.findPasswordByTel("456");
+        System.out.println(result);
+    }
     private String MD5(String str) {
         try {
             MessageDigest md = MessageDigest.getInstance("MD5");
