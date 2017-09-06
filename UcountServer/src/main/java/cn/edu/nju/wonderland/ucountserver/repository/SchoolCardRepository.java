@@ -25,6 +25,5 @@ public interface SchoolCardRepository extends JpaRepository<SchoolCard, Long> {
     @Query("SELECT s FROM SchoolCard s WHERE s.time = (SELECT max(p2.time) FROM SchoolCard p2 WHERE p2.cardId = ?1) and s.cardId = ?1 ")
     SchoolCard getBalance(String account);
 
-    @Query("SELECT s FROM SchoolCard s WHERE  s.username = ?1 and s.time between ?2 and ?3")
-    List<SchoolCard> getMouthBill(String username, Timestamp start, Timestamp end);
+    List<SchoolCard> findByUsernameAndTimeBetween(String username, Timestamp start, Timestamp end);
 }

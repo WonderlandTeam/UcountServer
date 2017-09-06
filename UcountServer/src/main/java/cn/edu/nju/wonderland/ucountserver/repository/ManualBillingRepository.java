@@ -3,6 +3,7 @@ package cn.edu.nju.wonderland.ucountserver.repository;
 import cn.edu.nju.wonderland.ucountserver.entity.ManualBilling;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.sql.Timestamp;
 import java.util.List;
 
 /**
@@ -20,4 +21,6 @@ public interface ManualBillingRepository extends JpaRepository<ManualBilling, Lo
     List<ManualBilling> findByUsernameAndCardTypeAndCardId(String username, String cardType, String cardId);
 
     void deleteByUsernameAndCardTypeAndCardId(String username, String cardType, String cardId);
+
+    List<ManualBilling> findByUsernameAndTimeBetween(String username, Timestamp start, Timestamp end);
 }
