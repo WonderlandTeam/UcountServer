@@ -24,6 +24,16 @@ public class StringUtil {
         return sb.toString();
     }
 
+    /**
+     * 驼峰转下划线
+     */
+    public static String humpToLine(String str){
+        return str.replaceAll("[A-Z]", "_$0").toLowerCase();
+    }
+
+    /**
+     * 测试main方法
+     */
     public static void main(String[] args) {
         System.out.println(lineToHump("TEST_String"));
     }

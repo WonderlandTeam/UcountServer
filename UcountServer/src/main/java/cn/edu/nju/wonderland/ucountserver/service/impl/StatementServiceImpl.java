@@ -7,6 +7,7 @@ import cn.edu.nju.wonderland.ucountserver.entity.SchoolCard;
 import cn.edu.nju.wonderland.ucountserver.repository.*;
 import cn.edu.nju.wonderland.ucountserver.service.StatementService;
 import cn.edu.nju.wonderland.ucountserver.util.BillType;
+import cn.edu.nju.wonderland.ucountserver.util.StringUtil;
 import cn.edu.nju.wonderland.ucountserver.vo.BalanceSheetVO;
 import cn.edu.nju.wonderland.ucountserver.vo.BillInfoVO;
 import cn.edu.nju.wonderland.ucountserver.vo.IncomeStatementVO;
@@ -41,7 +42,7 @@ public class StatementServiceImpl implements StatementService {
         if (billType == null) {
             return;
         }
-        Field field = IncomeStatementVO.getFieldByFieldName(billType.billType);
+        Field field = IncomeStatementVO.getFieldByFieldName(StringUtil.lineToHump(billType.name()));
         if (field != null) {
             try {
                 field.set(vo, (double) field.get(vo) + value);

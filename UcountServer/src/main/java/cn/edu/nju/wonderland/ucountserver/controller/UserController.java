@@ -3,7 +3,6 @@ package cn.edu.nju.wonderland.ucountserver.controller;
 import cn.edu.nju.wonderland.ucountserver.service.UserService;
 import cn.edu.nju.wonderland.ucountserver.vo.SignUpVO;
 import cn.edu.nju.wonderland.ucountserver.vo.UserInfoVO;
-import cn.edu.nju.wonderland.ucountserver.vo.UserModifyVO;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
@@ -18,7 +17,13 @@ import static cn.edu.nju.wonderland.ucountserver.util.KeyName.MESSAGE;
 @RestController
 @RequestMapping("/users")
 public class UserController {
-    UserService userService ;
+
+    private final UserService userService;
+
+    public UserController(UserService userService) {
+        this.userService = userService;
+    }
+
     @ApiOperation(value = "用户登陆")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "username", value = "用户名", required = true, dataType = "String"),
