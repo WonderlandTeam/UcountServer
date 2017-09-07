@@ -35,10 +35,10 @@ public class ClassifyTest {
 
     @Test
     public void testClassifyAlipay1() {
-        Alipay alipay = alipayRepository.findOne(2690L);
-        System.out.println(alipay.getLastUpdateTime());
+        Alipay alipay = alipayRepository.findOne(540L);
         BillType billType = Classify.classifyAlipay(alipay);
-        assertEquals(MANAGEMENT_INCOME,billType);
+        System.out.println(alipay.getCommodity()+""+alipay.getTrader());
+        assertEquals(DIET,billType);
     }
 
     @Test
@@ -139,4 +139,26 @@ public class ClassifyTest {
         System.out.println("校园卡可分类比例：\t" + classifyNum / schoolCardList.size());
     }
 
+    @Test
+    public void testClassifyAilpay() {
+        double classifyNum = 0;
+
+        List<Alipay> alipayList = alipayRepository.findAll();
+        int i = 0;
+        for (Alipay alipay : alipayList) {
+            BillType billType = Classify.classifyAlipay(alipay);
+            if (billType == OTHER_INCOME || billType == OTHER_EXPENDITURE) {
+                classifyNum++;
+                System.out.println("交易内容   "+alipay.getCommodity()+"  "+billType);
+            }
+            if (i>=800){
+                break;
+            }
+            i++;
+        }
+
+        System.out.println(classifyNum);
+//        System.out.println("支付宝可分类比例：\t" + classifyNum / alipayList.size());
+
+    }
 }
