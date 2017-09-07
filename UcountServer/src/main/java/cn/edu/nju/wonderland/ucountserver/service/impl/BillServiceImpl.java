@@ -344,13 +344,13 @@ public class BillServiceImpl implements BillService {
         Timestamp end = Timestamp.valueOf(endDate);
         double result = 0;
 
-        List<Alipay> alipays = alipayRepository.getMouthBill(username, start, end);
+        List<Alipay> alipays = alipayRepository.findByUsernameAndPayTimeBetween(username, start, end);
         for (int i = 0; i < alipays.size(); i++) {
             if (alipays.get(i).getConsumeType().equals(consumeType)) {
                 result += alipays.get(i).getMoney();
             }
         }
-        List<SchoolCard> schoolCards = schoolCardRepository.getMouthBill(username, start, end);
+        List<SchoolCard> schoolCards = schoolCardRepository.findByUsernameAndTimeBetween(username, start, end);
         for (int i = 0; i < schoolCards.size(); i++) {
             if (schoolCards.get(i).getConsumeType().equals(consumeType)) {
                 if (schoolCards.get(i).getIncomeExpenditure() > 0) {
@@ -360,7 +360,7 @@ public class BillServiceImpl implements BillService {
                 }
             }
         }
-        List<IcbcCard> icbcCards = icbcCardRepository.getMouthBill(username, start, end);
+        List<IcbcCard> icbcCards = icbcCardRepository.findByUsernameAndTradeDateBetween(username, start, end);
         for (int i = 0; i < icbcCards.size(); i++) {
             if (icbcCards.get(i).getConsumeType().equals(consumeType)) {
                 if (icbcCards.get(i).getAccountAmountExpense() > 0) {

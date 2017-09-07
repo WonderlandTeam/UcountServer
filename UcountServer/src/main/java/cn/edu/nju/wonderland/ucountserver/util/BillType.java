@@ -55,6 +55,18 @@ public enum BillType {
         this.billType = billType;
     }
 
+    /**
+     * 字符串转枚举类型
+     */
+    public static BillType stringToBillType(String string) {
+        for (BillType type : BillType.values()) {
+            if (string.equals(type.billType)) {
+                return type;
+            }
+        }
+        return null;
+    }
+
     @Override
     public String toString() {
         return billType;

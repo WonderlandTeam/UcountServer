@@ -6,12 +6,17 @@ import cn.edu.nju.wonderland.ucountserver.service.UserService;
 import cn.edu.nju.wonderland.ucountserver.vo.SignUpVO;
 import cn.edu.nju.wonderland.ucountserver.vo.UserInfoVO;
 import com.sun.mail.util.MailSSLSocketFactory;
+import org.apache.commons.httpclient.Header;
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.NameValuePair;
+import org.apache.commons.httpclient.methods.PostMethod;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.mail.*;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
+import java.io.IOException;
 import java.math.BigInteger;
 import java.security.GeneralSecurityException;
 import java.security.MessageDigest;
@@ -59,7 +64,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public int findPasswordByMail(String username)  {
+    public String findPasswordByMail(String username)  {
         //生成随机数
         String chars = "0123456789";
         char[] rands = new char[6];
@@ -121,20 +126,61 @@ public class UserServiceImpl implements UserService {
             // 发送消息
             Transport.send(message);
             System.out.println("Sent message successfully....from runoob.com");
-            return Integer.valueOf(num);
+            return num;
         }catch (MessagingException mex) {
             mex.printStackTrace();
         }
-        return  0;
+        return  null;
+    }
+
+    @Override
+    public String findPasswordByTel(String username) {
+        String chars = "0123456789";
+        char[] rands = new char[6];
+        for (int i = 0; i < 6; i++) {
+            int rand = (int) (Math.random() * 10);
+            rands[i] = chars.charAt(rand);
+        }
+        String num = String.valueOf(rands);
+        User user = userRepository.findByUsername(username);
+        if(user == null){
+            return null;
+        }
+        HttpClient client = new HttpClient();
+        PostMethod post = new PostMethod("http://gbk.api.smschinese.cn");
+        post.addRequestHeader("Content-Type","application/x-www-form-urlencoded;charset=gbk");//在头文件中设置转码
+        NameValuePair[] data ={ new NameValuePair("Uid", "VanillaV"),new NameValuePair("Key", "10a3d7604001230f4b42"),new NameValuePair("smsMob",user.getTel()),new NameValuePair("smsText","验证码："+num)};
+        post.setRequestBody(data);
+
+        try {
+            client.executeMethod(post);
+            return num;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        org.apache.commons.httpclient.Header[] headers = post.getResponseHeaders();
+        int statusCode = post.getStatusCode();
+        System.out.println("statusCode:"+statusCode);
+        for(Header h : headers)
+        {
+            System.out.println(h.toString());
+        }
+        String result = null;
+        try {
+            result = new String(post.getResponseBodyAsString().getBytes("gbk"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        System.out.println(result); //打印返回消息状态
+        post.releaseConnection();
+        return  null;
     }
 
     @Override
     public UserInfoVO login(String username, String password) {
         // TODO Auto-generated method stub
         User user = userRepository.findByUsername(username);
-        if((user.getUsername().equals(username) || user.getTel().equals(username) && user.getPassword().equals(MD5(password))
-
-                )){
+        if((user.getUsername().equals(username) || user.getTel().equals(username) ) && user.getPassword().equals(MD5(password))){
             UserInfoVO userInfoVO = new UserInfoVO();
             userInfoVO.userName = user.getUsername();
             userInfoVO.email = user.getEmail();

@@ -170,12 +170,12 @@ public class AccountServiceImpl implements AccountService {
         Timestamp end = Timestamp.valueOf(endDate);
         TotalAccountVO totalAccountVO = new TotalAccountVO();
 
-        List<Alipay> alipayList = alipayRepository.getMouthBill(username, start, end);
-        List<SchoolCard> schoolCardList = schoolCardRepository.getMouthBill(username, start, end);
+        List<Alipay> alipayList = alipayRepository.findByUsernameAndPayTimeBetween(username, start, end);
+        List<SchoolCard> schoolCardList = schoolCardRepository.findByUsernameAndTimeBetween(username, start, end);
         List<Account> accounts = accountRepository.findByUsername(username);
         Map<Integer, List<IcbcCard>> icbcCardmap = new HashMap<>();
         for (int i = 0; i < accounts.size(); i++) {
-            icbcCardmap.put(i, icbcCardRepository.getMouthBill(accounts.get(i).getCardId(), start, end));
+            icbcCardmap.put(i, icbcCardRepository.findByUsernameAndTradeDateBetween(accounts.get(i).getCardId(), start, end));
             //获取所有银行卡当月账单
         }
         for (int k = 0; k < accounts.size(); k++) {

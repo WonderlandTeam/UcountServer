@@ -34,9 +34,14 @@ public interface UserService {
      */
     void modifyUserInfo(String username, UserInfoVO userModifyVO);
     /**
-     * 修改用户信息
+     * 通过邮箱找回密码
      * @param username        用户名
      */
-    int findPasswordByMail(String username);
+    String findPasswordByMail(String username);
+    /**
+     * 通过手机找回密码
+     * @param username        用户名
+     */
+    String findPasswordByTel(String username);
 
 }
