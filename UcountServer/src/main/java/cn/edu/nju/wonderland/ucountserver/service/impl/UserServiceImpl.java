@@ -1,8 +1,11 @@
 package cn.edu.nju.wonderland.ucountserver.service.impl;
 
 import cn.edu.nju.wonderland.ucountserver.entity.User;
+import cn.edu.nju.wonderland.ucountserver.exception.ResourceConflictException;
+import cn.edu.nju.wonderland.ucountserver.exception.ResourceNotFoundException;
 import cn.edu.nju.wonderland.ucountserver.repository.UserRepository;
 import cn.edu.nju.wonderland.ucountserver.service.UserService;
+import cn.edu.nju.wonderland.ucountserver.util.MD5;
 import cn.edu.nju.wonderland.ucountserver.vo.SignUpVO;
 import cn.edu.nju.wonderland.ucountserver.vo.UserInfoVO;
 import com.sun.mail.util.MailSSLSocketFactory;
@@ -17,25 +20,30 @@ import javax.mail.*;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import java.io.IOException;
-import java.math.BigInteger;
 import java.security.GeneralSecurityException;
-import java.security.MessageDigest;
 import java.util.Properties;
 
 @Service
 public class UserServiceImpl implements UserService {
+
+    private final UserRepository userRepository;
+
     @Autowired
-    private UserRepository userRepository;
+    public UserServiceImpl(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
 
     @Override
     public String signUp(SignUpVO signUpVO) {
-        User getuser = userRepository.findByUsername ( signUpVO.userName );
-        if( getuser != null){
-            return null;
+        if(userRepository.findByUsername(signUpVO.userName) != null) {
+            throw new ResourceConflictException("用户名已存在");
+        }
+        if (signUpVO.tel != null && userRepository.findByTel(signUpVO.tel) != null) {
+            throw new ResourceConflictException("手机号已被注册");
         }
         User user = new User();
         user.setUsername(signUpVO.userName);
-        user.setPassword(MD5(signUpVO.password));
+        user.setPassword(MD5.encrypt(signUpVO.password));
         user.setTel(signUpVO.tel);
         user.setEmail(signUpVO.email);
         userRepository.save(user);
@@ -58,7 +66,7 @@ public class UserServiceImpl implements UserService {
         if(user != null){
             user.setEmail(userInfoVO.email);
             user.setTel(userInfoVO.tel);
-            user.setPassword(MD5(userInfoVO.password));
+            user.setPassword(MD5.encrypt(userInfoVO.password));
             userRepository.save(user);
         }
     }
@@ -178,26 +186,22 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserInfoVO login(String username, String password) {
-        // TODO Auto-generated method stub
         User user = userRepository.findByUsername(username);
-        if((user.getUsername().equals(username) || user.getTel().equals(username) ) && user.getPassword().equals(MD5(password))){
-            UserInfoVO userInfoVO = new UserInfoVO();
-            userInfoVO.userName = user.getUsername();
-            userInfoVO.email = user.getEmail();
-            userInfoVO.tel = user.getTel();
-            return userInfoVO;
+        if (user == null) {
+            user = userRepository.findByTel(username);
         }
-        return null;
-    }
-    private String MD5(String str) {
-        try{
-            MessageDigest md = MessageDigest.getInstance("MD5");
-            md.update(str.getBytes());
-            return new BigInteger(1, md.digest()).toString(16);
-        }catch(Exception exception){
-            exception.printStackTrace();
+        if (user == null) {
+            throw new ResourceNotFoundException("用户名不存在");
         }
-        return null;
+        if(!user.getPassword().equals(MD5.encrypt(password))) {
+            throw new ResourceNotFoundException("密码错误");
+        }
+
+        UserInfoVO userInfoVO = new UserInfoVO();
+        userInfoVO.userName = user.getUsername();
+        userInfoVO.email = user.getEmail();
+        userInfoVO.tel = user.getTel();
+        return userInfoVO;
     }
 
 }
