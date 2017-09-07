@@ -130,8 +130,13 @@ public class Classify {
             return BillType.DIET;
         }
 
-        if (icbcCard.getLocation().contains("支付宝")||icbcCard.getLocation().contains("财富通")){
-            return BillType.COMMODITY;
+        if (icbcCard.getLocation().contains("铁路")||icbcCard.getLocation().contains("飞机")||icbcCard.getLocation().contains("高铁")){
+            return BillType.TRAFFIC;
+        }
+
+        if (icbcCard.getLocation().contains("移动")||icbcCard.getLocation().contains("电信")||icbcCard.getLocation().contains("联通")
+                ||icbcCard.getLocation().contains("话费")||icbcCard.getLocation().contains("充值")){
+            return BillType.COMMUNICATION;
         }
 
         if (icbcCard.getSummary().contains("校园")){
@@ -147,6 +152,10 @@ public class Classify {
     public static BillType classifySchoolCard(SchoolCard schoolCard) {
 
         //根据消费地点判断消费类型
+
+        if (schoolCard.getIncomeExpenditure()>0){
+            return BillType.OTHER_INCOME;
+        }
 
         //饮食消费
         if (schoolCard.getLocation().contains("食堂")||schoolCard.getLocation().contains("教工")||schoolCard.getLocation().contains("清真")
