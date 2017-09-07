@@ -1,6 +1,7 @@
 package cn.edu.nju.wonderland.ucountserver.service;
 
 import cn.edu.nju.wonderland.ucountserver.vo.AccountInfoVO;
+import cn.edu.nju.wonderland.ucountserver.vo.TotalAccountVO;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,5 +24,11 @@ public class AccountServiceTest {
             System.out.println(field.getName() + ":\t" + field.get(vo));
         }
     }
-
+    @Test
+    public void testGetAccountByUserAndTime(){
+        TotalAccountVO totalAccountVO = accountService.getAccountByUserAndTime("bian","2017-07-01 00:00:00");
+        System.out.println(totalAccountVO.getExpend());
+        System.out.println(totalAccountVO.getIncome());
+        System.out.println(totalAccountVO.getBalance());
+    }
 }

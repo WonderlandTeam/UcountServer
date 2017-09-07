@@ -14,6 +14,8 @@ import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -59,6 +61,7 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public AccountInfoVO getAccountById(Long accountId) {
+        Timestamp timestamp = Timestamp.valueOf(LocalDateTime.now());
         Account account = accountRepository.findById(accountId);
         if (account == null) {
             throw new ResourceNotFoundException("账户不存在");
@@ -73,7 +76,7 @@ public class AccountServiceImpl implements AccountService {
 
         if (account.getCardType().equals(ALIPAY.accountType)) {
             List<Alipay> alipays = alipayRepository.findByCardId(account.getCardId(), null).getContent();
-            Alipay alipay = alipayRepository.getBalance(account.getCardId());
+            Alipay alipay = alipayRepository.getBalance(account.getCardId(),timestamp);
             accountInfoVO.balance = alipay.getBalance();
             for (int i = 0; i < alipays.size(); i++) {
                 if (alipays.get(i).getIncomeExpenditureType().equals("收入")) {
@@ -84,7 +87,7 @@ public class AccountServiceImpl implements AccountService {
             }
         } else if (account.getCardType().equals(ICBC_CARD.accountType)) {
             List<IcbcCard> icbcCards = icbcCardRepository.findByCardId(account.getCardId(), null).getContent();
-            IcbcCard icbcCard = icbcCardRepository.getBalance(String.valueOf(accountId));
+            IcbcCard icbcCard = icbcCardRepository.getBalance(String.valueOf(accountId),timestamp);
             accountInfoVO.balance = icbcCard.getBalance();
             for (int i = 0; i < icbcCards.size(); i++) {
                 if (icbcCards.get(i).getAccountAmountIncome() > 0) {
@@ -95,7 +98,7 @@ public class AccountServiceImpl implements AccountService {
             }
         } else if (account.getCardType().equals(SCHOOL_CARD.accountType)) {
             List<SchoolCard> schoolCards = schoolCardRepository.findByCardId(account.getCardId(), null).getContent();
-            SchoolCard schoolCard = schoolCardRepository.getBalance(String.valueOf(accountId));
+            SchoolCard schoolCard = schoolCardRepository.getBalance(String.valueOf(accountId),timestamp);
             accountInfoVO.balance = schoolCard.getBalance();
             for (int i = 0; i < schoolCards.size(); i++) {
                 if (schoolCards.get(i).getIncomeExpenditure() > 0) {
@@ -164,7 +167,7 @@ public class AccountServiceImpl implements AccountService {
     public TotalAccountVO getAccountByUserAndTime(String username, String time) {
 
         LocalDateTime starDate = LocalDateTime.parse(time, DATE_TIME_FORMATTER);
-        LocalDateTime endDate = starDate.plusDays(1);
+        LocalDateTime endDate = starDate.plus(1, ChronoUnit.MONTHS);
 
         Timestamp start = Timestamp.valueOf(starDate);
         Timestamp end = Timestamp.valueOf(endDate);
@@ -174,8 +177,11 @@ public class AccountServiceImpl implements AccountService {
         List<SchoolCard> schoolCardList = schoolCardRepository.findByUsernameAndTimeBetween(username, start, end);
         List<Account> accounts = accountRepository.findByUsername(username);
         Map<Integer, List<IcbcCard>> icbcCardmap = new HashMap<>();
+        double income = 0;
+        double expend = 0;
+        double balance = 0;
         for (int i = 0; i < accounts.size(); i++) {
-            icbcCardmap.put(i, icbcCardRepository.findByUsernameAndTradeDateBetween(accounts.get(i).getCardId(), start, end));
+            icbcCardmap.put(i, icbcCardRepository.findByCardIdAndTradeDateBetween(accounts.get(i).getCardId(), start, end));
             //获取所有银行卡当月账单
         }
         for (int k = 0; k < accounts.size(); k++) {
@@ -210,42 +216,62 @@ public class AccountServiceImpl implements AccountService {
         }
         for (int i = 0; i < alipayList.size(); i++) {
             if (alipayList.get(i).getIncomeExpenditureType().equals("收入")) {
-                totalAccountVO.setIncome(totalAccountVO.getIncome() + alipayList.get(i).getMoney());
+                income += alipayList.get(i).getMoney();
             } else {
-                totalAccountVO.setExpend(totalAccountVO.getExpend() + alipayList.get(i).getMoney());
+                expend += alipayList.get(i).getMoney();
             }
         }
         for (int i = 0; i < schoolCardList.size(); i++) {
             if (schoolCardList.get(i).getIncomeExpenditure() > 0) {
-                totalAccountVO.setIncome(totalAccountVO.getIncome() + schoolCardList.get(i).getIncomeExpenditure());
+                income += schoolCardList.get(i).getIncomeExpenditure();
             } else {
-                totalAccountVO.setExpend(totalAccountVO.getExpend() - schoolCardList.get(i).getIncomeExpenditure());
+                expend -= schoolCardList.get(i).getIncomeExpenditure();
             }
         }
         for (int k = 0; k < accounts.size(); k++) {
             List<IcbcCard> icbcCardList = icbcCardmap.get(k);
             for (int i = 0; i < icbcCardList.size(); i++) {
                 if (icbcCardList.get(i).getAccountAmountIncome() > 0) {
-                    totalAccountVO.setIncome(totalAccountVO.getIncome() + icbcCardList.get(i).getAccountAmountIncome());
+                    income += icbcCardList.get(i).getAccountAmountIncome();
                 } else {
-                    totalAccountVO.setExpend(totalAccountVO.getExpend() + icbcCardList.get(i).getAccountAmountExpense());
+                    expend += icbcCardList.get(i).getAccountAmountExpense();
                 }
             }
         }
+        totalAccountVO.setExpend(expend);
+        totalAccountVO.setIncome(income);
+        SchoolCard schoolCard = schoolCardRepository.getBalance(username,end);
+        if(schoolCard != null && schoolCard.getBalance() != null){
+            balance += schoolCard.getBalance();
+        }
+        Alipay alipay = alipayRepository.getBalance(username,end);
+        if(alipay !=null &&alipay.getBalance() != null){
+            balance += alipay.getBalance();
+        }
+        List<IcbcCard> icbcCardList = new ArrayList<>();
+        for(Account account:accounts){
+            IcbcCard icbcCard = icbcCardRepository.getBalance(account.getCardId(),end);
+            if(icbcCard!=null && icbcCard.getBalance() != null){
+                balance += icbcCard.getBalance();
+            }
+        }
+        totalAccountVO.setBalance(balance);
+        totalAccountVO.setUsername(username);
         return totalAccountVO;
     }
 
     @Override
     public double getBalanceByUser(String username) {
         double result = 0;
+        Timestamp timestamp = Timestamp.valueOf(LocalDateTime.now());
         List<Account> accounts = accountRepository.findByUsername(username);
         for (Account account : accounts) {
             if (account.getCardType().equals(ALIPAY.accountType)) {
-                result += alipayRepository.getBalance(account.getCardId()).getBalance();
+                result += alipayRepository.getBalance(account.getCardId(),timestamp).getBalance();
             } else if (account.getCardType().equals(ICBC_CARD.accountType)) {
-                result += icbcCardRepository.getBalance(account.getCardId()).getBalance();
+                result += icbcCardRepository.getBalance(account.getCardId(),timestamp).getBalance();
             } else if (account.getCardType().equals(SCHOOL_CARD.accountType)) {
-                result += schoolCardRepository.getBalance(account.getCardId()).getBalance();
+                result += schoolCardRepository.getBalance(account.getCardId(),timestamp).getBalance();
             } else {
                 // TODO 手动记账处理
             }
@@ -261,35 +287,68 @@ public class AccountServiceImpl implements AccountService {
         Timestamp start = Timestamp.valueOf(starDate);
         Timestamp end = Timestamp.valueOf(endDate);
         double result = 0;
+        List<Alipay> alipayList = alipayRepository.findByUsernameAndPayTimeBetween(username, start, end);
+        List<SchoolCard> schoolCardList = schoolCardRepository.findByUsernameAndTimeBetween(username, start, end);
+        List<Account> accounts = accountRepository.findByUsername(username);
+        Map<Integer, List<IcbcCard>> icbcCardmap = new HashMap<>();
+        for (int i = 0; i < accounts.size(); i++) {
+            icbcCardmap.put(i, icbcCardRepository.findByCardIdAndTradeDateBetween(accounts.get(i).getCardId(), start, end));
+            //获取所有银行卡当月账单
+        }
+        for (int k = 0; k < accounts.size(); k++) {
+            List<IcbcCard> icbcCardList = icbcCardmap.get(k);
+            for (int i = 0; i < icbcCardList.size(); i++) {
+                for (int j = 0; j < alipayList.size(); j++) {
+                    if (icbcCardList.get(i).getAccountAmountExpense() == alipayList.get(j).getMoney()
+                            && icbcCardList.get(i).getTradeDate() == alipayList.get(j).getPayTime()) {
+                        if (alipayList.get(j).getCommodity().equals("充值-普通充值")) {
+                            alipayList.remove(j);
+                            icbcCardList.remove(i);//支付宝从卡转账到余额，
+                        } else {
+                            alipayRepository.delete(alipayList.get(j));
+                            alipayList.remove(j);//支付宝用银行卡消费
+                        }
+                    } else if ((alipayList.get(j).getMoney() - icbcCardList.get(i).getAccountAmountIncome() < 10)
+                            && (icbcCardList.get(i).getTradeDate().getTime() - alipayList.get(j).getPayTime().getTime() <= (2 * 60 * 1000))
+                            && (alipayList.get(j).getCommodity().equals("提现-快速提现"))) {
+                        //支付宝余额提现到银行卡
+                        alipayList.remove(j);
+                        icbcCardList.remove(i);
+                    }
+                }
+                for (int j = 0; j < schoolCardList.size(); j++) {
+                    if (icbcCardList.get(i).getAccountAmountExpense() == schoolCardList.get(j).getIncomeExpenditure() &&
+                            icbcCardList.get(i).getTradeDate() == schoolCardList.get(j).getTime()) {
+                        schoolCardList.remove(j);
+                        icbcCardList.remove(i);//银行卡转账到校园卡
+                    }
+                }
+            }
+        }
 
         // TODO 根据用户名分别查找计算四种资产账户消费账目
-//        List<Account> accounts = accountRepository.findByUsername(username);
-//
-//		List<Alipay> alipayList = alipayRepository.getMouthBill(username, start, end);
-//		List<SchoolCard> schoolCardList = schoolCardRepository.getMouthBill(username, start, end);
-//
-//		Map<Integer,List<IcbcCard>> icbcCardmap = new HashMap<>();
-//		for ( int i = 0 ; i < accounts.size();i++){
-//			icbcCardmap.put(i,icbcCardRepository.getMouthBill(accounts.get(i).getCardId(),start,end));
-//		}
-//		for ( int i = 0 ; i <alipayList.size();i++){
-//			if(alipayList.get(i).getIncomeExpenditureType().equals("支出")){
-//				result += Double.valueOf(alipayList.get(i).getIncomeExpenditureType());
-//			}
-//		}
-//		for ( int i = 0 ; i <schoolCardList.size();i++){
-//			if(schoolCardList.get(i).getIncomeExpenditure() < 0){
-//				result -= schoolCardList.get(i).getIncomeExpenditure();
-//			}
-//		}
-//		for(int k = 0; k < accounts.size() ;k++) {
-//			List<IcbcCard> icbcCardList = icbcCardmap.get(k);
-//			for (int i = 0; i < icbcCardList.size(); i++) {
-//				if (icbcCardList.get(i).getAccountAmountExpense() > 0) {
-//					result += icbcCardList.get(i).getAccountAmountExpense();
-//				}
-//			}
-//		}
+         for ( int i = 0 ; i <alipayList.size();i++){
+			if(alipayList.get(i).getIncomeExpenditureType().equals("支出")){
+				result += Double.valueOf(alipayList.get(i).getIncomeExpenditureType());
+			}
+		}
+		for ( int i = 0 ; i <schoolCardList.size();i++){
+			if(schoolCardList.get(i).getIncomeExpenditure() < 0){
+				result -= schoolCardList.get(i).getIncomeExpenditure();
+			}
+		}
+		for(int k = 0; k < accounts.size() ;k++) {
+			List<IcbcCard> icbcCardList = icbcCardmap.get(k);
+			for (int i = 0; i < icbcCardList.size(); i++) {
+				if (icbcCardList.get(i).getAccountAmountExpense() > 0) {
+					result += icbcCardList.get(i).getAccountAmountExpense();
+				}
+			}
+		}
+		List<ManualBilling> manualBillings = manualBillingRepository.findByUsernameAndTimeBetween(username,start,end);
+        for(ManualBilling manualBilling: manualBillings){
+            result += manualBilling.getIncomeExpenditure();
+        }
         return result;
     }
 }

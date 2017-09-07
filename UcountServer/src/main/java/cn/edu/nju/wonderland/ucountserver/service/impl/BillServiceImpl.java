@@ -13,8 +13,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import javax.swing.*;
 import java.sql.Timestamp;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -167,12 +170,15 @@ public class BillServiceImpl implements BillService {
     @Override
     public List<BillInfoVO> getMonthBillsByUser(String username, String month) {
         // TODO 月份处理
-
+        LocalDateTime startDate = LocalDateTime.parse(month, DATE_TIME_FORMATTER);
+        LocalDateTime endDate = startDate.plus(1, ChronoUnit.MONTHS);
+        Timestamp startStamp = Timestamp.valueOf(startDate);
+        Timestamp endStamp = Timestamp.valueOf(endDate);
         List<BillInfoVO> billInfoVOList = new ArrayList<>();
         Map<Integer, List<IcbcCard>> icbcCardmap = new HashMap<>();
         /* 工行卡的表*/
-        List<SchoolCard> schoolCardList = schoolCardRepository.findByUsername(username, null);
-        List<Alipay> alipayList = alipayRepository.findByUsername(username, null);
+        List<SchoolCard> schoolCardList = schoolCardRepository.findByUsernameAndTimeBetween(username,startStamp,endStamp);
+        List<Alipay> alipayList = alipayRepository.findByUsernameAndPayTimeBetween(username, startStamp,endStamp);
         List<Account> accounts = accountRepository.findByUsername(username);
         for (int i = 0; i < accounts.size(); i++) {
             if (!accounts.get(i).getCardType().contains("银行卡")) {
@@ -180,7 +186,7 @@ public class BillServiceImpl implements BillService {
             }
         }
         for (int i = 0; i < accounts.size(); i++) {
-            icbcCardmap.put(i, icbcCardRepository.findByCardId(accounts.get(i).getCardId(), null).getContent());
+            icbcCardmap.put(i, icbcCardRepository.findByCardIdAndTradeDateBetween(accounts.get(i).getCardId(),startStamp,endStamp));
         }
         for (int k = 0; k < accounts.size(); k++) {
             List<IcbcCard> icbcCardList = icbcCardmap.get(k);
@@ -224,11 +230,10 @@ public class BillServiceImpl implements BillService {
                 BillInfoVO billInfoVO = new BillInfoVO();
                 billInfoVO.trader = icbcCardList.get(i).getOtherAccount();
                 billInfoVO.time = DateHelper.toTimeByTimeStamp(icbcCardList.get(i).getTradeDate());
-                if (icbcCardList.get(i).getAccountAmountIncome() > 0) {
-                    billInfoVO.type = "收入";
+                billInfoVO.type = icbcCardList.get(i).getConsumeType();
+                if (icbcCardList.get(i).getAccountAmountIncome() > 0){
                     billInfoVO.amount = icbcCardList.get(i).getAccountAmountIncome();
                 } else {
-                    billInfoVO.type = "支出";
                     billInfoVO.amount = icbcCardList.get(i).getAccountAmountExpense();
                 }
                 billInfoVOList.add(billInfoVO);
@@ -239,11 +244,7 @@ public class BillServiceImpl implements BillService {
             billInfoVO.time = DateHelper.toTimeByTimeStamp(schoolCardList.get(i).getTime());
             billInfoVO.trader = schoolCardList.get(i).getLocation();
             billInfoVO.amount = schoolCardList.get(i).getIncomeExpenditure();
-            if (billInfoVO.amount > 0) {
-                billInfoVO.type = "收入";
-            } else {
-                billInfoVO.type = "支出";
-            }
+            billInfoVO.type = schoolCardList.get(i).getConsumeType();
             billInfoVOList.add(billInfoVO);
         }
         for (int i = 0; i < alipayList.size(); i++) {
@@ -252,6 +253,15 @@ public class BillServiceImpl implements BillService {
             billInfoVO.type = alipayList.get(i).getIncomeExpenditureType();
             billInfoVO.time = DateHelper.toTimeByTimeStamp(alipayList.get(i).getCreateTime());
             billInfoVO.trader = alipayList.get(i).getTrader();
+            billInfoVOList.add(billInfoVO);
+        }
+        List<ManualBilling> manualBillingList = manualBillingRepository.findByUsernameAndTimeBetween(username,startStamp,endStamp);
+        for(ManualBilling manualBilling : manualBillingList){
+            BillInfoVO billInfoVO = new BillInfoVO();
+            billInfoVO.amount = manualBilling.getIncomeExpenditure();
+            billInfoVO.type = manualBilling.getConsumeType();
+            billInfoVO.trader = manualBilling.getCommodity();
+            billInfoVO.time = String.valueOf(manualBilling.getTime());
             billInfoVOList.add(billInfoVO);
         }
         return billInfoVOList;
@@ -345,32 +355,41 @@ public class BillServiceImpl implements BillService {
         double result = 0;
 
         List<Alipay> alipays = alipayRepository.findByUsernameAndPayTimeBetween(username, start, end);
-        for (int i = 0; i < alipays.size(); i++) {
-            if (alipays.get(i).getConsumeType().equals(consumeType)) {
-                result += alipays.get(i).getMoney();
+        for (Alipay alipay :alipays) {
+            if (alipay.getConsumeType() != null && alipay.getConsumeType().equals(consumeType) ) {
+                result += alipay.getMoney();
             }
         }
         List<SchoolCard> schoolCards = schoolCardRepository.findByUsernameAndTimeBetween(username, start, end);
-        for (int i = 0; i < schoolCards.size(); i++) {
-            if (schoolCards.get(i).getConsumeType().equals(consumeType)) {
-                if (schoolCards.get(i).getIncomeExpenditure() > 0) {
-                    result += schoolCards.get(i).getIncomeExpenditure();
+        for (SchoolCard schoolCard : schoolCards) {
+            if (schoolCard.getConsumeType() != null && schoolCard.getConsumeType().equals(consumeType)) {
+                if (schoolCard.getIncomeExpenditure() > 0) {
+                    result += schoolCard.getIncomeExpenditure();
                 } else {
-                    result -= schoolCards.get(i).getIncomeExpenditure();
+                    result -= schoolCard.getIncomeExpenditure();
                 }
             }
         }
         List<IcbcCard> icbcCards = icbcCardRepository.findByUsernameAndTradeDateBetween(username, start, end);
-        for (int i = 0; i < icbcCards.size(); i++) {
-            if (icbcCards.get(i).getConsumeType().equals(consumeType)) {
-                if (icbcCards.get(i).getAccountAmountExpense() > 0) {
-                    result += icbcCards.get(i).getAccountAmountExpense();
+        for (IcbcCard icbcCard : icbcCards) {
+            if (icbcCard.getConsumeType() != null && icbcCard.getConsumeType().equals(consumeType)) {
+                if (icbcCard.getAccountAmountExpense() > 0) {
+                    result += icbcCard.getAccountAmountExpense();
                 } else {
-                    result += icbcCards.get(i).getAccountAmountIncome();
+                    result += icbcCard.getAccountAmountIncome();
                 }
             }
         }
-
+        List<Account> accounts = accountRepository.findByUsername(username);
+        List<ManualBilling> manualBillings = new ArrayList<>();
+        for(Account account :accounts) {
+            manualBillings.addAll(manualBillingRepository.findByUsernameAndCardTypeAndCardId(username,account.getCardType(),account.getCardId()));
+        }
+        for(ManualBilling manualBilling: manualBillings ) {
+            if(manualBilling.getConsumeType() != null && manualBilling.getCardType().equals(consumeType) ) {
+                result += manualBilling.getIncomeExpenditure();
+            }
+        }
         // TODO 手动记账
 
         return result;
