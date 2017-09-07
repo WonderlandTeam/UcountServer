@@ -60,12 +60,22 @@ public class DateHelper {
     /**
      * 将年月转化为数据库时间
      *
-     * @param time 年月格式字符串
+     * @param month 年月格式（yyyy-MM）字符串
      * @return 数据库时间
      */
-    public static Timestamp toTimestampByMonth(String time) {
-        time += "-01 00:00:00";
-        return Timestamp.valueOf(time);
+    public static Timestamp toTimestampByMonth(String month) {
+        month += "-01 00:00:00";
+        return Timestamp.valueOf(month);
+    }
+
+    /**
+     * 将日期转化为数据库时间
+     *
+     * @param date 日期格式（yyyy-MM-dd）字符串
+     * @return 数据库时间
+     */
+    public static Timestamp toTimestampByDate(String date) {
+        return Timestamp.valueOf(date + " 00:00:00");
     }
 
     /**

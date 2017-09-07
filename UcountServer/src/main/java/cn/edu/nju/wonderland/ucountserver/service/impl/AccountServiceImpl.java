@@ -173,7 +173,7 @@ public class AccountServiceImpl implements AccountService {
         Timestamp end = Timestamp.valueOf(endDate);
         TotalAccountVO totalAccountVO = new TotalAccountVO();
 
-        List<Alipay> alipayList = alipayRepository.findByUsernameAndPayTimeBetween(username, start, end);
+        List<Alipay> alipayList = alipayRepository.findByUsernameAndCreateTimeBetween(username, start, end);
         List<SchoolCard> schoolCardList = schoolCardRepository.findByUsernameAndTimeBetween(username, start, end);
         List<Account> accounts = accountRepository.findByUsername(username);
         Map<Integer, List<IcbcCard>> icbcCardmap = new HashMap<>();
@@ -287,7 +287,7 @@ public class AccountServiceImpl implements AccountService {
         Timestamp start = Timestamp.valueOf(starDate);
         Timestamp end = Timestamp.valueOf(endDate);
         double result = 0;
-        List<Alipay> alipayList = alipayRepository.findByUsernameAndPayTimeBetween(username, start, end);
+        List<Alipay> alipayList = alipayRepository.findByUsernameAndCreateTimeBetween(username, start, end);
         List<SchoolCard> schoolCardList = schoolCardRepository.findByUsernameAndTimeBetween(username, start, end);
         List<Account> accounts = accountRepository.findByUsername(username);
         Map<Integer, List<IcbcCard>> icbcCardmap = new HashMap<>();

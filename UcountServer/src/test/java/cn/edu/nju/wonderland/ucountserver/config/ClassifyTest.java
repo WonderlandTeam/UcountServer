@@ -114,6 +114,8 @@ public class ClassifyTest {
             BillType billType = Classify.classifyAlipay(alipay);
             if (billType != OTHER_INCOME && billType != OTHER_EXPENDITURE) {
                 classifyNum++;
+            } else if (billType == null) {
+                System.out.println("支付宝错误：\t" + alipay.getId());
             }
         }
         System.out.println("支付宝可分类比例：\t" + classifyNum / alipayList.size());
@@ -124,6 +126,8 @@ public class ClassifyTest {
             BillType billType = Classify.classifyICBC(icbcCard);
             if (billType != OTHER_INCOME && billType != OTHER_EXPENDITURE) {
                 classifyNum++;
+            } else if (billType == null) {
+                System.out.println("工行卡错误：\t" + icbcCard.getId());
             }
         }
         System.out.println("工行卡可分类比例：\t" + classifyNum / icbcCardList.size());
@@ -134,6 +138,8 @@ public class ClassifyTest {
             BillType billType = Classify.classifySchoolCard(schoolCard);
             if (billType != OTHER_INCOME && billType != OTHER_EXPENDITURE) {
                 classifyNum++;
+            } else if (billType == null) {
+                System.out.println("校园卡错误：\t" + schoolCard.getId());
             }
         }
         System.out.println("校园卡可分类比例：\t" + classifyNum / schoolCardList.size());

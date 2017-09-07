@@ -13,9 +13,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import javax.swing.*;
 import java.sql.Timestamp;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -178,7 +176,7 @@ public class BillServiceImpl implements BillService {
         Map<Integer, List<IcbcCard>> icbcCardmap = new HashMap<>();
         /* 工行卡的表*/
         List<SchoolCard> schoolCardList = schoolCardRepository.findByUsernameAndTimeBetween(username,startStamp,endStamp);
-        List<Alipay> alipayList = alipayRepository.findByUsernameAndPayTimeBetween(username, startStamp,endStamp);
+        List<Alipay> alipayList = alipayRepository.findByUsernameAndCreateTimeBetween(username, startStamp,endStamp);
         List<Account> accounts = accountRepository.findByUsername(username);
         for (int i = 0; i < accounts.size(); i++) {
             if (!accounts.get(i).getCardType().contains("银行卡")) {
@@ -354,7 +352,7 @@ public class BillServiceImpl implements BillService {
         Timestamp end = Timestamp.valueOf(endDate);
         double result = 0;
 
-        List<Alipay> alipays = alipayRepository.findByUsernameAndPayTimeBetween(username, start, end);
+        List<Alipay> alipays = alipayRepository.findByUsernameAndCreateTimeBetween(username, start, end);
         for (Alipay alipay :alipays) {
             if (alipay.getConsumeType() != null && alipay.getConsumeType().equals(consumeType) ) {
                 result += alipay.getMoney();

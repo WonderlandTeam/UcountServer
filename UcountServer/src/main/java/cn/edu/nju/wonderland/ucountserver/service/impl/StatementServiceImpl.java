@@ -7,15 +7,19 @@ import cn.edu.nju.wonderland.ucountserver.entity.SchoolCard;
 import cn.edu.nju.wonderland.ucountserver.repository.*;
 import cn.edu.nju.wonderland.ucountserver.service.StatementService;
 import cn.edu.nju.wonderland.ucountserver.util.BillType;
+import cn.edu.nju.wonderland.ucountserver.util.DateHelper;
 import cn.edu.nju.wonderland.ucountserver.util.StringUtil;
 import cn.edu.nju.wonderland.ucountserver.vo.BalanceSheetVO;
-import cn.edu.nju.wonderland.ucountserver.vo.BillInfoVO;
+import cn.edu.nju.wonderland.ucountserver.vo.CashFlowItemVO;
 import cn.edu.nju.wonderland.ucountserver.vo.IncomeStatementVO;
 import org.springframework.stereotype.Service;
 
 import java.lang.reflect.Field;
 import java.sql.Timestamp;
 import java.util.List;
+
+import static cn.edu.nju.wonderland.ucountserver.util.AutoAccountType.ALIPAY;
+import static cn.edu.nju.wonderland.ucountserver.util.AutoAccountType.ICBC_CARD;
 
 @Service
 public class StatementServiceImpl implements StatementService {
@@ -49,6 +53,11 @@ public class StatementServiceImpl implements StatementService {
             } catch (IllegalAccessException e) {
                 e.printStackTrace();
             }
+            if (billType.ordinal() < 4) {
+                vo.totalIncome += value;
+            } else {
+                vo.totalExpenditure += value;
+            }
         }
     }
 
@@ -61,17 +70,18 @@ public class StatementServiceImpl implements StatementService {
     @Override
     public IncomeStatementVO getIncomeStatement(String username, String beginDate, String endDate) {
         IncomeStatementVO vo = new IncomeStatementVO();
-        Timestamp start = Timestamp.valueOf(beginDate);
-        Timestamp end = Timestamp.valueOf(endDate);
+        Timestamp start = DateHelper.toTimestampByDate(beginDate);
+        Timestamp end = DateHelper.toTimestampByDate(endDate);
 
-        List<Alipay> alipayList = alipayRepository.findByUsernameAndPayTimeBetween(username, start, end);
+        List<Alipay> alipayList = alipayRepository.findByUsernameAndCreateTimeBetween(username, start, end);
         alipayList.forEach(a -> countIncomeStatement(vo, a.getConsumeType(), a.getMoney()));
 
         List<IcbcCard> icbcCardList = icbcCardRepository.findByUsernameAndTradeDateBetween(username, start, end);
         icbcCardList.forEach(i -> countIncomeStatement(vo, i.getConsumeType(), i.getAccountAmountIncome() + i.getAccountAmountExpense()));
 
         List<SchoolCard> schoolCardList = schoolCardRepository.findByUsernameAndTimeBetween(username, start, end);
-        schoolCardList.forEach(s -> countIncomeStatement(vo, s.getConsumeType(), Math.abs(s.getIncomeExpenditure())));
+
+//        schoolCardList.forEach(s -> countIncomeStatement(vo, s.getConsumeType(), Math.abs(s.getIncomeExpenditure())));
 
         List<ManualBilling> manualBillingList = manualBillingRepository.findByUsernameAndTimeBetween(username, start, end);
         manualBillingList.forEach(m -> countIncomeStatement(vo, m.getConsumeType(), m.getIncomeExpenditure()));
@@ -79,8 +89,43 @@ public class StatementServiceImpl implements StatementService {
         return vo;
     }
 
+    private CashFlowItemVO alipayToCashFlowItem(Alipay alipay) {
+        CashFlowItemVO vo = new CashFlowItemVO();
+
+        vo.accountType = ALIPAY.accountType;
+        vo.cardId = alipay.getCardId();
+        vo.billType = alipay.getConsumeType();
+        vo.money = alipay.getMoney();
+        vo.time = DateHelper.toTimeByTimeStamp(alipay.getPayTime());
+
+        return vo;
+    }
+
+    private CashFlowItemVO icbcToCashFlowItem(IcbcCard icbcCard) {
+        CashFlowItemVO vo = new CashFlowItemVO();
+
+        vo.accountType = ICBC_CARD.accountType;
+        vo.cardId = icbcCard.getCardId();
+        vo.billType = icbcCard.getConsumeType();
+
+        // TODO
+        return null;
+    }
+
+    private CashFlowItemVO schoolCardToCashFlowItem(SchoolCard schoolCard) {
+        CashFlowItemVO vo = new CashFlowItemVO();
+        // TODO
+        return null;
+    }
+
+    private CashFlowItemVO manualToCashFlowItem(ManualBilling manualBilling) {
+        CashFlowItemVO vo = new CashFlowItemVO();
+        // TODO
+        return null;
+    }
+
     @Override
-    public List<BillInfoVO> getCashFlows(String username, String beginDate, String endDate) {
+    public List<CashFlowItemVO> getCashFlows(String username, String beginDate, String endDate) {
         // TODO
         return null;
     }

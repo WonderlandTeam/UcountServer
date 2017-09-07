@@ -4,11 +4,14 @@ import java.lang.reflect.Field;
 
 /**
  * 收支储蓄表（利润表）VO
+ *
+ * 字段名与BillType枚举类对应
+ * 勿修改字段名
  */
 public class IncomeStatementVO {
 
-    public String beginDate;            // 开始日期
-    public String endDate;              // 结束日期
+//    public String beginDate;            // 开始日期
+//    public String endDate;              // 结束日期
 
 
     /************************** 收入部分 **************************/
