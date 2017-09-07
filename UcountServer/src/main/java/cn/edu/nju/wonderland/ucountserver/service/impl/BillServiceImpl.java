@@ -51,7 +51,7 @@ public class BillServiceImpl implements BillService {
         vo.type = alipay.getConsumeType();
         vo.amount = alipay.getMoney();
         vo.trader = alipay.getTrader();
-        vo.time = DateHelper.toTimeByTimeStamp(alipay.getPayTime());
+        vo.time = DateHelper.toTimeByTimeStamp(alipay.getCreateTime());
         return vo;
     }
 
@@ -85,7 +85,7 @@ public class BillServiceImpl implements BillService {
     private BillInfoVO manualBillingToVO(ManualBilling manualBilling) {
         BillInfoVO vo = new BillInfoVO();
         vo.type = manualBilling.getConsumeType();
-        vo.amount = manualBilling.getIncomeExpenditure();
+        vo.amount = Math.abs(manualBilling.getIncomeExpenditure());
         vo.time = DateHelper.toTimeByTimeStamp(manualBilling.getTime());
         vo.trader = manualBilling.getCommodity();
         return vo;
@@ -361,11 +361,7 @@ public class BillServiceImpl implements BillService {
         List<SchoolCard> schoolCards = schoolCardRepository.findByUsernameAndTimeBetween(username, start, end);
         for (SchoolCard schoolCard : schoolCards) {
             if (schoolCard.getConsumeType() != null && schoolCard.getConsumeType().equals(consumeType)) {
-                if (schoolCard.getIncomeExpenditure() > 0) {
-                    result += schoolCard.getIncomeExpenditure();
-                } else {
-                    result -= schoolCard.getIncomeExpenditure();
-                }
+                result += Math.abs(schoolCard.getIncomeExpenditure());
             }
         }
         List<IcbcCard> icbcCards = icbcCardRepository.findByUsernameAndTradeDateBetween(username, start, end);
@@ -385,7 +381,7 @@ public class BillServiceImpl implements BillService {
         }
         for(ManualBilling manualBilling: manualBillings ) {
             if(manualBilling.getConsumeType() != null && manualBilling.getCardType().equals(consumeType) ) {
-                result += manualBilling.getIncomeExpenditure();
+                result += Math.abs(manualBilling.getIncomeExpenditure());
             }
         }
         // TODO 手动记账

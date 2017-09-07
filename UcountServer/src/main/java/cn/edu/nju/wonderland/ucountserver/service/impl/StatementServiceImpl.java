@@ -16,10 +16,12 @@ import org.springframework.stereotype.Service;
 
 import java.lang.reflect.Field;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.List;
 
 import static cn.edu.nju.wonderland.ucountserver.util.AutoAccountType.ALIPAY;
 import static cn.edu.nju.wonderland.ucountserver.util.AutoAccountType.ICBC_CARD;
+import static cn.edu.nju.wonderland.ucountserver.util.AutoAccountType.SCHOOL_CARD;
 
 @Service
 public class StatementServiceImpl implements StatementService {
@@ -53,6 +55,7 @@ public class StatementServiceImpl implements StatementService {
             } catch (IllegalAccessException e) {
                 e.printStackTrace();
             }
+            // 4：枚举类收入类型数量
             if (billType.ordinal() < 4) {
                 vo.totalIncome += value;
             } else {
@@ -81,10 +84,16 @@ public class StatementServiceImpl implements StatementService {
 
         List<SchoolCard> schoolCardList = schoolCardRepository.findByUsernameAndTimeBetween(username, start, end);
 
-//        schoolCardList.forEach(s -> countIncomeStatement(vo, s.getConsumeType(), Math.abs(s.getIncomeExpenditure())));
+        schoolCardList.forEach(s -> countIncomeStatement(vo, s.getConsumeType(), Math.abs(s.getIncomeExpenditure())));
 
         List<ManualBilling> manualBillingList = manualBillingRepository.findByUsernameAndTimeBetween(username, start, end);
         manualBillingList.forEach(m -> countIncomeStatement(vo, m.getConsumeType(), m.getIncomeExpenditure()));
+
+        // 计算部分支出分类合计
+        vo.necessityTotal = vo.commodity + vo.utilities + vo.communication + vo.diet + vo.electronic + vo.traffic;
+        vo.adornTotal = vo.clothing + vo.cream + vo.cosmetics + vo.jewelry;
+        vo.learningTotal = vo.training + vo.book + vo.stationery + vo.print + vo.activity;
+        vo.donationTotal = vo.donation + vo.otherDonation;
 
         return vo;
     }
@@ -96,7 +105,7 @@ public class StatementServiceImpl implements StatementService {
         vo.cardId = alipay.getCardId();
         vo.billType = alipay.getConsumeType();
         vo.money = alipay.getMoney();
-        vo.time = DateHelper.toTimeByTimeStamp(alipay.getPayTime());
+        vo.time = DateHelper.toTimeByTimeStamp(alipay.getCreateTime());
 
         return vo;
     }
@@ -107,27 +116,63 @@ public class StatementServiceImpl implements StatementService {
         vo.accountType = ICBC_CARD.accountType;
         vo.cardId = icbcCard.getCardId();
         vo.billType = icbcCard.getConsumeType();
+        vo.money = icbcCard.getAccountAmountExpense() + icbcCard.getAccountAmountIncome();
+        vo.time = DateHelper.toTimeByTimeStamp(icbcCard.getTradeDate());
 
-        // TODO
-        return null;
+        return vo;
     }
 
     private CashFlowItemVO schoolCardToCashFlowItem(SchoolCard schoolCard) {
         CashFlowItemVO vo = new CashFlowItemVO();
-        // TODO
-        return null;
+
+        vo.accountType = SCHOOL_CARD.accountType;
+        vo.cardId = schoolCard.getCardId();
+        vo.billType = schoolCard.getConsumeType();
+        vo.money = Math.abs(schoolCard.getIncomeExpenditure());
+        vo.time = DateHelper.toTimeByTimeStamp(schoolCard.getTime());
+
+        return vo;
     }
 
     private CashFlowItemVO manualToCashFlowItem(ManualBilling manualBilling) {
         CashFlowItemVO vo = new CashFlowItemVO();
-        // TODO
-        return null;
+
+        vo.accountType = manualBilling.getCardType();
+        vo.cardId = manualBilling.getCardId();
+        vo.billType = manualBilling.getConsumeType();
+        vo.money = manualBilling.getIncomeExpenditure();
+        vo.time = DateHelper.toTimeByTimeStamp(manualBilling.getTime());
+
+        return vo;
     }
 
     @Override
     public List<CashFlowItemVO> getCashFlows(String username, String beginDate, String endDate) {
-        // TODO
-        return null;
+        List<CashFlowItemVO> cashFlows = new ArrayList<>();
+
+        Timestamp start = DateHelper.toTimestampByDate(beginDate);
+        Timestamp end = DateHelper.toTimestampByDate(endDate);
+
+        alipayRepository
+                .findByUsernameAndCreateTimeBetween(username, start, end)
+                .forEach(a -> cashFlows.add(alipayToCashFlowItem(a)));
+
+        icbcCardRepository
+                .findByUsernameAndTradeDateBetween(username, start, end)
+                .forEach(i -> cashFlows.add(icbcToCashFlowItem(i)));
+
+        schoolCardRepository
+                .findByUsernameAndTimeBetween(username, start, end)
+                .forEach(s -> cashFlows.add(schoolCardToCashFlowItem(s)));
+
+        manualBillingRepository
+                .findByUsernameAndTimeBetween(username, start, end)
+                .forEach(m -> cashFlows.add(manualToCashFlowItem(m)));
+
+        // 根据时间逆序排序
+        cashFlows.sort(((o1, o2) -> o2.time.compareTo(o1.time)));
+
+        return cashFlows;
     }
 
 }
