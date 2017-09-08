@@ -4,6 +4,7 @@ import cn.edu.nju.wonderland.ucountserver.entity.User;
 import cn.edu.nju.wonderland.ucountserver.exception.ResourceConflictException;
 import cn.edu.nju.wonderland.ucountserver.exception.ResourceNotFoundException;
 import cn.edu.nju.wonderland.ucountserver.repository.UserRepository;
+import cn.edu.nju.wonderland.ucountserver.service.UserDetector;
 import cn.edu.nju.wonderland.ucountserver.service.UserService;
 import cn.edu.nju.wonderland.ucountserver.util.MD5;
 import cn.edu.nju.wonderland.ucountserver.vo.SignUpVO;
@@ -24,7 +25,7 @@ import java.security.GeneralSecurityException;
 import java.util.Properties;
 
 @Service
-public class UserServiceImpl implements UserService {
+public class UserServiceImpl implements UserService, UserDetector {
 
     private final UserRepository userRepository;
 
@@ -202,6 +203,11 @@ public class UserServiceImpl implements UserService {
         userInfoVO.email = user.getEmail();
         userInfoVO.tel = user.getTel();
         return userInfoVO;
+    }
+
+    @Override
+    public boolean isUserExists(String username) {
+        return userRepository.findByUsername(username) != null;
     }
 
 }

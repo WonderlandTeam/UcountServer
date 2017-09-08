@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
+@Deprecated
 @Component
 public class SaveBillType {
 

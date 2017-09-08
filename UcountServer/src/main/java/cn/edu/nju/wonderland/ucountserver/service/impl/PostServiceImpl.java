@@ -12,6 +12,7 @@ import cn.edu.nju.wonderland.ucountserver.repository.PostRepository;
 import cn.edu.nju.wonderland.ucountserver.repository.ReplyRepository;
 import cn.edu.nju.wonderland.ucountserver.repository.SupportRepository;
 import cn.edu.nju.wonderland.ucountserver.service.PostService;
+import cn.edu.nju.wonderland.ucountserver.service.UserDetector;
 import cn.edu.nju.wonderland.ucountserver.util.DateHelper;
 import cn.edu.nju.wonderland.ucountserver.vo.PostAddVO;
 import cn.edu.nju.wonderland.ucountserver.vo.PostInfoVO;
@@ -33,12 +34,14 @@ public class PostServiceImpl implements PostService {
     private final ReplyRepository replyRepository;
     private final SupportRepository supportRepository;
     private final CollectionRepository collectionRepository;
+    private final UserDetector userDetector;
 
-    public PostServiceImpl(PostRepository postRepository, ReplyRepository replyRepository, SupportRepository supportRepository, CollectionRepository collectionRepository) {
+    public PostServiceImpl(PostRepository postRepository, ReplyRepository replyRepository, SupportRepository supportRepository, CollectionRepository collectionRepository, UserDetector userDetector) {
         this.postRepository = postRepository;
         this.replyRepository = replyRepository;
         this.supportRepository = supportRepository;
         this.collectionRepository = collectionRepository;
+        this.userDetector = userDetector;
     }
 
     /**
@@ -107,7 +110,10 @@ public class PostServiceImpl implements PostService {
             throw new InvalidRequestException("发帖信息缺失");
         }
 
-        // TODO 判断用户是否存在
+        // 判断用户是否存在
+        if (!userDetector.isUserExists(vo.username)) {
+            throw new ResourceConflictException("用户名不存在");
+        }
 
         // 持久化
         Post post = new Post();
@@ -121,7 +127,10 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public List<PostInfoVO> getPostsSharedByUser(String username) {
-        // TODO 判断用户是否存在
+        // 判断用户是否存在
+        if (!userDetector.isUserExists(username)) {
+            throw new ResourceConflictException("用户名不存在");
+        }
 
         List<Post> posts = postRepository.findByUsernameOrderByTimeDesc(username);
         return posts.stream()
@@ -131,7 +140,10 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public void collectPost(String username, Long postId) {
-        // TODO 判断用户是否存在
+        // 判断用户是否存在
+        if (!userDetector.isUserExists(username)) {
+            throw new ResourceConflictException("用户名不存在");
+        }
 
         // 判断用户是否已经收藏
         Collection collection = collectionRepository.findByUsernameAndPostId(username, postId);
@@ -167,7 +179,10 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public void praisePost(String username, Long id, boolean isReply) {
-        // TODO 判断用户是否存在
+        // 判断用户是否存在
+        if (!userDetector.isUserExists(username)) {
+            throw new ResourceConflictException("用户名不存在");
+        }
 
         Support support = isReply
                 ? supportRepository.findByUsernameAndReplyId(username, id)

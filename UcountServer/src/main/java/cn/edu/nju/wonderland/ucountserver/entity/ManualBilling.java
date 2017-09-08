@@ -16,6 +16,7 @@ public class ManualBilling {
     private String username;
     private Timestamp time;
     private Double incomeExpenditure;
+    private Double balance;
     private String commodity;
     private String consumeType;
     private String remark;
@@ -61,13 +62,22 @@ public class ManualBilling {
     }
 
     @Basic
-    @Column(name = "income_expenditure", nullable = true, precision = 0)
+    @Column(name = "income_expenditure", nullable = false, precision = 0)
     public Double getIncomeExpenditure() {
         return incomeExpenditure;
     }
 
     public void setIncomeExpenditure(Double incomeExpenditure) {
         this.incomeExpenditure = incomeExpenditure;
+    }
+
+    @Column(name = "balance", nullable = false)
+    public Double getBalance() {
+        return balance;
+    }
+
+    public void setBalance(Double balance) {
+        this.balance = balance;
     }
 
     @Basic
@@ -91,7 +101,7 @@ public class ManualBilling {
     }
 
     @Basic
-    @Column(name = "card_type", nullable = true, length = 45)
+    @Column(name = "card_type", nullable = false, length = 45)
     public String getCardType() {
         return cardType;
     }
@@ -101,7 +111,7 @@ public class ManualBilling {
     }
 
     @Basic
-    @Column(name = "card_id", nullable = true, length = 45)
+    @Column(name = "card_id", nullable = false, length = 45)
     public String getCardId() {
         return cardId;
     }
