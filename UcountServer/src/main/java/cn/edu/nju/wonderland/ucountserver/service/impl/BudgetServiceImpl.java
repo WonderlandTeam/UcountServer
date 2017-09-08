@@ -25,7 +25,6 @@ public class BudgetServiceImpl implements BudgetService {
     @Autowired
     private BudgetRepository budgetRepository;
 
-    //    @Qualifier("billServiceStub")
     @Qualifier("billServiceImpl")
     @Autowired
     private BillService billService;
@@ -52,7 +51,7 @@ public class BudgetServiceImpl implements BudgetService {
 
         //获取预算并检查
         List<Budget> budgets = budgetRepository.findByUsernameAndConsumeTimeGreaterThanEqual(username, Timestamp.valueOf(localDateTime));
-        if (budgets == null) {
+        if ((budgets == null) ||(budgets.size()==0)) {
             throw new ResourceNotFoundException("预算信息不存在");
         }
 
@@ -71,7 +70,8 @@ public class BudgetServiceImpl implements BudgetService {
 
         //获取预算并检查
         List<Budget> budgets = budgetRepository.findByUsernameAndConsumeTime(username, timestamp);
-        if (budgets == null) {
+        System.out.println(budgets);
+        if ((budgets == null) ||(budgets.size()==0)) {
             throw new ResourceNotFoundException("预算信息不存在");
         }
         return getBudgetInfoVO(budgets);

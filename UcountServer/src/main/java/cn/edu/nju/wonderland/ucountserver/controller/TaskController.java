@@ -83,7 +83,7 @@ public class TaskController {
     })
     @PostMapping("/{task_id}")
     public Map<String, Object> updateTask(@PathVariable("task_id") Long taskId,
-                                            @RequestBody TaskModifyVO taskModifyVO) {
+                                          @RequestBody TaskModifyVO taskModifyVO) {
         Map<String, Object> result = new HashMap<>();
         taskService.updateTask(taskId,taskModifyVO);
         result.put(MESSAGE,"更新攒钱计划成功");
@@ -92,7 +92,7 @@ public class TaskController {
 
     @ApiOperation(value = "删除攒钱计划", notes = "根据计划id删除预算")
     @ApiImplicitParam(name = "taskId", value = "计划id", required = true, dataType = "Long")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
+//    @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping("/{task_id}")
     public Map<String, Object> deleteTask(@PathVariable("task_id") Long taskId) {
         Map<String, Object> result = new HashMap<>();

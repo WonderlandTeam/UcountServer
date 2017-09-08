@@ -28,7 +28,7 @@ public class TaskServiceImpl implements TaskService{
     @Autowired
     TaskRepository taskRepository;
 
-//    @Qualifier("accountServiceStub")
+    //    @Qualifier("accountServiceStub")
     @Qualifier("accountServiceImpl")
     @Autowired
     AccountService accountService;
@@ -45,7 +45,7 @@ public class TaskServiceImpl implements TaskService{
     @Override
     public List<TaskInfoVO> getTasksByState(String username, String taskState) {
         List<Task> tasks=taskRepository.findByUsernameAndTaskState(username,taskState);
-        if (tasks==null){
+        if (tasks==null || tasks.size()==0){
             throw new ResourceNotFoundException("攒钱计划不存在");
         }
         return tasks.stream().map(task -> getTaskInfo(task)).collect(Collectors.toList());
@@ -54,7 +54,7 @@ public class TaskServiceImpl implements TaskService{
     @Override
     public List<TaskInfoVO> getTasksByUser(String username) {
         List<Task> tasks=taskRepository.findByUsername(username);
-        if (tasks==null){
+        if (tasks==null || tasks.size()==0 ){
             throw new ResourceNotFoundException("攒钱计划不存在");
         }
         return tasks.stream().map(task -> getTaskInfo(task)).collect(Collectors.toList());
@@ -195,3 +195,4 @@ public class TaskServiceImpl implements TaskService{
 
 
 }
+

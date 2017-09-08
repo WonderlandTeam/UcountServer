@@ -82,7 +82,7 @@ public class BudgetController {
     //在实际测试中delete只有返回的状态，没有message
     @ApiOperation(value = "删除预算", notes = "根据预算id删除预算")
     @ApiImplicitParam(name = "budgetId", value = "预算id", required = true, dataType = "Long")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
+//    @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping("/{budget_id}")
     public Map<String, Object> deleteBudget(@PathVariable("budget_id") Long budgetId) {
         Map<String, Object> result = new HashMap<>();
