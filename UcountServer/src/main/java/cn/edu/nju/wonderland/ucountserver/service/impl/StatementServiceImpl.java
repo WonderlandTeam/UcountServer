@@ -1,9 +1,6 @@
 package cn.edu.nju.wonderland.ucountserver.service.impl;
 
-import cn.edu.nju.wonderland.ucountserver.entity.Alipay;
-import cn.edu.nju.wonderland.ucountserver.entity.IcbcCard;
-import cn.edu.nju.wonderland.ucountserver.entity.ManualBilling;
-import cn.edu.nju.wonderland.ucountserver.entity.SchoolCard;
+import cn.edu.nju.wonderland.ucountserver.entity.*;
 import cn.edu.nju.wonderland.ucountserver.repository.*;
 import cn.edu.nju.wonderland.ucountserver.service.StatementService;
 import cn.edu.nju.wonderland.ucountserver.util.BillType;
@@ -40,6 +37,45 @@ public class StatementServiceImpl implements StatementService {
         this.manualBillingRepository = manualBillingRepository;
     }
 
+    public static final String COST = "cost";         // 成本 键名
+
+    public static final String MARKET = "market";     // 市价 键名
+
+    @Override
+    public BalanceSheetVO getBalanceSheet(String username, String date) {
+        BalanceSheetVO vo = new BalanceSheetVO();
+
+        if (date == null) {
+            date = DateHelper.getTodayDate();
+        }
+        Timestamp timestamp = DateHelper.toTimestampByDate(date);
+
+        List<Account> accounts = accountRepository.findByUsername(username);
+
+        double cash = 0;
+        double deposit = 0;
+        for (Account account : accounts) {
+            String cardType = account.getCardType();
+            if (cardType.equals(ALIPAY.accountType)) {
+                deposit += alipayRepository.getBalance(account.getCardId(), timestamp).getBalance();
+            } else if (cardType.equals(ICBC_CARD.accountType)) {
+                deposit += icbcCardRepository.getBalance(account.getCardId(), timestamp).getBalance();
+            } else if (cardType.equals(SCHOOL_CARD.accountType)) {
+                deposit += schoolCardRepository.getBalance(account.getCardId(), timestamp).getBalance();
+            } else {
+//                cash += manualBillingRepository.getBalance(username, account.getCardType(), account.getCardId(), timestamp);
+            }
+        }
+        vo.cash.put(COST, cash);
+        vo.cash.put(MARKET, cash);
+        vo.deposit.put(COST, deposit);
+        vo.deposit.put(MARKET, deposit);
+        vo.currentAssets.put(COST, cash + deposit);
+        vo.currentAssets.put(MARKET, cash + deposit);
+
+        return vo;
+    }
+
     /**
      * 利润表表项统计
      */
@@ -65,14 +101,13 @@ public class StatementServiceImpl implements StatementService {
     }
 
     @Override
-    public BalanceSheetVO getBalanceSheet(String username, String date) {
-        // TODO
-        return null;
-    }
-
-    @Override
     public IncomeStatementVO getIncomeStatement(String username, String beginDate, String endDate) {
         IncomeStatementVO vo = new IncomeStatementVO();
+
+        if (endDate == null) {
+            endDate = DateHelper.getTodayDate();
+        }
+
         Timestamp start = DateHelper.toTimestampByDate(beginDate);
         Timestamp end = DateHelper.toTimestampByDate(endDate);
 
@@ -149,6 +184,10 @@ public class StatementServiceImpl implements StatementService {
     @Override
     public List<CashFlowItemVO> getCashFlows(String username, String beginDate, String endDate) {
         List<CashFlowItemVO> cashFlows = new ArrayList<>();
+
+        if (endDate == null) {
+            endDate = DateHelper.getTodayDate();
+        }
 
         Timestamp start = DateHelper.toTimestampByDate(beginDate);
         Timestamp end = DateHelper.toTimestampByDate(endDate);

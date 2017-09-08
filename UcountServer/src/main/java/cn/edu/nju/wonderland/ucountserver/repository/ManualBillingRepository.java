@@ -23,4 +23,7 @@ public interface ManualBillingRepository extends JpaRepository<ManualBilling, Lo
     void deleteByUsernameAndCardTypeAndCardId(String username, String cardType, String cardId);
 
     List<ManualBilling> findByUsernameAndTimeBetween(String username, Timestamp start, Timestamp end);
+
+    // TODO
+    ManualBilling getBalance(String username, String cardType, String cardId, Timestamp timestamp);
 }

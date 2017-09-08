@@ -1,5 +1,9 @@
 package cn.edu.nju.wonderland.ucountserver.vo;
 
+import cn.edu.nju.wonderland.ucountserver.service.impl.StatementServiceImpl;
+
+import java.lang.reflect.Field;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -7,15 +11,14 @@ import java.util.Map;
  */
 public class BalanceSheetVO {
 
-    public String date;                                 // 日期
-
+//    public String date;                                 // 日期
 
     /************************** 资产项目 **************************/
 
     /* 流动性资产 */
     public Map<String, Double> cash;                    // 现金
     public Map<String, Double> deposit;                 // 活存
-    public Map<String, String> currentAssets;           // 流动性资产
+    public Map<String, Double> currentAssets;           // 流动性资产
 
     /* 投资性资产 */
     public Map<String, Double> foreignDeposit;          // 外币存款
@@ -49,5 +52,23 @@ public class BalanceSheetVO {
     public Map<String, Double> personalNetValue;        // 自用净值
     /* 总净值 */
     public Map<String, Double> totalNetValue;
+
+
+    public BalanceSheetVO() {
+        // 初始化所有map
+        Field[] fields = this.getClass().getFields();
+        for (Field field : fields) {
+            if (field.getType().equals(Map.class)) {
+                try {
+                    Map<String, Double> map = new HashMap<>();
+                    map.put(StatementServiceImpl.COST, 0d);
+                    map.put(StatementServiceImpl.MARKET, 0d);
+                    field.set(this, map);
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
 
 }

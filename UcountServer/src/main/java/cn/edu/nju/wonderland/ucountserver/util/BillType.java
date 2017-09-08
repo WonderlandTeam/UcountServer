@@ -46,8 +46,8 @@ public enum BillType {
     OTHER_DONATION          ("其他捐赠"),
 
     /* 其他支出 */
-    OTHER_EXPENDITURE       ("其他支出"),
-    ;
+    OTHER_EXPENDITURE       ("其他支出");
+
 
     public String billType;
 
