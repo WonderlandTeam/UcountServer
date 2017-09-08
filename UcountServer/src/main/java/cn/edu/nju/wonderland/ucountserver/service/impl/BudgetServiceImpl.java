@@ -70,7 +70,7 @@ public class BudgetServiceImpl implements BudgetService {
 
         //获取预算并检查
         List<Budget> budgets = budgetRepository.findByUsernameAndConsumeTime(username, timestamp);
-        System.out.println(budgets);
+
         if ((budgets == null) ||(budgets.size()==0)) {
             throw new ResourceNotFoundException("预算信息不存在");
         }
@@ -87,7 +87,7 @@ public class BudgetServiceImpl implements BudgetService {
         return budgets.stream()
                 .map(budget -> {
                     double consume = 0;
-                    consume = billService.getConsumedMoneyByTypeAndTime(budget.getUsername(), budget.getConsumeType(), budget.getConsumeTime().toString());
+                    consume = billService.getConsumedMoneyByTypeAndTime(budget.getUsername(), budget.getConsumeType(), DateHelper.toTimeByTimeStamp(budget.getConsumeTime()));
                     return new BudgetInfoVO(budget, consume, budget.getConsumeMoney() - consume);
                 }).collect(Collectors.toList());
     }
