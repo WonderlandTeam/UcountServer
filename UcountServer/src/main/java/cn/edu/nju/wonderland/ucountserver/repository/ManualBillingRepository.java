@@ -31,5 +31,5 @@ public interface ManualBillingRepository extends JpaRepository<ManualBilling, Lo
             "       s.time = (  SELECT max(p2.time) " +
             "                   FROM ManualBilling p2 " +
             "                   WHERE p2.username = ?1 and p2.cardType = ?2 and p2.cardId = ?3 and p2.time <= ?4)")
-    ManualBilling getBalance(String username, String cardType, String cardId, Timestamp timestamp);
+    List<ManualBilling> getBalance(String username, String cardType, String cardId, Timestamp timestamp);
 }

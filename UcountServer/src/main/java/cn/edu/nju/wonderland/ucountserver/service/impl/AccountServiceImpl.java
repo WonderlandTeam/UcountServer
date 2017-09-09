@@ -81,8 +81,8 @@ public class AccountServiceImpl implements AccountService {
             if(alipays.size() == 0) {
                 throw new ResourceConflictException("没有此支付宝数据");
             }
-            Alipay alipay = alipayRepository.getBalance(account.getCardId(),timestamp);
-            accountInfoVO.balance = alipay.getBalance();
+            List<Alipay> alipay = alipayRepository.getBalance(account.getCardId(),timestamp);
+            accountInfoVO.balance = alipay.get(0).getBalance();
             for (int i = 0; i < alipays.size(); i++) {
                 if (alipays.get(i).getIncomeExpenditureType().equals("收入")) {
                     accountInfoVO.income += alipays.get(i).getMoney();
@@ -95,8 +95,8 @@ public class AccountServiceImpl implements AccountService {
             if(icbcCards.size() == 0){
                 throw  new ResourceConflictException("没有此工行卡数据" + account.getCardId());
             }
-            IcbcCard icbcCard = icbcCardRepository.getBalance(account.getCardId(),timestamp);
-            accountInfoVO.balance = icbcCard.getBalance();
+            List<IcbcCard> icbcCard = icbcCardRepository.getBalance(account.getCardId(),timestamp);
+            accountInfoVO.balance = icbcCard.get(0).getBalance();
             for (int i = 0; i < icbcCards.size(); i++) {
                 if (icbcCards.get(i).getAccountAmountIncome() > 0) {
                     accountInfoVO.income += icbcCards.get(i).getAccountAmountIncome();
@@ -109,11 +109,11 @@ public class AccountServiceImpl implements AccountService {
             if(schoolCards.size() == 0 ){
                 throw new ResourceConflictException("没有此校园卡数据");
             }
-            SchoolCard schoolCard = schoolCardRepository.getBalance(account.getCardId(),timestamp);
+            List<SchoolCard> schoolCard = schoolCardRepository.getBalance(account.getCardId(),timestamp);
             if(schoolCard == null ){
                 throw new ResourceConflictException("校园卡为空" + account.getCardId());
             }
-            accountInfoVO.balance = schoolCard.getBalance();
+            accountInfoVO.balance = schoolCard.get(0).getBalance();
             for (int i = 0; i < schoolCards.size(); i++) {
                 if (schoolCards.get(i).getIncomeExpenditure() > 0) {
                     accountInfoVO.income += schoolCards.get(i).getIncomeExpenditure();
@@ -124,8 +124,8 @@ public class AccountServiceImpl implements AccountService {
         } else {
             List<ManualBilling> manualBillings = manualBillingRepository.findByUsernameAndCardTypeAndCardId(account.getUsername(), account.getCardType(), account.getCardId());
             // TODO 手动记账处理
-            ManualBilling manualBilling = manualBillingRepository.getBalance(account.getUsername(),account.getCardType(),account.getCardId(),timestamp);
-            accountInfoVO.balance = manualBilling.getBalance();
+            List<ManualBilling> manualBilling = manualBillingRepository.getBalance(account.getUsername(),account.getCardType(),account.getCardId(),timestamp);
+            accountInfoVO.balance = manualBilling.get(0).getBalance();
             for (int i = 0; i < manualBillings.size(); i++) {
                 if (manualBillings.get(i).getIncomeExpenditure() > 0) {
                     accountInfoVO.income += manualBillings.get(i).getIncomeExpenditure();
@@ -271,28 +271,28 @@ public class AccountServiceImpl implements AccountService {
         totalAccountVO.setIncome(income);
         for(Account account:accounts){
             if(account.getCardType().equals(SCHOOL_CARD.accountType)){
-                SchoolCard schoolCard = schoolCardRepository.getBalance(account.getCardId(),end);
+                List<SchoolCard> schoolCard = schoolCardRepository.getBalance(account.getCardId(),end);
                 if(schoolCard == null){
                     throw new ResourceConflictException("校园卡为空");
                 }
-                balance += schoolCard.getBalance();
+                balance += schoolCard.get(0).getBalance();
             }else if(account.getCardType().equals(ALIPAY.accountType)){
-                Alipay alipay = alipayRepository.getBalance(account.getCardId(),end);
+                List<Alipay> alipay = alipayRepository.getBalance(account.getCardId(),end);
                 if(alipay == null) {
                     throw new ResourceConflictException("支付宝为空");
                 }
-                balance += alipay.getBalance();
+                balance += alipay.get(0).getBalance();
 
             }else if(account.getCardType().equals(ICBC_CARD.accountType)){
-                IcbcCard icbcCard = icbcCardRepository.getBalance(account.getCardId(),end);
+                List<IcbcCard> icbcCard = icbcCardRepository.getBalance(account.getCardId(),end);
                 if(icbcCard == null) {
                     throw new ResourceConflictException("工行卡为空");
                 }
-                balance += icbcCard.getBalance();
+                balance += icbcCard.get(0).getBalance();
             }else{
-                ManualBilling manualBilling  = manualBillingRepository.getBalance(username,account.getCardType(),account.getCardId(),end);
+                List<ManualBilling> manualBilling  = manualBillingRepository.getBalance(username,account.getCardType(),account.getCardId(),end);
                 if(manualBilling != null) {
-                    balance += manualBilling.getBalance();
+                    balance += manualBilling.get(0).getBalance();
                 }
             }
         }
@@ -308,28 +308,28 @@ public class AccountServiceImpl implements AccountService {
         List<Account> accounts = accountRepository.findByUsername(username);
         for (Account account : accounts) {
             if(account.getCardType().equals(SCHOOL_CARD.accountType)){
-                SchoolCard schoolCard = schoolCardRepository.getBalance(account.getCardId(),timestamp);
+                List<SchoolCard> schoolCard = schoolCardRepository.getBalance(account.getCardId(),timestamp);
                 if(schoolCard == null){
                     throw new ResourceConflictException("校园卡为空");
                 }
-                result += schoolCard.getBalance();
+                result += schoolCard.get(0).getBalance();
             }else if(account.getCardType().equals(ALIPAY.accountType)){
-                Alipay alipay = alipayRepository.getBalance(account.getCardId(),timestamp);
+                List<Alipay> alipay = alipayRepository.getBalance(account.getCardId(),timestamp);
                 if(alipay == null) {
                     throw new ResourceConflictException("支付宝为空");
                 }
-                result += alipay.getBalance();
+                result += alipay.get(0).getBalance();
 
             }else if(account.getCardType().equals(ICBC_CARD.accountType)){
-                IcbcCard icbcCard = icbcCardRepository.getBalance(account.getCardId(),timestamp);
+                List<IcbcCard> icbcCard = icbcCardRepository.getBalance(account.getCardId(),timestamp);
                 if(icbcCard == null) {
                     throw new ResourceConflictException("工行卡为空");
                 }
-                result += icbcCard.getBalance();
+                result += icbcCard.get(0).getBalance();
             }else{
-                ManualBilling manualBilling  = manualBillingRepository.getBalance(username,account.getCardType(),account.getCardId(),timestamp);
+                List<ManualBilling> manualBilling  = manualBillingRepository.getBalance(username,account.getCardType(),account.getCardId(),timestamp);
                 if(manualBilling != null) {
-                    result += manualBilling.getBalance();
+                    result += manualBilling.get(0).getBalance();
                 }
             }
         }
