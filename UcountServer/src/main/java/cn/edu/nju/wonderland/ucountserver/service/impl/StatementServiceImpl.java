@@ -18,10 +18,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static cn.edu.nju.wonderland.ucountserver.util.AutoAccountType.ALIPAY;
-import static cn.edu.nju.wonderland.ucountserver.util.AutoAccountType.ICBC_CARD;
-import static cn.edu.nju.wonderland.ucountserver.util.AutoAccountType.SCHOOL_CARD;
-import static cn.edu.nju.wonderland.ucountserver.util.BillType.*;
+import static cn.edu.nju.wonderland.ucountserver.util.AutoAccountType.*;
+import static cn.edu.nju.wonderland.ucountserver.util.BillType.OTHER_INCOME;
+import static cn.edu.nju.wonderland.ucountserver.util.BillType.stringToBillType;
 
 @Service
 public class StatementServiceImpl implements StatementService {
@@ -63,7 +62,11 @@ public class StatementServiceImpl implements StatementService {
         for (Account account : accounts) {
             String cardType = account.getCardType();
             if (cardType.equals(ALIPAY.accountType)) {
-                double balance = alipayRepository.getBalance(account.getCardId(), timestamp).get(0).getBalance();
+                List<Alipay> balanceList = alipayRepository.getBalance(account.getCardId(), timestamp);
+                if (balanceList.size() == 0) {
+                    continue;
+                }
+                double balance = balanceList.get(0).getBalance();
                 if (balance > 0) {
                     deposit += balance;
                 } else {
@@ -71,7 +74,11 @@ public class StatementServiceImpl implements StatementService {
                     personalLiabilities -= balance;
                 }
             } else if (cardType.equals(ICBC_CARD.accountType)) {
-                double balance = icbcCardRepository.getBalance(account.getCardId(), timestamp).get(0).getBalance();
+                List<IcbcCard> balanceList = icbcCardRepository.getBalance(account.getCardId(), timestamp);
+                if (balanceList.size() == 0) {
+                    continue;
+                }
+                double balance = balanceList.get(0).getBalance();
                 if (balance > 0) {
                     deposit += balance;
                 } else {
@@ -79,9 +86,16 @@ public class StatementServiceImpl implements StatementService {
                     creditCardLiabilities -= balance;
                 }
             } else if (cardType.equals(SCHOOL_CARD.accountType)) {
-                deposit += schoolCardRepository.getBalance(account.getCardId(), timestamp).get(0).getBalance();
+                List<SchoolCard> balanceList = schoolCardRepository.getBalance(account.getCardId(), timestamp);
+                if (balanceList.size() > 0) {
+                    deposit += balanceList.get(0).getBalance();
+                }
             } else {
-                double balance = manualBillingRepository.getBalance(username, account.getCardType(), account.getCardId(), timestamp).get(0).getBalance();
+                List<ManualBilling> balanceList = manualBillingRepository.getBalance(username, account.getCardType(), account.getCardId(), timestamp);
+                if (balanceList.size() == 0) {
+                    continue;
+                }
+                double balance = balanceList.get(0).getBalance();
                 if (balance > 0) {
                     // 现金
                     cash += balance;
