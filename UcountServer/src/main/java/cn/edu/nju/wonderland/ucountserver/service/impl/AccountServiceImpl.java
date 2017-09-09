@@ -22,6 +22,8 @@ import java.util.List;
 import java.util.Map;
 
 import static cn.edu.nju.wonderland.ucountserver.util.AutoAccountType.*;
+import static cn.edu.nju.wonderland.ucountserver.util.BillType.OTHER_EXPENDITURE;
+import static cn.edu.nju.wonderland.ucountserver.util.BillType.OTHER_INCOME;
 import static cn.edu.nju.wonderland.ucountserver.util.DateHelper.DATE_TIME_FORMATTER;
 
 @Service
@@ -155,7 +157,7 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public Long addAccount(AccountAddVO vo) {
         // 判断用户是否存在
-        if(!userDetector.isUserExists(vo.username)){
+        if(!userDetector.isUserExists(vo.username)) {
             throw  new ResourceConflictException("用户不存在");
         }
         // 判断用户是否已有该账户
@@ -168,7 +170,31 @@ public class AccountServiceImpl implements AccountService {
         account.setUsername(vo.username);
         account.setCardId(vo.cardId);
 
-        return accountRepository.save(account).getId();
+        Long accountId = accountRepository.save(account).getId();
+
+        // 判断账户是否为自动记账账户
+        boolean isAutoAccount = false;
+        for (AutoAccountType autoAccountType : AutoAccountType.values()) {
+            if (vo.accountType.equals(autoAccountType.accountType)) {
+                isAutoAccount = true;
+                break;
+            }
+        }
+        if (!isAutoAccount) {
+            ManualBilling manualBilling = new ManualBilling();
+            manualBilling.setUsername(vo.username);
+            manualBilling.setCardId(vo.cardId);
+            manualBilling.setCardType(vo.accountType);
+            manualBilling.setTime(Timestamp.valueOf(LocalDateTime.now()));
+            manualBilling.setBalance(vo.balance);
+            manualBilling.setIncomeExpenditure(vo.balance);
+            manualBilling.setConsumeType(vo.balance >= 0 ? OTHER_INCOME.billType : OTHER_EXPENDITURE.billType);
+            manualBilling.setCommodity("新建账户");
+            manualBilling.setRemark("创建新账户，初始余额为：" + vo.balance);
+            manualBillingRepository.save(manualBilling);
+        }
+
+        return accountId;
     }
 
     @Override
