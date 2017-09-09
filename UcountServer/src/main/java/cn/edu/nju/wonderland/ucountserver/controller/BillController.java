@@ -53,8 +53,11 @@ public class BillController {
             @ApiImplicitParam(name = "month", value = "年份-月份，如\"2017-09\"", required = false, dataType = "String")
     })
     @GetMapping("users/{username}/bills")
-    public Map<String, Object> getBillsByUser(@PathVariable String username,  @RequestParam(required = false) String month) {
-        return null;
+    public Map<String, Object> getMouthBillsByUser(@PathVariable String username,  @RequestParam(required = false) String month) {
+        List<BillInfoVO> billInfoVOList = billService.getMonthBillsByUser(username,month);
+        Map<String,Object> result = new HashMap<>();
+        result.put(CONTENT,billInfoVOList);
+        return result;
     }
 
     @ApiOperation(value = "用户手动／自动记账", notes = "根据资产账户id添加账目记录，请求内容为空则为自动记账")
