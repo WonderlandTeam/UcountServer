@@ -56,7 +56,7 @@ public class PostServiceImpl implements PostService {
         vo.username = entity.getUsername();
         vo.title = entity.getTitle();
         vo.content = entity.getContent();
-        vo.time = DateHelper.toTimeByTimeStamp(entity.getTime());
+        vo. setTime(DateHelper.toTimeByTimeStamp(entity.getTime()));
         vo.supportNum = supportRepository.countByPostId(entity.getPostId());
 
         if (username != null) {
