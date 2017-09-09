@@ -146,16 +146,27 @@ public class StatementServiceImpl implements StatementService {
     /**
      * 计算利润表时需要过滤的支付宝账目commodity信息
      */
-    private static final Set<String> alipayFilterSet = new HashSet<>();
+    private static final Set<String> alipayCommodityFilterSet = new HashSet<>();
+    /**
+     * 计算利润表时需要过滤的工行卡账目summary信息
+     */
+    private static final Set<String> icbcSummaryFilterSet = new HashSet<>();
 
     static {
-        alipayFilterSet.add("转账到银行卡-转账");
-        alipayFilterSet.add("提现-快速提现");
-        alipayFilterSet.add("转出到网商银行");
-        alipayFilterSet.add("网商银行转入");
-        alipayFilterSet.add("余额宝-自动转入");
-        alipayFilterSet.add("余额宝-单次转入");
-        alipayFilterSet.add("余额宝-转出到银行卡");
+        alipayCommodityFilterSet.add("转账到银行卡-转账");
+        alipayCommodityFilterSet.add("提现-快速提现");
+        alipayCommodityFilterSet.add("转出到网商银行");
+        alipayCommodityFilterSet.add("网商银行转入");
+        alipayCommodityFilterSet.add("余额宝-自动转入");
+        alipayCommodityFilterSet.add("余额宝-单次转入");
+        alipayCommodityFilterSet.add("余额宝-转出到银行卡");
+
+        icbcSummaryFilterSet.add("ATM取款");
+        icbcSummaryFilterSet.add("余额宝提现");
+        icbcSummaryFilterSet.add("QQ钱包提现 DF");
+        icbcSummaryFilterSet.add("微信零钱提现 DF");
+        icbcSummaryFilterSet.add("DF提现");
+        icbcSummaryFilterSet.add("校园");
     }
 
     @Override
@@ -172,13 +183,18 @@ public class StatementServiceImpl implements StatementService {
         List<Alipay> alipayList = alipayRepository.findByUsernameAndCreateTimeBetween(username, start, end);
         alipayList.forEach(a -> {
             // 支付宝账目过滤
-            if (!alipayFilterSet.contains(a.getCommodity())) {
+            if (!alipayCommodityFilterSet.contains(a.getCommodity())) {
                 countIncomeStatement(vo, a.getConsumeType(), a.getMoney());
             }
         });
 
         List<IcbcCard> icbcCardList = icbcCardRepository.findByUsernameAndTradeDateBetween(username, start, end);
-        icbcCardList.forEach(i -> countIncomeStatement(vo, i.getConsumeType(), i.getAccountAmountIncome() + i.getAccountAmountExpense()));
+        icbcCardList.forEach(i -> {
+            // 工行卡账目过滤
+            if (!icbcSummaryFilterSet.contains(i.getSummary())) {
+                countIncomeStatement(vo, i.getConsumeType(), i.getAccountAmountIncome() + i.getAccountAmountExpense());
+            }
+        });
 
         List<SchoolCard> schoolCardList = schoolCardRepository.findByUsernameAndTimeBetween(username, start, end);
 
