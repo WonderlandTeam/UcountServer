@@ -5,6 +5,7 @@ import cn.edu.nju.wonderland.ucountserver.exception.ResourceConflictException;
 import cn.edu.nju.wonderland.ucountserver.exception.ResourceNotFoundException;
 import cn.edu.nju.wonderland.ucountserver.repository.*;
 import cn.edu.nju.wonderland.ucountserver.service.AccountService;
+import cn.edu.nju.wonderland.ucountserver.service.UserDetector;
 import cn.edu.nju.wonderland.ucountserver.util.AutoAccountType;
 import cn.edu.nju.wonderland.ucountserver.vo.AccountAddVO;
 import cn.edu.nju.wonderland.ucountserver.vo.AccountInfoVO;
@@ -12,7 +13,6 @@ import cn.edu.nju.wonderland.ucountserver.vo.TotalAccountVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.mail.internet.MimeMessage;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import static cn.edu.nju.wonderland.ucountserver.util.AutoAccountType.*;
 import static cn.edu.nju.wonderland.ucountserver.util.DateHelper.DATE_TIME_FORMATTER;
@@ -32,16 +31,16 @@ public class AccountServiceImpl implements AccountService {
     private SchoolCardRepository schoolCardRepository;
     private AlipayRepository alipayRepository;
     private ManualBillingRepository manualBillingRepository;
-    private UserRepository userRepository;
+    private UserDetector userDetector;
 
     @Autowired
-    public AccountServiceImpl(AccountRepository accountRepository, IcbcCardRepository icbcCardRepository, SchoolCardRepository schoolCardRepository, AlipayRepository alipayRepository, ManualBillingRepository manualBillingRepository ,UserRepository userRepository) {
+    public AccountServiceImpl(AccountRepository accountRepository, IcbcCardRepository icbcCardRepository, SchoolCardRepository schoolCardRepository, AlipayRepository alipayRepository, ManualBillingRepository manualBillingRepository ,UserDetector userDetector) {
         this.accountRepository = accountRepository;
         this.icbcCardRepository = icbcCardRepository;
         this.schoolCardRepository = schoolCardRepository;
         this.alipayRepository = alipayRepository;
         this.manualBillingRepository = manualBillingRepository;
-        this.userRepository = userRepository;
+        this.userDetector = userDetector;
     }
 
     /**
@@ -71,6 +70,7 @@ public class AccountServiceImpl implements AccountService {
         }
         AccountInfoVO accountInfoVO = new AccountInfoVO();
         accountInfoVO.username = account.getUsername();
+        accountInfoVO.accountId = account.getId();
         accountInfoVO.cardID = account.getCardId();
         accountInfoVO.type = account.getCardType();
         accountInfoVO.income = 0;
@@ -150,20 +150,19 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public Long addAccount(AccountAddVO vo) {
-        // TODO 判断用户是否存在
-        User user = userRepository.findByUsername(vo.username);
-        if(user == null){
+        // 判断用户是否存在
+        if(!userDetector.isUserExists(vo.username)){
             throw  new ResourceConflictException("用户不存在");
         }
         // 判断用户是否已有该账户
-        if (accountRepository.findByUsernameAndCardTypeAndCardId(vo.username, vo.accountType, vo.accountId) != null) {
+        if (accountRepository.findByUsernameAndCardTypeAndCardId(vo.username, vo.accountType, vo.cardId) != null) {
             throw new ResourceConflictException("账户已存在");
         }
 
         Account account = new Account();
         account.setCardType(vo.accountType);
         account.setUsername(vo.username);
-        account.setCardId(vo.accountId);
+        account.setCardId(vo.cardId);
 
         return accountRepository.save(account).getId();
     }
