@@ -63,11 +63,12 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public AccountInfoVO getAccountById(Long accountId) {
-        Timestamp timestamp = Timestamp.valueOf(LocalDateTime.now());
         Account account = accountRepository.findById(accountId);
         if (account == null) {
             throw new ResourceNotFoundException("账户不存在");
         }
+        Timestamp timestamp = Timestamp.valueOf(LocalDateTime.now());
+
         AccountInfoVO accountInfoVO = new AccountInfoVO();
         accountInfoVO.username = account.getUsername();
         accountInfoVO.accountId = account.getId();
@@ -110,8 +111,8 @@ public class AccountServiceImpl implements AccountService {
                 throw new ResourceConflictException("没有此校园卡数据");
             }
             List<SchoolCard> schoolCard = schoolCardRepository.getBalance(account.getCardId(),timestamp);
-            if(schoolCard == null ){
-                throw new ResourceConflictException("校园卡为空" + account.getCardId());
+            if(schoolCard == null || schoolCard.size() == 0){
+                throw new ResourceConflictException("账号" + account.getCardId() + "校园卡没有账目数据");
             }
             accountInfoVO.balance = schoolCard.get(0).getBalance();
             for (int i = 0; i < schoolCards.size(); i++) {
@@ -123,8 +124,11 @@ public class AccountServiceImpl implements AccountService {
             }
         } else {
             List<ManualBilling> manualBillings = manualBillingRepository.findByUsernameAndCardTypeAndCardId(account.getUsername(), account.getCardType(), account.getCardId());
-            // TODO 手动记账处理
+            // 手动记账处理
             List<ManualBilling> manualBilling = manualBillingRepository.getBalance(account.getUsername(),account.getCardType(),account.getCardId(),timestamp);
+            if (manualBilling == null || manualBilling.size() == 0) {
+                throw new ResourceNotFoundException("账户没有账目数据");
+            }
             accountInfoVO.balance = manualBilling.get(0).getBalance();
             for (int i = 0; i < manualBillings.size(); i++) {
                 if (manualBillings.get(i).getIncomeExpenditure() > 0) {
