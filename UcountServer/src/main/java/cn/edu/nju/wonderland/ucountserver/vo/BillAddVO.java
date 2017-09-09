@@ -8,5 +8,5 @@ public class BillAddVO {
     public Double incomeExpenditure;    //交易金额
     public String commodity;            //商品名称
     public String consumeType;          //交易类型
-    public String remark;
+    public String remark;               //评论
 }

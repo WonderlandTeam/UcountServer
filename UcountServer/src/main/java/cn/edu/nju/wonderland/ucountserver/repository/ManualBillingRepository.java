@@ -32,4 +32,6 @@ public interface ManualBillingRepository extends JpaRepository<ManualBilling, Lo
             "                   FROM ManualBilling p2 " +
             "                   WHERE p2.username = ?1 and p2.cardType = ?2 and p2.cardId = ?3 and p2.time <= ?4)")
     List<ManualBilling> getBalance(String username, String cardType, String cardId, Timestamp timestamp);
+
+    int countByUsernameAndCardTypeAndCardId(String username, String cardType, String cardId);
 }

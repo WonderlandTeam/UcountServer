@@ -275,6 +275,11 @@ public class BillServiceImpl implements BillService {
         manualBilling.setCardType(account.getCardType());
         manualBilling.setCardId(account.getCardId());
 
+        // 新余额计算
+        Timestamp nowTimestamp = Timestamp.valueOf(LocalDateTime.now());
+        double balance  = manualBillingRepository.getBalance(account.getUsername(), account.getCardType(), account.getCardId(), nowTimestamp).get(0).getBalance();
+        manualBilling.setBalance(balance + vo.incomeExpenditure);
+
         manualBilling.setCommodity(vo.commodity);
         manualBilling.setConsumeType(vo.consumeType);
         manualBilling.setIncomeExpenditure(vo.incomeExpenditure);
@@ -336,6 +341,9 @@ public class BillServiceImpl implements BillService {
             ManualBilling manualBilling = manualBillingRepository.findByUsernameAndCardTypeAndCardIdAndId(account.getUsername(), accountType, cardId, billId);
             if (manualBilling == null) {
                 throw new ResourceNotFoundException("账目不存在");
+            }
+            if (manualBillingRepository.countByUsernameAndCardTypeAndCardId(account.getUsername(), accountType, cardId) == 1) {
+                throw new InvalidRequestException("手动记账账户至少需要有一条记录");
             }
             manualBillingRepository.delete(manualBilling);
         }
