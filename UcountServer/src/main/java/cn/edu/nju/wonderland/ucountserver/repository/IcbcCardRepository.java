@@ -22,7 +22,7 @@ public interface IcbcCardRepository extends JpaRepository<IcbcCard, Long> {
 
     void deleteByCardId(String cardId);
 
-    @Query("SELECT p FROM IcbcCard p WHERE p.cardId = ?1 and p.tradeDate = (SELECT max(p2.id) FROM IcbcCard p2 WHERE p2.cardId = ?1 and p2.tradeDate <= ?2)")
+    @Query("SELECT p FROM IcbcCard p WHERE p.cardId = ?1 and p.tradeDate = (SELECT max(p2.tradeDate) FROM IcbcCard p2 WHERE p2.cardId = ?1 and p2.tradeDate <= ?2)")
     List<IcbcCard> getBalance(String cardId, Timestamp time);
 
     List<IcbcCard> findByCardIdAndTradeDateBetween(String account, Timestamp start, Timestamp end);

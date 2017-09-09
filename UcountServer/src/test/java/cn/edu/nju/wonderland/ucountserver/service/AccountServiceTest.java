@@ -42,7 +42,7 @@ public class AccountServiceTest {
     }
     @Test
     public void testGetAccountsByUser(){
-        List<AccountInfoVO> accountInfoVOList = accountService.getAccountsByUser("sense");
+        List<AccountInfoVO> accountInfoVOList = accountService.getAccountsByUser("sigma");
         System.out.println(accountInfoVOList.size());
     }
 }
