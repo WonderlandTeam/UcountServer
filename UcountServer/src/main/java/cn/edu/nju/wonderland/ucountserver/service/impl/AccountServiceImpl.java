@@ -12,6 +12,7 @@ import cn.edu.nju.wonderland.ucountserver.vo.TotalAccountVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.mail.internet.MimeMessage;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -31,14 +32,16 @@ public class AccountServiceImpl implements AccountService {
     private SchoolCardRepository schoolCardRepository;
     private AlipayRepository alipayRepository;
     private ManualBillingRepository manualBillingRepository;
+    private UserRepository userRepository;
 
     @Autowired
-    public AccountServiceImpl(AccountRepository accountRepository, IcbcCardRepository icbcCardRepository, SchoolCardRepository schoolCardRepository, AlipayRepository alipayRepository, ManualBillingRepository manualBillingRepository) {
+    public AccountServiceImpl(AccountRepository accountRepository, IcbcCardRepository icbcCardRepository, SchoolCardRepository schoolCardRepository, AlipayRepository alipayRepository, ManualBillingRepository manualBillingRepository ,UserRepository userRepository) {
         this.accountRepository = accountRepository;
         this.icbcCardRepository = icbcCardRepository;
         this.schoolCardRepository = schoolCardRepository;
         this.alipayRepository = alipayRepository;
         this.manualBillingRepository = manualBillingRepository;
+        this.userRepository = userRepository;
     }
 
     /**
@@ -67,15 +70,17 @@ public class AccountServiceImpl implements AccountService {
             throw new ResourceNotFoundException("账户不存在");
         }
         AccountInfoVO accountInfoVO = new AccountInfoVO();
-        accountInfoVO.id = account.getId();
         accountInfoVO.username = account.getUsername();
         accountInfoVO.cardID = account.getCardId();
         accountInfoVO.type = account.getCardType();
         accountInfoVO.income = 0;
         accountInfoVO.expend = 0;
-
+        System.out.println(account.getCardId());
         if (account.getCardType().equals(ALIPAY.accountType)) {
             List<Alipay> alipays = alipayRepository.findByCardId(account.getCardId(), null).getContent();
+            if(alipays.size() == 0) {
+                throw new ResourceConflictException("没有此支付宝数据");
+            }
             Alipay alipay = alipayRepository.getBalance(account.getCardId(),timestamp);
             accountInfoVO.balance = alipay.getBalance();
             for (int i = 0; i < alipays.size(); i++) {
@@ -87,7 +92,10 @@ public class AccountServiceImpl implements AccountService {
             }
         } else if (account.getCardType().equals(ICBC_CARD.accountType)) {
             List<IcbcCard> icbcCards = icbcCardRepository.findByCardId(account.getCardId(), null).getContent();
-            IcbcCard icbcCard = icbcCardRepository.getBalance(String.valueOf(accountId),timestamp);
+            if(icbcCards.size() == 0){
+                throw  new ResourceConflictException("没有此工行卡数据" + account.getCardId());
+            }
+            IcbcCard icbcCard = icbcCardRepository.getBalance(account.getCardId(),timestamp);
             accountInfoVO.balance = icbcCard.getBalance();
             for (int i = 0; i < icbcCards.size(); i++) {
                 if (icbcCards.get(i).getAccountAmountIncome() > 0) {
@@ -98,7 +106,13 @@ public class AccountServiceImpl implements AccountService {
             }
         } else if (account.getCardType().equals(SCHOOL_CARD.accountType)) {
             List<SchoolCard> schoolCards = schoolCardRepository.findByCardId(account.getCardId(), null).getContent();
-            SchoolCard schoolCard = schoolCardRepository.getBalance(String.valueOf(accountId),timestamp);
+            if(schoolCards.size() == 0 ){
+                throw new ResourceConflictException("没有此校园卡数据");
+            }
+            SchoolCard schoolCard = schoolCardRepository.getBalance(account.getCardId(),timestamp);
+            if(schoolCard == null ){
+                throw new ResourceConflictException("校园卡为空" + account.getCardId());
+            }
             accountInfoVO.balance = schoolCard.getBalance();
             for (int i = 0; i < schoolCards.size(); i++) {
                 if (schoolCards.get(i).getIncomeExpenditure() > 0) {
@@ -110,7 +124,15 @@ public class AccountServiceImpl implements AccountService {
         } else {
             List<ManualBilling> manualBillings = manualBillingRepository.findByUsernameAndCardTypeAndCardId(account.getUsername(), account.getCardType(), account.getCardId());
             // TODO 手动记账处理
-
+            ManualBilling manualBilling = manualBillingRepository.getBalance(account.getUsername(),account.getCardType(),account.getCardId(),timestamp);
+            accountInfoVO.balance = manualBilling.getBalance();
+            for (int i = 0; i < manualBillings.size(); i++) {
+                if (manualBillings.get(i).getIncomeExpenditure() > 0) {
+                    accountInfoVO.income += manualBillings.get(i).getIncomeExpenditure();
+                } else {
+                    accountInfoVO.expend -= manualBillings.get(i).getIncomeExpenditure();
+                }
+            }
         }
 
         return accountInfoVO;
@@ -119,16 +141,20 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public List<AccountInfoVO> getAccountsByUser(String username) {
         List<Account> accounts = accountRepository.findByUsername(username);
-        return accounts
-                .stream()
-                .map(e -> getAccountById(e.getId()))
-                .collect(Collectors.toList());
+        List<AccountInfoVO> accountInfoVOList = new ArrayList<>();
+        for(Account account : accounts){
+            accountInfoVOList.add(this.getAccountById(account.getId()));
+        }
+        return accountInfoVOList;
     }
 
     @Override
     public Long addAccount(AccountAddVO vo) {
         // TODO 判断用户是否存在
-
+        User user = userRepository.findByUsername(vo.username);
+        if(user == null){
+            throw  new ResourceConflictException("用户不存在");
+        }
         // 判断用户是否已有该账户
         if (accountRepository.findByUsernameAndCardTypeAndCardId(vo.username, vo.accountType, vo.accountId) != null) {
             throw new ResourceConflictException("账户已存在");
@@ -181,10 +207,13 @@ public class AccountServiceImpl implements AccountService {
         double expend = 0;
         double balance = 0;
         for (int i = 0; i < accounts.size(); i++) {
+            if(!accounts.get(i).getCardType().equals(ICBC_CARD.accountType)){
+                continue;
+            }
             icbcCardmap.put(i, icbcCardRepository.findByCardIdAndTradeDateBetween(accounts.get(i).getCardId(), start, end));
             //获取所有银行卡当月账单
         }
-        for (int k = 0; k < accounts.size(); k++) {
+        for (int k = 0; k < icbcCardmap.size(); k++) {
             List<IcbcCard> icbcCardList = icbcCardmap.get(k);
             for (int i = 0; i < icbcCardList.size(); i++) {
                 for (int j = 0; j < alipayList.size(); j++) {
@@ -228,7 +257,7 @@ public class AccountServiceImpl implements AccountService {
                 expend -= schoolCardList.get(i).getIncomeExpenditure();
             }
         }
-        for (int k = 0; k < accounts.size(); k++) {
+        for (int k = 0; k < icbcCardmap.size(); k++) {
             List<IcbcCard> icbcCardList = icbcCardmap.get(k);
             for (int i = 0; i < icbcCardList.size(); i++) {
                 if (icbcCardList.get(i).getAccountAmountIncome() > 0) {
@@ -240,19 +269,31 @@ public class AccountServiceImpl implements AccountService {
         }
         totalAccountVO.setExpend(expend);
         totalAccountVO.setIncome(income);
-        SchoolCard schoolCard = schoolCardRepository.getBalance(username,end);
-        if(schoolCard != null && schoolCard.getBalance() != null){
-            balance += schoolCard.getBalance();
-        }
-        Alipay alipay = alipayRepository.getBalance(username,end);
-        if(alipay !=null &&alipay.getBalance() != null){
-            balance += alipay.getBalance();
-        }
-        List<IcbcCard> icbcCardList = new ArrayList<>();
         for(Account account:accounts){
-            IcbcCard icbcCard = icbcCardRepository.getBalance(account.getCardId(),end);
-            if(icbcCard!=null && icbcCard.getBalance() != null){
+            if(account.getCardType().equals(SCHOOL_CARD.accountType)){
+                SchoolCard schoolCard = schoolCardRepository.getBalance(account.getCardId(),end);
+                if(schoolCard == null){
+                    throw new ResourceConflictException("校园卡为空");
+                }
+                balance += schoolCard.getBalance();
+            }else if(account.getCardType().equals(ALIPAY.accountType)){
+                Alipay alipay = alipayRepository.getBalance(account.getCardId(),end);
+                if(alipay == null) {
+                    throw new ResourceConflictException("支付宝为空");
+                }
+                balance += alipay.getBalance();
+
+            }else if(account.getCardType().equals(ICBC_CARD.accountType)){
+                IcbcCard icbcCard = icbcCardRepository.getBalance(account.getCardId(),end);
+                if(icbcCard == null) {
+                    throw new ResourceConflictException("工行卡为空");
+                }
                 balance += icbcCard.getBalance();
+            }else{
+                ManualBilling manualBilling  = manualBillingRepository.getBalance(username,account.getCardType(),account.getCardId(),end);
+                if(manualBilling != null) {
+                    balance += manualBilling.getBalance();
+                }
             }
         }
         totalAccountVO.setBalance(balance);
@@ -266,14 +307,30 @@ public class AccountServiceImpl implements AccountService {
         Timestamp timestamp = Timestamp.valueOf(LocalDateTime.now());
         List<Account> accounts = accountRepository.findByUsername(username);
         for (Account account : accounts) {
-            if (account.getCardType().equals(ALIPAY.accountType)) {
-                result += alipayRepository.getBalance(account.getCardId(),timestamp).getBalance();
-            } else if (account.getCardType().equals(ICBC_CARD.accountType)) {
-                result += icbcCardRepository.getBalance(account.getCardId(),timestamp).getBalance();
-            } else if (account.getCardType().equals(SCHOOL_CARD.accountType)) {
-                result += schoolCardRepository.getBalance(account.getCardId(),timestamp).getBalance();
-            } else {
-                // TODO 手动记账处理
+            if(account.getCardType().equals(SCHOOL_CARD.accountType)){
+                SchoolCard schoolCard = schoolCardRepository.getBalance(account.getCardId(),timestamp);
+                if(schoolCard == null){
+                    throw new ResourceConflictException("校园卡为空");
+                }
+                result += schoolCard.getBalance();
+            }else if(account.getCardType().equals(ALIPAY.accountType)){
+                Alipay alipay = alipayRepository.getBalance(account.getCardId(),timestamp);
+                if(alipay == null) {
+                    throw new ResourceConflictException("支付宝为空");
+                }
+                result += alipay.getBalance();
+
+            }else if(account.getCardType().equals(ICBC_CARD.accountType)){
+                IcbcCard icbcCard = icbcCardRepository.getBalance(account.getCardId(),timestamp);
+                if(icbcCard == null) {
+                    throw new ResourceConflictException("工行卡为空");
+                }
+                result += icbcCard.getBalance();
+            }else{
+                ManualBilling manualBilling  = manualBillingRepository.getBalance(username,account.getCardType(),account.getCardId(),timestamp);
+                if(manualBilling != null) {
+                    result += manualBilling.getBalance();
+                }
             }
         }
         return result;
@@ -292,10 +349,13 @@ public class AccountServiceImpl implements AccountService {
         List<Account> accounts = accountRepository.findByUsername(username);
         Map<Integer, List<IcbcCard>> icbcCardmap = new HashMap<>();
         for (int i = 0; i < accounts.size(); i++) {
+            if(!accounts.get(i).getCardType().equals(ICBC_CARD.accountType)){
+                continue;
+            }
             icbcCardmap.put(i, icbcCardRepository.findByCardIdAndTradeDateBetween(accounts.get(i).getCardId(), start, end));
             //获取所有银行卡当月账单
         }
-        for (int k = 0; k < accounts.size(); k++) {
+        for (int k = 0; k < icbcCardmap.size(); k++) {
             List<IcbcCard> icbcCardList = icbcCardmap.get(k);
             for (int i = 0; i < icbcCardList.size(); i++) {
                 for (int j = 0; j < alipayList.size(); j++) {
@@ -337,7 +397,7 @@ public class AccountServiceImpl implements AccountService {
 				result -= schoolCardList.get(i).getIncomeExpenditure();
 			}
 		}
-		for(int k = 0; k < accounts.size() ;k++) {
+		for(int k = 0; k < icbcCardmap.size() ;k++) {
 			List<IcbcCard> icbcCardList = icbcCardmap.get(k);
 			for (int i = 0; i < icbcCardList.size(); i++) {
 				if (icbcCardList.get(i).getAccountAmountExpense() > 0) {
