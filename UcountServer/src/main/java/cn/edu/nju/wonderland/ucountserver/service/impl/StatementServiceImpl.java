@@ -14,11 +14,14 @@ import org.springframework.stereotype.Service;
 import java.lang.reflect.Field;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static cn.edu.nju.wonderland.ucountserver.util.AutoAccountType.ALIPAY;
 import static cn.edu.nju.wonderland.ucountserver.util.AutoAccountType.ICBC_CARD;
 import static cn.edu.nju.wonderland.ucountserver.util.AutoAccountType.SCHOOL_CARD;
+import static cn.edu.nju.wonderland.ucountserver.util.BillType.*;
 
 @Service
 public class StatementServiceImpl implements StatementService {
@@ -37,9 +40,10 @@ public class StatementServiceImpl implements StatementService {
         this.manualBillingRepository = manualBillingRepository;
     }
 
-    public static final String COST = "cost";         // 成本 键名
-
-    public static final String MARKET = "market";     // 市价 键名
+    // 成本 键名
+    public static final String COST = "cost";
+    // 市价 键名
+    public static final String MARKET = "market";
 
     @Override
     public BalanceSheetVO getBalanceSheet(String username, String date) {
@@ -54,25 +58,64 @@ public class StatementServiceImpl implements StatementService {
 
         double cash = 0;
         double deposit = 0;
+        double creditCardLiabilities = 0;
+        double personalLiabilities = 0;
         for (Account account : accounts) {
             String cardType = account.getCardType();
             if (cardType.equals(ALIPAY.accountType)) {
-                deposit += alipayRepository.getBalance(account.getCardId(), timestamp).getBalance();
+                double balance = alipayRepository.getBalance(account.getCardId(), timestamp).get(0).getBalance();
+                if (balance > 0) {
+                    deposit += balance;
+                } else {
+                    // 自用负债
+                    personalLiabilities -= balance;
+                }
             } else if (cardType.equals(ICBC_CARD.accountType)) {
-                deposit += icbcCardRepository.getBalance(account.getCardId(), timestamp).getBalance();
+                double balance = icbcCardRepository.getBalance(account.getCardId(), timestamp).get(0).getBalance();
+                if (balance > 0) {
+                    deposit += balance;
+                } else {
+                    // 信用卡负债
+                    creditCardLiabilities -= balance;
+                }
             } else if (cardType.equals(SCHOOL_CARD.accountType)) {
-                deposit += schoolCardRepository.getBalance(account.getCardId(), timestamp).getBalance();
+                deposit += schoolCardRepository.getBalance(account.getCardId(), timestamp).get(0).getBalance();
             } else {
-//                cash += manualBillingRepository.getBalance(username, account.getCardType(), account.getCardId(), timestamp);
+                double balance = manualBillingRepository.getBalance(username, account.getCardType(), account.getCardId(), timestamp).get(0).getBalance();
+                if (balance > 0) {
+                    // 现金
+                    cash += balance;
+                } else {
+                    personalLiabilities -= balance;
+                }
             }
+
         }
+        // 资产项
         vo.cash.put(COST, cash);
         vo.cash.put(MARKET, cash);
         vo.deposit.put(COST, deposit);
         vo.deposit.put(MARKET, deposit);
         vo.currentAssets.put(COST, cash + deposit);
         vo.currentAssets.put(MARKET, cash + deposit);
-
+        vo.totalAssets.put(COST, cash + deposit);
+        vo.totalAssets.put(MARKET, cash + deposit);
+        // 负债项
+        vo.creditCardLiabilities = creditCardLiabilities;
+        vo.personalLiabilities = personalLiabilities;
+        vo.totalLiabilities = creditCardLiabilities + personalLiabilities;
+        // 净值项
+        double currentNetValue = vo.currentAssets.get(COST) - vo.consumerLiabilities;
+        vo.currentNetValue.put(COST, currentNetValue);
+        vo.currentNetValue.put(MARKET, currentNetValue);
+        double investmentNetValue = vo.investmentAssets.get(COST) - vo.investmentLiabilities;
+        vo.investmentNetValue.put(COST, investmentNetValue);
+        vo.investmentNetValue.put(MARKET, investmentNetValue);
+        double personalNetValue = vo.personalAssets.get(COST) - personalLiabilities;
+        vo.personalNetValue.put(COST, personalNetValue);
+        vo.personalNetValue.put(MARKET, personalNetValue);
+        vo.totalNetValue.put(COST, currentNetValue + investmentNetValue + personalNetValue);
+        vo.totalNetValue.put(MARKET, currentNetValue + investmentNetValue + personalNetValue);
         return vo;
     }
 
@@ -80,7 +123,7 @@ public class StatementServiceImpl implements StatementService {
      * 利润表表项统计
      */
     private void countIncomeStatement(IncomeStatementVO vo, String consumeType, double value) {
-        BillType billType = BillType.stringToBillType(consumeType);
+        BillType billType = stringToBillType(consumeType);
         if (billType == null) {
             return;
         }
@@ -100,6 +143,21 @@ public class StatementServiceImpl implements StatementService {
         }
     }
 
+    /**
+     * 计算利润表时需要过滤的支付宝账目commodity信息
+     */
+    private static final Set<String> alipayFilterSet = new HashSet<>();
+
+    static {
+        alipayFilterSet.add("转账到银行卡-转账");
+        alipayFilterSet.add("提现-快速提现");
+        alipayFilterSet.add("转出到网商银行");
+        alipayFilterSet.add("网商银行转入");
+        alipayFilterSet.add("余额宝-自动转入");
+        alipayFilterSet.add("余额宝-单次转入");
+        alipayFilterSet.add("余额宝-转出到银行卡");
+    }
+
     @Override
     public IncomeStatementVO getIncomeStatement(String username, String beginDate, String endDate) {
         IncomeStatementVO vo = new IncomeStatementVO();
@@ -112,14 +170,24 @@ public class StatementServiceImpl implements StatementService {
         Timestamp end = DateHelper.toTimestampByDate(endDate);
 
         List<Alipay> alipayList = alipayRepository.findByUsernameAndCreateTimeBetween(username, start, end);
-        alipayList.forEach(a -> countIncomeStatement(vo, a.getConsumeType(), a.getMoney()));
+        alipayList.forEach(a -> {
+            // 支付宝账目过滤
+            if (!alipayFilterSet.contains(a.getCommodity())) {
+                countIncomeStatement(vo, a.getConsumeType(), a.getMoney());
+            }
+        });
 
         List<IcbcCard> icbcCardList = icbcCardRepository.findByUsernameAndTradeDateBetween(username, start, end);
         icbcCardList.forEach(i -> countIncomeStatement(vo, i.getConsumeType(), i.getAccountAmountIncome() + i.getAccountAmountExpense()));
 
         List<SchoolCard> schoolCardList = schoolCardRepository.findByUsernameAndTimeBetween(username, start, end);
 
-        schoolCardList.forEach(s -> countIncomeStatement(vo, s.getConsumeType(), Math.abs(s.getIncomeExpenditure())));
+        schoolCardList.forEach(s -> {
+            // 过滤校园卡收入
+            if (!s.getConsumeType().equals(OTHER_INCOME.billType)) {
+                countIncomeStatement(vo, s.getConsumeType(), Math.abs(s.getIncomeExpenditure()));
+            }
+        });
 
         List<ManualBilling> manualBillingList = manualBillingRepository.findByUsernameAndTimeBetween(username, start, end);
         manualBillingList.forEach(m -> countIncomeStatement(vo, m.getConsumeType(), m.getIncomeExpenditure()));

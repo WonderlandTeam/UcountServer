@@ -1,5 +1,6 @@
 package cn.edu.nju.wonderland.ucountserver.service;
 
+import cn.edu.nju.wonderland.ucountserver.vo.BalanceSheetVO;
 import cn.edu.nju.wonderland.ucountserver.vo.IncomeStatementVO;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -20,7 +21,15 @@ public class StatementServiceTest {
     public void testGetIncomeStatement() throws IllegalAccessException {
         IncomeStatementVO vo = statementService.getIncomeStatement("sigma", "2017-06-01", "2017-07-01");
         for (Field field : vo.getClass().getFields()) {
-            System.out.println(field.getName() + ":\t" + field.get(vo));
+            System.out.println(field.getName() + ": " + field.get(vo));
+        }
+    }
+
+    @Test
+    public void testGetBalanceSheet() throws IllegalAccessException {
+        BalanceSheetVO vo = statementService.getBalanceSheet("sigma", "2017-08-01");
+        for (Field field : vo.getClass().getFields()) {
+            System.out.println(field.getName() + ": " + field.get(vo));
         }
     }
 

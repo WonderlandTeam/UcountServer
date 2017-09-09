@@ -2,6 +2,7 @@ package cn.edu.nju.wonderland.ucountserver.repository;
 
 import cn.edu.nju.wonderland.ucountserver.entity.ManualBilling;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
 import java.sql.Timestamp;
 import java.util.List;
@@ -24,6 +25,8 @@ public interface ManualBillingRepository extends JpaRepository<ManualBilling, Lo
 
     List<ManualBilling> findByUsernameAndTimeBetween(String username, Timestamp start, Timestamp end);
 
-    // TODO
-//    ManualBilling getBalance(String username, String cardType, String cardId, Timestamp timestamp);
+    @Query("select m from ManualBilling m where m.username=?1 and m.cardType=?2 and m.cardId=?3 and m.time = " +
+            "(select max(m2.time) from ManualBilling m2 where m2.username=?1 and m2.cardType=?2 and m2.cardId=?3)")
+    List<ManualBilling> getBalance(String username, String cardType, String cardId, Timestamp timestamp);
+
 }

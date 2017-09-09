@@ -22,8 +22,8 @@ public interface SchoolCardRepository extends JpaRepository<SchoolCard, Long> {
 
     void deleteByCardId(String cardId);
 
-    @Query("SELECT s FROM SchoolCard s WHERE s.time = (SELECT max(p2.time) FROM SchoolCard p2 WHERE p2.cardId = ?1 and p2.time < ?2) and s.cardId = ?1 ")
-    SchoolCard getBalance(String account,Timestamp time);
+    @Query("SELECT s FROM SchoolCard s WHERE s.cardId = ?1 and s.time = (SELECT max(p2.time) FROM SchoolCard p2 WHERE p2.cardId = ?1 and p2.time <= ?2)")
+    List<SchoolCard> getBalance(String cardId, Timestamp time);
 
     List<SchoolCard> findByUsernameAndTimeBetween(String username, Timestamp start, Timestamp end);
 }

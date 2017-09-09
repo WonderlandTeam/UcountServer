@@ -145,7 +145,7 @@ public class PostController {
 
     @ApiOperation(value = "用户取消帖子回复点赞", notes = "根据用户名和帖子id删除帖子回复点赞信息")
     @ApiImplicitParam(name = "username", value = "用户名", required = true, dataType = "String")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
+//    @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping("/replies/{reply_id}/praises")
     public Map<String, Object> cancelPraisePostReply(@PathVariable("reply_id") Long replyId,
                                                      @RequestParam String username) {
