@@ -68,8 +68,14 @@ public class BillController {
     @PostMapping("accounts/{account_id}/bills")
     public Map<String, Object> addBill(@PathVariable("account_id") Long accountId,
                                        @RequestBody(required = false) BillAddVO billAddVO) {
-        billService.addBillManually(accountId,billAddVO);
         Map<String,Object> result = new HashMap<>();
+        if (billAddVO == null) {
+            List<BillInfoVO> bills = billService.addBillAutomatically(accountId);
+            result.put(CONTENT, bills);
+        } else {
+            Long billId = billService.addBillManually(accountId, billAddVO);
+            result.put(CONTENT, billId);
+        }
         result.put(MESSAGE,"添加成功");
         return result;
     }
