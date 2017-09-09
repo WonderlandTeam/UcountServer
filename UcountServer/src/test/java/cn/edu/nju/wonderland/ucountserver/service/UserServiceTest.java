@@ -1,9 +1,7 @@
 package cn.edu.nju.wonderland.ucountserver.service;
 
-import cn.edu.nju.wonderland.ucountserver.service.impl.UserServiceImpl;
 import cn.edu.nju.wonderland.ucountserver.vo.SignUpVO;
 import cn.edu.nju.wonderland.ucountserver.vo.UserInfoVO;
-import org.apache.catalina.User;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +10,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import java.math.BigInteger;
 import java.security.MessageDigest;
-import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 @RunWith(SpringRunner.class)
@@ -27,13 +24,13 @@ public class UserServiceTest {
         signUpVO.email = "123@qq.com";
         signUpVO.password = "123";
         signUpVO.tel = "123";
-        String username = userService.signUp(signUpVO);
+        String username = userService.signUp(signUpVO, null);
         assertEquals(username, "456");
     }
 
     @Test
     public void testLogin() {
-        UserInfoVO userInfoVO = userService.login("123", "123");
+        UserInfoVO userInfoVO = userService.login("123", "123", null);
         assertEquals(userInfoVO.userName, "123");
     }
 

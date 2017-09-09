@@ -31,8 +31,9 @@ public class UserController {
     })
     @PostMapping("/login")
     public Map<String, Object> login(@RequestParam String username,
-                                     @RequestParam String password) {
-        UserInfoVO userInfoVO = userService.login(username,password);
+                                     @RequestParam String password,
+                                     @RequestHeader("User-Agent") String userAgent) {
+        UserInfoVO userInfoVO = userService.login(username, password, userAgent);
         Map<String,Object> result = new HashMap<>();
         result.put(CONTENT,userInfoVO);
         return result;
@@ -41,8 +42,9 @@ public class UserController {
     @ApiOperation(value = "创建用户", notes = "根据SignUpVO创建用户")
     @ApiImplicitParam(name = "signUpVO", value = "用户注册信息vo", required = true, dataType = "SignUpVO")
     @PostMapping
-    public Map<String, Object> signUp(@RequestBody SignUpVO signUpVO) {
-        String username = userService.signUp(signUpVO);
+    public Map<String, Object> signUp(@RequestBody SignUpVO signUpVO,
+                                      @RequestHeader("User-Agent") String userAgent) {
+        String username = userService.signUp(signUpVO, userAgent);
         Map<String,Object> result = new HashMap<>();
         result.put(CONTENT,username);
         return result;

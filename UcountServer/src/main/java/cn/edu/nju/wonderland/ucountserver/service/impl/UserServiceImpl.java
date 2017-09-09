@@ -35,7 +35,7 @@ public class UserServiceImpl implements UserService, UserDetector {
     }
 
     @Override
-    public String signUp(SignUpVO signUpVO) {
+    public String signUp(SignUpVO signUpVO, String userAgent) {
         if(userRepository.findByUsername(signUpVO.userName) != null) {
             throw new ResourceConflictException("用户名已存在");
         }
@@ -47,6 +47,7 @@ public class UserServiceImpl implements UserService, UserDetector {
         user.setPassword(MD5.encrypt(signUpVO.password));
         user.setTel(signUpVO.tel);
         user.setEmail(signUpVO.email);
+        user.setUserAgent(userAgent);
         userRepository.save(user);
         return user.getUsername();
     }
@@ -186,7 +187,7 @@ public class UserServiceImpl implements UserService, UserDetector {
     }
 
     @Override
-    public UserInfoVO login(String username, String password) {
+    public UserInfoVO login(String username, String password, String userAgent) {
         User user = userRepository.findByUsername(username);
         if (user == null) {
             user = userRepository.findByTel(username);
@@ -196,6 +197,11 @@ public class UserServiceImpl implements UserService, UserDetector {
         }
         if(!user.getPassword().equals(MD5.encrypt(password))) {
             throw new ResourceNotFoundException("密码错误");
+        }
+        // 更新客户端类型
+        if (userAgent != null && !userAgent.equals(user.getUserAgent())) {
+            user.setUserAgent(userAgent);
+            userRepository.save(user);
         }
 
         UserInfoVO userInfoVO = new UserInfoVO();

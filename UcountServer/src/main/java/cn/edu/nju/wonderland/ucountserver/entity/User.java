@@ -15,6 +15,7 @@ public class User {
     private String password;
     private String tel;
     private String email;
+    private String userAgent;
 
 
     public Long getId() {
@@ -65,4 +66,12 @@ public class User {
         this.email = email;
     }
 
+    @Column(name = "user_agent", length = 255)
+    public String getUserAgent() {
+        return userAgent;
+    }
+
+    public void setUserAgent(String userAgent) {
+        this.userAgent = userAgent;
+    }
 }
