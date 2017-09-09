@@ -25,8 +25,11 @@ public interface ManualBillingRepository extends JpaRepository<ManualBilling, Lo
 
     List<ManualBilling> findByUsernameAndTimeBetween(String username, Timestamp start, Timestamp end);
 
-    @Query("select m from ManualBilling m where m.username=?1 and m.cardType=?2 and m.cardId=?3 and m.time = " +
-            "(select max(m2.time) from ManualBilling m2 where m2.username=?1 and m2.cardType=?2 and m2.cardId=?3)")
-    List<ManualBilling> getBalance(String username, String cardType, String cardId, Timestamp timestamp);
-
+    @Query( "SELECT s " +
+            "FROM ManualBilling s " +
+            "WHERE s.username = ?1 and s.cardType = ?2 and s.cardId = ?3 and" +
+            "       s.time = (  SELECT max(p2.time) " +
+            "                   FROM ManualBilling p2 " +
+            "                   WHERE p2.username = ?1 and p2.cardType = ?2 and p2.cardId = ?3 and p2.time <= ?4)")
+    ManualBilling getBalance(String username, String cardType, String cardId, Timestamp timestamp);
 }

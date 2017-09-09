@@ -1,5 +1,8 @@
 package cn.edu.nju.wonderland.ucountserver.service;
 
+import cn.edu.nju.wonderland.ucountserver.entity.Alipay;
+import cn.edu.nju.wonderland.ucountserver.repository.AlipayRepository;
+import cn.edu.nju.wonderland.ucountserver.repository.IcbcCardRepository;
 import cn.edu.nju.wonderland.ucountserver.vo.AccountInfoVO;
 import cn.edu.nju.wonderland.ucountserver.vo.TotalAccountVO;
 import org.junit.Test;
@@ -9,6 +12,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.lang.reflect.Field;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.util.List;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -16,7 +22,10 @@ public class AccountServiceTest {
 
     @Autowired
     public AccountService accountService;
-
+    @Autowired
+    public IcbcCardRepository icbcCardRepository;
+    @Autowired
+    public AlipayRepository alipayRepository;
     @Test
     public void testGetAccountById() throws IllegalAccessException {
         AccountInfoVO vo = accountService.getAccountById(1L);
@@ -30,5 +39,10 @@ public class AccountServiceTest {
         System.out.println(totalAccountVO.getExpend());
         System.out.println(totalAccountVO.getIncome());
         System.out.println(totalAccountVO.getBalance());
+    }
+    @Test
+    public void testGetAccountsByUser(){
+        List<AccountInfoVO> accountInfoVOList = accountService.getAccountsByUser("sense");
+        System.out.println(accountInfoVOList.size());
     }
 }

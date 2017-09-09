@@ -179,7 +179,7 @@ public class BillServiceImpl implements BillService {
         List<Alipay> alipayList = alipayRepository.findByUsernameAndCreateTimeBetween(username, startStamp,endStamp);
         List<Account> accounts = accountRepository.findByUsername(username);
         for (int i = 0; i < accounts.size(); i++) {
-            if (!accounts.get(i).getCardType().contains("银行卡")) {
+            if (!accounts.get(i).getCardType().equals(ICBC_CARD.accountType)) {
                 accounts.remove(i);//选出银行卡
             }
         }
