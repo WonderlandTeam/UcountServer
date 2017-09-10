@@ -45,9 +45,8 @@ public class AccountController {
     @ApiOperation(value = "删除资产账户", notes = "根据账户id删除账户")
     @ApiImplicitParam(name = "accountId", value = "账户id", required = true, dataType = "Long")
     @DeleteMapping("/{account_id}")
-    public String deleteAccount(@PathVariable("account_id") Long accountId) {
+    public void deleteAccount(@PathVariable("account_id") Long accountId) {
         accountService.deleteAccount(accountId);
-        return "删除成功";
     }
 
 }

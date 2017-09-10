@@ -65,20 +65,20 @@ public class PostController {
     @ApiImplicitParam(name = "username", value = "用户名", required = true, dataType = "String")
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/{post_id}/collections")
-    public String collectPost(@PathVariable("post_id") Long postId,
+    public void collectPost(@PathVariable("post_id") Long postId,
                               @RequestParam String username) {
         postService.collectPost(username, postId);
-        return "收藏成功";
+//        return "收藏成功";
     }
 
     @ApiOperation(value = "用户取消收藏", notes = "根据用户名和帖子id删除收藏信息")
     @ApiImplicitParam(name = "postId", value = "帖子id", required = true, dataType = "Long")
 //    @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping("/{post_id}/collections")
-    public String deleteCollection(@PathVariable("post_id") Long postId,
+    public void deleteCollection(@PathVariable("post_id") Long postId,
                                    @RequestParam String username) {
         postService.collectPost(username, postId);
-        return "取消收藏成功";
+//        return "取消收藏成功";
     }
 
     @ApiOperation(value = "获取用户收藏所有帖子", notes = "根据用户名获取其收藏帖子")
@@ -92,40 +92,40 @@ public class PostController {
     @ApiImplicitParam(name = "username", value = "用户名", required = true, dataType = "String")
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/{post_id}/praises")
-    public String praisePost(@PathVariable("post_id") Long postId,
+    public void praisePost(@PathVariable("post_id") Long postId,
                              @RequestParam String username) {
         postService.praisePost(username, postId, false);
-        return "点赞成功";
+//        return "点赞成功";
     }
 
     @ApiOperation(value = "用户取消原贴点赞", notes = "根据用户名和帖子id删除原贴点赞信息")
     @ApiImplicitParam(name = "username", value = "用户名", required = true, dataType = "String")
 //    @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping("/{post_id}/praises")
-    public String cancelPraisePost(@PathVariable("post_id") Long postId,
+    public void cancelPraisePost(@PathVariable("post_id") Long postId,
                                    @RequestParam String username) {
         postService.cancelPraisePost(username, postId, false);
-        return "取消点赞成功";
+//        return "取消点赞成功";
     }
 
     @ApiOperation(value = "用户点赞帖子回复", notes = "根据用户名和帖子回复id增加点赞信息")
     @ApiImplicitParam(name = "username", value = "用户名", required = true, dataType = "String")
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/replies/{reply_id}/praises")
-    public String praisePostReply(@PathVariable("reply_id") Long replyId,
+    public void praisePostReply(@PathVariable("reply_id") Long replyId,
                                   @RequestParam String username) {
         postService.praisePost(username, replyId, true);
-        return "点赞成功";
+//        return "点赞成功";
     }
 
     @ApiOperation(value = "用户取消帖子回复点赞", notes = "根据用户名和帖子id删除帖子回复点赞信息")
     @ApiImplicitParam(name = "username", value = "用户名", required = true, dataType = "String")
 //    @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping("/replies/{reply_id}/praises")
-    public String cancelPraisePostReply(@PathVariable("reply_id") Long replyId,
+    public void cancelPraisePostReply(@PathVariable("reply_id") Long replyId,
                                         @RequestParam String username) {
         postService.cancelPraisePost(username, replyId, true);
-        return  "取消点赞成功";
+//        return  "取消点赞成功";
     }
 
     @ApiOperation(value = "用户回复帖子")

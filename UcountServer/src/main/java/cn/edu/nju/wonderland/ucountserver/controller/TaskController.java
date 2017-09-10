@@ -68,18 +68,16 @@ public class TaskController {
             @ApiImplicitParam(name = "taskModifyVO", value = "计划更新信息vo", required = true, dataType = "TaskModifyVO")
     })
     @PostMapping("/{task_id}")
-    public String updateTask(@PathVariable("task_id") Long taskId,
+    public void updateTask(@PathVariable("task_id") Long taskId,
                              @RequestBody TaskModifyVO taskModifyVO) {
         taskService.updateTask(taskId, taskModifyVO);
-        return "更新攒钱计划成功";
     }
 
     @ApiOperation(value = "删除攒钱计划", notes = "根据计划id删除预算")
     @ApiImplicitParam(name = "taskId", value = "计划id", required = true, dataType = "Long")
 //    @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping("/{task_id}")
-    public String deleteTask(@PathVariable("task_id") Long taskId) {
+    public void deleteTask(@PathVariable("task_id") Long taskId) {
         taskService.deleteTask(taskId);
-        return "删除攒钱计划成功";
     }
 }

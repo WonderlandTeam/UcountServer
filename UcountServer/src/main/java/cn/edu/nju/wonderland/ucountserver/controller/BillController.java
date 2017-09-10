@@ -77,10 +77,9 @@ public class BillController {
             @ApiImplicitParam(name = "billId", value = "账目id", dataType = "Long")
     })
     @DeleteMapping("accounts/{account_id}/bills/{bill_id}")
-    public String deleteBill(@PathVariable("account_id") Long accountId,
+    public void deleteBill(@PathVariable("account_id") Long accountId,
                                           @PathVariable("bill_id") Long billId) {
         billService.deleteBill(accountId,billId);
-        return "删除成功";
     }
 
 }

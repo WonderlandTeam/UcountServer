@@ -55,10 +55,9 @@ public class BudgetController {
             @ApiImplicitParam(name = "budgetModifyVO", value = "预算更新信息vo", required = true, dataType = "BudgetModifyVO")
     })
     @PostMapping("/{budget_id}")
-    public String updateBudget(@PathVariable("budget_id") Long budgetId,
+    public void updateBudget(@PathVariable("budget_id") Long budgetId,
                                @RequestBody BudgetModifyVO budgetModifyVO) {
         budgetService.updateBudget(budgetId, budgetModifyVO);
-        return "预算修改成功";
     }
 
     //在实际测试中delete只有返回的状态，没有message
@@ -66,9 +65,8 @@ public class BudgetController {
     @ApiImplicitParam(name = "budgetId", value = "预算id", required = true, dataType = "Long")
 //    @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping("/{budget_id}")
-    public String deleteBudget(@PathVariable("budget_id") Long budgetId) {
+    public void deleteBudget(@PathVariable("budget_id") Long budgetId) {
         budgetService.deleteBudget(budgetId);
-        return "删除预算成功";
     }
 
 }
