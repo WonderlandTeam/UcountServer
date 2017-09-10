@@ -35,7 +35,7 @@ public class UserServiceImpl implements UserService, UserDetector {
     }
 
     @Override
-    public String signUp(SignUpVO signUpVO, String userAgent) {
+    public void signUp(SignUpVO signUpVO) {
         if(userRepository.findByUsername(signUpVO.userName) != null) {
             throw new ResourceConflictException("用户名已存在");
         }
@@ -47,9 +47,7 @@ public class UserServiceImpl implements UserService, UserDetector {
         user.setPassword(MD5.encrypt(signUpVO.password));
         user.setTel(signUpVO.tel);
         user.setEmail(signUpVO.email);
-        user.setUserAgent(userAgent);
         userRepository.save(user);
-        return user.getUsername();
     }
 
     @Override

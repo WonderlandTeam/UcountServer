@@ -79,7 +79,7 @@ public class AccountServiceImpl implements AccountService {
         accountInfoVO.type = account.getCardType();
         accountInfoVO.income = 0;
         accountInfoVO.expend = 0;
-        System.out.println(account.getCardId());
+//        System.out.println(account.getCardId());
         if (account.getCardType().equals(ALIPAY.accountType)) {
             List<Alipay> alipays = alipayRepository.findByCardId(account.getCardId(), null).getContent();
             if(alipays.size() == 0) {

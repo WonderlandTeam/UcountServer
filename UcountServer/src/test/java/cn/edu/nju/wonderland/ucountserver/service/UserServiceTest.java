@@ -24,8 +24,7 @@ public class UserServiceTest {
         signUpVO.email = "123@qq.com";
         signUpVO.password = "123";
         signUpVO.tel = "123";
-        String username = userService.signUp(signUpVO, null);
-        assertEquals(username, "456");
+        userService.signUp(signUpVO);
     }
 
     @Test

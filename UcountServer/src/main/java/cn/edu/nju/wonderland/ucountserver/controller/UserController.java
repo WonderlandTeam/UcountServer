@@ -26,16 +26,15 @@ public class UserController {
     @PostMapping("/login")
     public UserInfoVO login(@RequestParam String username,
                             @RequestParam String password,
-                            @RequestHeader("User-Agent") String userAgent) {
+                            @RequestParam(required = false) String userAgent) {
         return userService.login(username, password, userAgent);
     }
 
     @ApiOperation(value = "创建用户", notes = "根据SignUpVO创建用户")
     @ApiImplicitParam(name = "signUpVO", value = "用户注册信息vo", required = true, dataType = "SignUpVO")
     @PostMapping
-    public void signUp(@RequestBody SignUpVO signUpVO,
-                                      @RequestHeader("User-Agent") String userAgent) {
-        userService.signUp(signUpVO, userAgent);
+    public void signUp(@RequestBody SignUpVO signUpVO) {
+        userService.signUp(signUpVO);
 //        return "注册成功";
     }
 
@@ -53,7 +52,7 @@ public class UserController {
     })
     @PutMapping(value = "/{username}")
     public void modifyUserInfo(@PathVariable String username,
-                                 @RequestBody UserInfoVO userInfoVO) {
+                               @RequestBody UserInfoVO userInfoVO) {
         userService.modifyUserInfo(username,userInfoVO);
 //        return "修改成功";
     }

@@ -8,10 +8,8 @@ public interface UserService {
     /**
      * 用户注册
      * @param signUpVO      注册信息vo
-     * @param userAgent     客户端类型
-     * @return              注册成功返回用户id
      */
-    String signUp(SignUpVO signUpVO, String userAgent);
+    void signUp(SignUpVO signUpVO);
 
     /**
      * 获取用户信息
