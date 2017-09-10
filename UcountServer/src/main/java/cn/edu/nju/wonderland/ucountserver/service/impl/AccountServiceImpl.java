@@ -12,6 +12,7 @@ import cn.edu.nju.wonderland.ucountserver.vo.AccountInfoVO;
 import cn.edu.nju.wonderland.ucountserver.vo.TotalAccountVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
@@ -198,6 +199,7 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
+    @Transactional
     public void deleteAccount(Long accountId) {
         Account account = accountRepository.findOne(accountId);
         if (account == null) {
@@ -206,15 +208,22 @@ public class AccountServiceImpl implements AccountService {
 
         // 删除资产账户账目数据
         if (account.getCardType().equals(ALIPAY.accountType)) {
-            alipayRepository.deleteByCardId(account.getCardId());
+            if(alipayRepository.findByCardId(account.getCardId(),null) != null){
+                alipayRepository.deleteByCardId(account.getCardId());
+            }
         } else if (account.getCardType().equals(ICBC_CARD.accountType)) {
-            icbcCardRepository.deleteByCardId(account.getCardId());
+            if(icbcCardRepository.findByCardId(account.getCardId(),null) != null){
+                icbcCardRepository.deleteByCardId(account.getCardId());
+            }
         } else if (account.getCardType().equals(SCHOOL_CARD.accountType)) {
-            schoolCardRepository.deleteByCardId(account.getCardId());
+            if(schoolCardRepository.findByCardId(account.getCardId(),null).getSize() != 0){
+                schoolCardRepository.deleteByCardId(account.getCardId());
+            }
         } else {
-            manualBillingRepository.deleteByUsernameAndCardTypeAndCardId(account.getUsername(), account.getCardType(), account.getCardId());
+            if(manualBillingRepository.findByUsernameAndCardTypeAndCardId(account.getUsername(), account.getCardType(), account.getCardId()).size() != 0){
+                manualBillingRepository.deleteByUsernameAndCardTypeAndCardId(account.getUsername(), account.getCardType(), account.getCardId());
+            }
         }
-
         accountRepository.delete(accountId);
     }
 

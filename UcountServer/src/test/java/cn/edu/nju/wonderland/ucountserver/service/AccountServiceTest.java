@@ -1,6 +1,5 @@
 package cn.edu.nju.wonderland.ucountserver.service;
 
-import cn.edu.nju.wonderland.ucountserver.entity.Alipay;
 import cn.edu.nju.wonderland.ucountserver.repository.AlipayRepository;
 import cn.edu.nju.wonderland.ucountserver.repository.IcbcCardRepository;
 import cn.edu.nju.wonderland.ucountserver.vo.AccountInfoVO;
@@ -12,8 +11,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.lang.reflect.Field;
-import java.sql.Timestamp;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @RunWith(SpringRunner.class)
@@ -44,5 +41,9 @@ public class AccountServiceTest {
     public void testGetAccountsByUser(){
         List<AccountInfoVO> accountInfoVOList = accountService.getAccountsByUser("sigma");
         System.out.println(accountInfoVOList.size());
+    }
+    @Test
+    public void testDeleteAccpunt(){
+        accountService.deleteAccount(Long.valueOf(24));
     }
 }
