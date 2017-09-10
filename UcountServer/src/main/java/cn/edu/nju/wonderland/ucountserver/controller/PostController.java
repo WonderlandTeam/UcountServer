@@ -15,12 +15,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-
-import static cn.edu.nju.wonderland.ucountserver.util.KeyName.CONTENT;
-import static cn.edu.nju.wonderland.ucountserver.util.KeyName.MESSAGE;
 
 @RestController
 @RequestMapping("/posts")
@@ -46,147 +41,116 @@ public class PostController {
     @ApiOperation(value = "获取单个帖子信息", notes = "根据帖子id获取帖子信息")
     @ApiImplicitParam(name = "username", value = "查看帖子用户的用户名", required = false, dataType = "String")
     @GetMapping("/{post_id}")
-    public Map<String, Object> getPostInfo(@PathVariable("post_id") Long postId,
-                                           @RequestParam(required = false) String username) {
-        Map<String, Object> result = new HashMap<>();
-        PostInfoVO vo = postService.getPostInfo(postId, username);
-        result.put(CONTENT, vo);
-        return result;
+    public PostInfoVO getPostInfo(@PathVariable("post_id") Long postId,
+                                  @RequestParam(required = false) String username) {
+        return postService.getPostInfo(postId, username);
     }
 
     @ApiOperation(value = "新建帖子", notes = "用户发帖")
     @ApiImplicitParam(name = "postAddVO", value = "发帖信息vo", required = true, dataType = "PostAddVO")
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping
-    public Map<String, Object> addPost(@RequestBody PostAddVO postAddVO) {
-        Map<String, Object> result = new HashMap<>();
-        Long id = postService.addPost(postAddVO);
-
-        result.put(CONTENT, id);
-        return result;
+    public Long addPost(@RequestBody PostAddVO postAddVO) {
+        return postService.addPost(postAddVO);
     }
 
     @ApiOperation(value = "获取用户发布所有帖子", notes = "根据用户名获取其发布帖子")
     @ApiImplicitParam(name = "username", value = "用户名", required = true, dataType = "String")
     @GetMapping("/release")
-    public Map<String, Object> getPostsSharedByUser(@RequestParam String username) {
-        Map<String, Object> result = new HashMap<>();
-        List<PostInfoVO> posts = postService.getPostsSharedByUser(username);
-        result.put(CONTENT, posts);
-        return result;
+    public List<PostInfoVO> getPostsSharedByUser(@RequestParam String username) {
+        return postService.getPostsSharedByUser(username);
     }
 
     @ApiOperation(value = "用户收藏原贴", notes = "根据用户名和帖子id增加收藏信息")
     @ApiImplicitParam(name = "username", value = "用户名", required = true, dataType = "String")
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/{post_id}/collections")
-    public Map<String, Object> collectPost(@PathVariable("post_id") Long postId,
-                                           @RequestParam String username) {
-        Map<String, Object> result = new HashMap<>();
+    public String collectPost(@PathVariable("post_id") Long postId,
+                              @RequestParam String username) {
         postService.collectPost(username, postId);
-        result.put(MESSAGE, "收藏成功");
-        return result;
+        return "收藏成功";
     }
 
     @ApiOperation(value = "用户取消收藏", notes = "根据用户名和帖子id删除收藏信息")
     @ApiImplicitParam(name = "postId", value = "帖子id", required = true, dataType = "Long")
 //    @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping("/{post_id}/collections")
-    public Map<String, Object> deleteCollection(@PathVariable("post_id") Long postId,
-                                                @RequestParam String username) {
-        Map<String, Object> result = new HashMap<>();
+    public String deleteCollection(@PathVariable("post_id") Long postId,
+                                   @RequestParam String username) {
         postService.collectPost(username, postId);
-        result.put(MESSAGE, "取消收藏成功");
-        return result;
+        return "取消收藏成功";
     }
 
     @ApiOperation(value = "获取用户收藏所有帖子", notes = "根据用户名获取其收藏帖子")
     @ApiImplicitParam(name = "username", value = "用户名", required = true, dataType = "String")
     @GetMapping("/collections")
-    public Map<String, Object> getPostsCollectedByUser(@RequestParam String username) {
-        return null;
+    public List<PostInfoVO> getPostsCollectedByUser(@RequestParam String username) {
+        return postService.getPostsCollectedByUser(username);
     }
 
     @ApiOperation(value = "用户点赞原贴", notes = "根据用户名和帖子id增加点赞信息")
     @ApiImplicitParam(name = "username", value = "用户名", required = true, dataType = "String")
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/{post_id}/praises")
-    public Map<String, Object> praisePost(@PathVariable("post_id") Long postId,
-                                          @RequestParam String username) {
-        Map<String, Object> result = new HashMap<>();
+    public String praisePost(@PathVariable("post_id") Long postId,
+                             @RequestParam String username) {
         postService.praisePost(username, postId, false);
-        result.put(MESSAGE, "点赞成功");
-        return result;
+        return "点赞成功";
     }
 
     @ApiOperation(value = "用户取消原贴点赞", notes = "根据用户名和帖子id删除原贴点赞信息")
     @ApiImplicitParam(name = "username", value = "用户名", required = true, dataType = "String")
 //    @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping("/{post_id}/praises")
-    public Map<String, Object> cancelPraisePost(@PathVariable("post_id") Long postId,
-                                                @RequestParam String username) {
-        Map<String, Object> result = new HashMap<>();
+    public String cancelPraisePost(@PathVariable("post_id") Long postId,
+                                   @RequestParam String username) {
         postService.cancelPraisePost(username, postId, false);
-        result.put(MESSAGE, "取消点赞成功");
-        return result;
+        return "取消点赞成功";
     }
 
     @ApiOperation(value = "用户点赞帖子回复", notes = "根据用户名和帖子回复id增加点赞信息")
     @ApiImplicitParam(name = "username", value = "用户名", required = true, dataType = "String")
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/replies/{reply_id}/praises")
-    public Map<String, Object> praisePostReply(@PathVariable("reply_id") Long replyId,
-                                               @RequestParam String username) {
-        Map<String, Object> result = new HashMap<>();
+    public String praisePostReply(@PathVariable("reply_id") Long replyId,
+                                  @RequestParam String username) {
         postService.praisePost(username, replyId, true);
-        result.put(MESSAGE, "点赞成功");
-        return result;
+        return "点赞成功";
     }
 
     @ApiOperation(value = "用户取消帖子回复点赞", notes = "根据用户名和帖子id删除帖子回复点赞信息")
     @ApiImplicitParam(name = "username", value = "用户名", required = true, dataType = "String")
 //    @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping("/replies/{reply_id}/praises")
-    public Map<String, Object> cancelPraisePostReply(@PathVariable("reply_id") Long replyId,
-                                                     @RequestParam String username) {
-        Map<String, Object> result = new HashMap<>();
+    public String cancelPraisePostReply(@PathVariable("reply_id") Long replyId,
+                                        @RequestParam String username) {
         postService.cancelPraisePost(username, replyId, true);
-        result.put(MESSAGE, "取消点赞成功");
-        return result;
+        return  "取消点赞成功";
     }
 
     @ApiOperation(value = "用户回复帖子")
     @ApiImplicitParam(name = "postReplyVO", value = "用户回复帖子信息vo", required = true, dataType = "postReplyVO")
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/{post_id}/replies")
-    public Map<String, Object> replyPost(@PathVariable("post_id") Long postId,
-                                         @RequestBody PostReplyAddVO postReplyAddVO) {
-        Map<String, Object> result = new HashMap<>();
-        Long replyId = postService.replyPost(postId, postReplyAddVO);
-        result.put(CONTENT, replyId);
-        return result;
+    public Long replyPost(@PathVariable("post_id") Long postId,
+                          @RequestBody PostReplyAddVO postReplyAddVO) {
+        return postService.replyPost(postId, postReplyAddVO);
     }
 
     @ApiOperation(value = "获取帖子回复信息", notes = "根据帖子回复id获取回复信息")
     @ApiImplicitParam(name = "username", value = "查看帖子回复用户的用户名", required = false, dataType = "String")
     @GetMapping("/replies/{reply_id}")
-    public Map<String, Object> getPostReply(@PathVariable("reply_id") Long replyId,
-                                            @RequestParam(required = false) String username) {
-        Map<String, Object> result = new HashMap<>();
-        PostReplyVO vo = postService.getPostReplyInfo(replyId, username);
-        result.put(CONTENT, vo);
-        return result;
+    public PostReplyVO getPostReply(@PathVariable("reply_id") Long replyId,
+                                    @RequestParam(required = false) String username) {
+        return postService.getPostReplyInfo(replyId, username);
     }
 
     @ApiOperation(value = "获取帖子所有回复信息列表", notes = "根据帖子id获取帖子所有回复")
     @ApiImplicitParam(name = "username", value = "查看帖子回复用户的用户名", required = false, dataType = "String")
     @GetMapping("/{post_id}/replies")
-    public Map<String, Object> getPostReplies(@PathVariable("post_id") Long postId,
-                                              @RequestParam(required = false) String username) {
-        Map<String, Object> result = new HashMap<>();
-        List<PostReplyVO> replies = postService.getPostReplies(postId, username);
-        result.put(CONTENT, replies);
-        return result;
+    public List<PostReplyVO> getPostReplies(@PathVariable("post_id") Long postId,
+                                            @RequestParam(required = false) String username) {
+        return postService.getPostReplies(postId, username);
     }
 
 }

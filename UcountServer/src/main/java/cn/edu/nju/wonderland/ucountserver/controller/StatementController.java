@@ -1,6 +1,9 @@
 package cn.edu.nju.wonderland.ucountserver.controller;
 
 import cn.edu.nju.wonderland.ucountserver.service.StatementService;
+import cn.edu.nju.wonderland.ucountserver.vo.BalanceSheetVO;
+import cn.edu.nju.wonderland.ucountserver.vo.CashFlowItemVO;
+import cn.edu.nju.wonderland.ucountserver.vo.IncomeStatementVO;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
@@ -9,10 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import static cn.edu.nju.wonderland.ucountserver.util.KeyName.CONTENT;
+import java.util.List;
 
 @RestController
 @RequestMapping("/statements")
@@ -30,11 +30,9 @@ public class StatementController {
             @ApiImplicitParam(name = "date", value = "日期，格式为：yyyy-MM-dd", required = false, dataType = "String"),
     })
     @GetMapping("/balanceSheet")
-    public Map<String, Object> getBalanceSheet(@RequestParam String username,
-                                               @RequestParam(required = false) String date) {
-        Map<String, Object> result = new HashMap<>();
-        result.put(CONTENT, statementService.getBalanceSheet(username, date));
-        return result;
+    public BalanceSheetVO getBalanceSheet(@RequestParam String username,
+                                          @RequestParam(required = false) String date) {
+        return statementService.getBalanceSheet(username, date);
     }
 
     @ApiOperation(value = "获取收支储蓄表（利润表）", notes = "根据用户名及起始日期获取收支储蓄表")
@@ -44,12 +42,10 @@ public class StatementController {
             @ApiImplicitParam(name = "endDate", value = "截止日期，格式为：yyyy-MM-dd", required = false, dataType = "String")
     })
     @GetMapping("/incomeStatement")
-    public Map<String, Object> getIncomeStatement(@RequestParam String username,
-                                                  @RequestParam String beginDate,
-                                                  @RequestParam(required = false) String endDate) {
-        Map<String, Object> result = new HashMap<>();
-        result.put(CONTENT, statementService.getIncomeStatement(username, beginDate, endDate));
-        return result;
+    public IncomeStatementVO getIncomeStatement(@RequestParam String username,
+                                                @RequestParam String beginDate,
+                                                @RequestParam(required = false) String endDate) {
+        return statementService.getIncomeStatement(username, beginDate, endDate);
     }
 
     @ApiOperation(value = "获取现金流量表", notes = "根据用户名及起始日期获取现金流量表")
@@ -59,12 +55,10 @@ public class StatementController {
             @ApiImplicitParam(name = "endDate", value = "截止日期，格式为：yyyy-MM-dd", required = false, dataType = "String")
     })
     @GetMapping("/cashFlows")
-    public Map<String, Object> getCashFlowsStatement(@RequestParam String username,
-                                                     @RequestParam String beginDate,
-                                                     @RequestParam(required = false) String endDate) {
-        Map<String, Object> result = new HashMap<>();
-        result.put(CONTENT, statementService.getCashFlows(username, beginDate, endDate));
-        return result;
+    public List<CashFlowItemVO> getCashFlowsStatement(@RequestParam String username,
+                                                      @RequestParam String beginDate,
+                                                      @RequestParam(required = false) String endDate) {
+        return statementService.getCashFlows(username, beginDate, endDate);
     }
 
 }

@@ -8,12 +8,6 @@ import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import static cn.edu.nju.wonderland.ucountserver.util.KeyName.CONTENT;
-import static cn.edu.nju.wonderland.ucountserver.util.KeyName.MESSAGE;
-
 @RestController
 @RequestMapping("/users")
 public class UserController {
@@ -30,34 +24,26 @@ public class UserController {
             @ApiImplicitParam(name = "password", value = "密码", required = true, dataType = "String")
     })
     @PostMapping("/login")
-    public Map<String, Object> login(@RequestParam String username,
-                                     @RequestParam String password,
-                                     @RequestHeader("User-Agent") String userAgent) {
-        UserInfoVO userInfoVO = userService.login(username, password, userAgent);
-        Map<String,Object> result = new HashMap<>();
-        result.put(CONTENT,userInfoVO);
-        return result;
+    public UserInfoVO login(@RequestParam String username,
+                            @RequestParam String password,
+                            @RequestHeader("User-Agent") String userAgent) {
+        return userService.login(username, password, userAgent);
     }
 
     @ApiOperation(value = "创建用户", notes = "根据SignUpVO创建用户")
     @ApiImplicitParam(name = "signUpVO", value = "用户注册信息vo", required = true, dataType = "SignUpVO")
     @PostMapping
-    public Map<String, Object> signUp(@RequestBody SignUpVO signUpVO,
+    public String signUp(@RequestBody SignUpVO signUpVO,
                                       @RequestHeader("User-Agent") String userAgent) {
-        String username = userService.signUp(signUpVO, userAgent);
-        Map<String,Object> result = new HashMap<>();
-        result.put(CONTENT,username);
-        return result;
+        userService.signUp(signUpVO, userAgent);
+        return "注册成功";
     }
 
     @ApiOperation(value = "获取用户详细信息", notes = "根据用户名获取用户详细信息")
     @ApiImplicitParam(name = "username", value = "用户名", required = true, dataType = "String")
     @GetMapping(value = "/{username}")
-    public Map<String, Object> getUserInfo(@PathVariable String username) {
-        UserInfoVO userInfoVO = userService.getUserInfo(username);
-        Map<String,Object> result = new HashMap<>();
-        result.put(CONTENT,userInfoVO);
-        return result;
+    public UserInfoVO getUserInfo(@PathVariable String username) {
+        return userService.getUserInfo(username);
     }
 
     @ApiOperation(value = "更改用户详细信息", notes = "根据用户名更新相应用户,根据传的userModifyVO更新用户详细信息")
@@ -66,12 +52,10 @@ public class UserController {
             @ApiImplicitParam(name = "userModifyVO", value = "用户更新信息vo", required = true, dataType = "UserModifyVO")
     })
     @PutMapping(value = "/{username}")
-    public Map<String, Object> modifyUserInfo(@PathVariable String username,
-                                              @RequestBody UserInfoVO userInfoVO) {
-        Map<String,Object> result = new HashMap<>();
+    public String modifyUserInfo(@PathVariable String username,
+                                 @RequestBody UserInfoVO userInfoVO) {
         userService.modifyUserInfo(username,userInfoVO);
-        result.put(MESSAGE,"修改成功");
-        return result;
+        return "修改成功";
     }
 
 }
