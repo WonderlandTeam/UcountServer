@@ -2,7 +2,6 @@ package cn.edu.nju.wonderland.ucountserver.service;
 
 import cn.edu.nju.wonderland.ucountserver.vo.AccountAddVO;
 import cn.edu.nju.wonderland.ucountserver.vo.AccountInfoVO;
-import cn.edu.nju.wonderland.ucountserver.vo.TotalAccountVO;
 
 import java.util.List;
 
@@ -34,15 +33,6 @@ public interface AccountService {
      * @param accountId             账户id
      */
     void deleteAccount(Long accountId);
-
-
-    /**
-     * 获取用户当月的收入和支出
-     * @param username              用户名
-     * @param time                  当月时间，格式：2017-08-01 00：00：00
-     * @return
-     */
-    TotalAccountVO getAccountByUserAndTime(String username,String time);
 
     /**
      * 获取用户的所有的账户的总余额

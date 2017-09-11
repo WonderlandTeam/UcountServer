@@ -3,7 +3,6 @@ package cn.edu.nju.wonderland.ucountserver.service;
 import cn.edu.nju.wonderland.ucountserver.repository.AlipayRepository;
 import cn.edu.nju.wonderland.ucountserver.repository.IcbcCardRepository;
 import cn.edu.nju.wonderland.ucountserver.vo.AccountInfoVO;
-import cn.edu.nju.wonderland.ucountserver.vo.TotalAccountVO;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,13 +31,13 @@ public class AccountServiceTest {
         }
     }
 
-    @Test
-    public void testGetAccountByUserAndTime() {
-        TotalAccountVO totalAccountVO = accountService.getAccountByUserAndTime("sigma", "2017-09-11 00:00:00");
-        System.out.println(totalAccountVO.getExpend());
-        System.out.println(totalAccountVO.getIncome());
-        System.out.println(totalAccountVO.getBalance());
-    }
+//    @Test
+//    public void testGetAccountByUserAndTime() {
+//        TotalAccountVO totalAccountVO = accountService.getAccountByUserAndTime("sigma", "2017-09-11 00:00:00");
+//        System.out.println(totalAccountVO.getExpend());
+//        System.out.println(totalAccountVO.getIncome());
+//        System.out.println(totalAccountVO.getBalance());
+//    }
 
     @Test
     public void testGetAccountsByUser() {

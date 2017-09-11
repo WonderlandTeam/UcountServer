@@ -17,7 +17,7 @@ public interface ManualBillingRepository extends JpaRepository<ManualBilling, Lo
      * 注：手动记账账户须通过用户名username、账户类型cardType、账户名称cardId唯一确定
      */
 
-    ManualBilling findByUsernameAndCardTypeAndCardIdAndId(String username, String cardType, String cardId, Long id);
+//    ManualBilling findByUsernameAndCardTypeAndCardIdAndId(String username, String cardType, String cardId, Long id);
 
     List<ManualBilling> findByUsernameAndCardTypeAndCardId(String username, String cardType, String cardId);
 

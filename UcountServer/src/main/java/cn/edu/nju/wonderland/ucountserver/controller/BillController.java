@@ -15,7 +15,7 @@ import java.util.List;
 @RestController
 public class BillController {
 
-    BillService billService;
+    private BillService billService;
 
     public BillController(BillService billService) {
         this.billService = billService;
@@ -28,8 +28,15 @@ public class BillController {
     })
     @GetMapping("accounts/{account_id}/bills/{bill_id}")
     public BillInfoVO getBill(@PathVariable("account_id") Long accountId,
-                                       @PathVariable("bill_id") Long billId) {
+                              @PathVariable("bill_id") Long billId) {
         return billService.getBill(accountId, billId);
+    }
+
+    @PutMapping("accounts/{account_id}/bills/{bill_id}")
+    public void modifyBillConsumeType(@PathVariable("account_id") Long accountId,
+                                      @PathVariable("bill_id") Long billId,
+                                      @RequestParam String consumeType) {
+
     }
 
     @ApiOperation(value = "获取资产账户账目列表", notes = "根据资产账户id及筛选条件获取账目信息列表")

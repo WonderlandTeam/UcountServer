@@ -14,7 +14,6 @@ import java.util.List;
  * Created by green-cherry on 2017/8/16.
  */
 public interface AlipayRepository extends JpaRepository<Alipay, Long> {
-    Alipay findByIdAndCardId(Long id, String cardId);
 
     Page<Alipay> findByCardId(String cardId, Pageable pageable);
 

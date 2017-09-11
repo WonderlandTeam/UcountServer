@@ -14,7 +14,6 @@ import java.util.List;
  * Created by green-cherry on 2017/8/16.
  */
 public interface SchoolCardRepository extends JpaRepository<SchoolCard, Long> {
-    SchoolCard findByIdAndCardId(Long id, String cardId);
 
     Page<SchoolCard> findByCardId(String cardId, Pageable pageable);
 

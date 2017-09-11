@@ -10,8 +10,6 @@ import cn.edu.nju.wonderland.ucountserver.util.DateHelper;
 import cn.edu.nju.wonderland.ucountserver.vo.TaskAddVO;
 import cn.edu.nju.wonderland.ucountserver.vo.TaskInfoVO;
 import cn.edu.nju.wonderland.ucountserver.vo.TaskModifyVO;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.sql.Date;
@@ -25,13 +23,14 @@ import java.util.stream.Collectors;
 @Service
 public class TaskServiceImpl implements TaskService{
 
-    @Autowired
-    TaskRepository taskRepository;
+    private TaskRepository taskRepository;
 
-    //    @Qualifier("accountServiceStub")
-    @Qualifier("accountServiceImpl")
-    @Autowired
-    AccountService accountService;
+    private AccountService accountService;
+
+    public TaskServiceImpl(TaskRepository taskRepository, AccountService accountService) {
+        this.taskRepository = taskRepository;
+        this.accountService = accountService;
+    }
 
     @Override
     public TaskInfoVO getTask(Long taskID) {
@@ -48,7 +47,7 @@ public class TaskServiceImpl implements TaskService{
         if (tasks==null || tasks.size()==0){
             throw new ResourceNotFoundException("攒钱计划不存在");
         }
-        return tasks.stream().map(task -> getTaskInfo(task)).collect(Collectors.toList());
+        return tasks.stream().map(this::getTaskInfo).collect(Collectors.toList());
     }
 
     @Override
@@ -57,7 +56,7 @@ public class TaskServiceImpl implements TaskService{
         if (tasks==null || tasks.size()==0 ){
             throw new ResourceNotFoundException("攒钱计划不存在");
         }
-        return tasks.stream().map(task -> getTaskInfo(task)).collect(Collectors.toList());
+        return tasks.stream().map(this::getTaskInfo).collect(Collectors.toList());
     }
 
     @Override

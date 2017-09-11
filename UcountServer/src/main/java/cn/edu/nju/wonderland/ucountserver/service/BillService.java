@@ -17,6 +17,14 @@ public interface BillService {
     BillInfoVO getBill(Long accountId, Long billId);
 
     /**
+     * 修改账目消费类型
+     * @param accountId         账户id
+     * @param billId            账目id
+     * @param consumeType       修改后消费类型
+     */
+    void modifyBillConsumeType(Long accountId, Long billId, String consumeType);
+
+    /**
      * 获取账户所有账目信息
      * @param accountId         账户id
      * @param pageable          筛选信息

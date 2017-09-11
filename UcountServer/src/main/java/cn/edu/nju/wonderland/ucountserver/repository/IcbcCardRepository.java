@@ -14,7 +14,6 @@ import java.util.List;
  * Created by green-cherry on 2017/8/16.
  */
 public interface IcbcCardRepository extends JpaRepository<IcbcCard, Long> {
-    IcbcCard findByIdAndCardId(Long id, String cardId);
 
     Page<IcbcCard> findByCardId(String account, Pageable pageable);
 
