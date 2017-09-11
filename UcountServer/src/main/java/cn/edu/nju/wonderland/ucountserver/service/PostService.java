@@ -4,7 +4,6 @@ import cn.edu.nju.wonderland.ucountserver.vo.PostAddVO;
 import cn.edu.nju.wonderland.ucountserver.vo.PostInfoVO;
 import cn.edu.nju.wonderland.ucountserver.vo.PostReplyAddVO;
 import cn.edu.nju.wonderland.ucountserver.vo.PostReplyVO;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
@@ -17,7 +16,7 @@ public interface PostService {
      * @param username          查看帖子用户
      * @return                  帖子列表
      */
-    Page<PostInfoVO> getPosts(Pageable pageable, String username);
+    List<PostInfoVO> getPosts(Pageable pageable, String username);
 
     /**
      * 获取帖子信息

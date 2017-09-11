@@ -89,9 +89,9 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public Page<PostInfoVO> getPosts(Pageable pageable, String username) {
+    public List<PostInfoVO> getPosts(Pageable pageable, String username) {
         Page<Post> posts = postRepository.findAll(pageable);
-        return posts.map(e -> postEntityToVO(e, username));
+        return posts.map(e -> postEntityToVO(e, username)).getContent();
     }
 
     @Override

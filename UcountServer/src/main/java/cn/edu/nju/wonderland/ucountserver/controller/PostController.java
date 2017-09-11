@@ -33,7 +33,7 @@ public class PostController {
             @ApiImplicitParam(name = "username", value = "查看帖子用户的用户名", required = false, dataType = "String")
     })
     @GetMapping
-    public Page<PostInfoVO> getPosts(@PageableDefault(sort = {"time"}, direction = Sort.Direction.DESC) Pageable pageable,
+    public List<PostInfoVO> getPosts(@PageableDefault(sort = {"time"}, direction = Sort.Direction.DESC) Pageable pageable,
                                      @RequestParam(required = false) String username) {
         return postService.getPosts(pageable, username);
     }
