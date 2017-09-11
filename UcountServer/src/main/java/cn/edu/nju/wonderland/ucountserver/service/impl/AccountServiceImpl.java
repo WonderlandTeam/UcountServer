@@ -7,6 +7,7 @@ import cn.edu.nju.wonderland.ucountserver.repository.*;
 import cn.edu.nju.wonderland.ucountserver.service.AccountService;
 import cn.edu.nju.wonderland.ucountserver.service.UserDetector;
 import cn.edu.nju.wonderland.ucountserver.util.AutoAccountType;
+import cn.edu.nju.wonderland.ucountserver.util.BillType;
 import cn.edu.nju.wonderland.ucountserver.vo.AccountAddVO;
 import cn.edu.nju.wonderland.ucountserver.vo.AccountInfoVO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,11 +17,11 @@ import org.springframework.transaction.annotation.Transactional;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import static cn.edu.nju.wonderland.ucountserver.util.AutoAccountType.*;
+import static cn.edu.nju.wonderland.ucountserver.util.BillFilter.ALIPAY_COMMODITY_FILTER;
+import static cn.edu.nju.wonderland.ucountserver.util.BillFilter.ICBC_SUMMARY_FILTER;
 import static cn.edu.nju.wonderland.ucountserver.util.BillType.OTHER_EXPENDITURE;
 import static cn.edu.nju.wonderland.ucountserver.util.BillType.OTHER_INCOME;
 import static cn.edu.nju.wonderland.ucountserver.util.DateHelper.DATE_TIME_FORMATTER;
@@ -262,80 +263,124 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public double getConsumedMoneyByDateAndUser(String username, String time) {
+        if (!userDetector.isUserExists(username)) {
+            throw new ResourceNotFoundException("用户不存在");
+        }
+
         LocalDateTime starDate = LocalDateTime.parse(time, DATE_TIME_FORMATTER);
         LocalDateTime endDate = starDate.plusDays(1);
 
-        Timestamp start = Timestamp.valueOf(starDate);
-        Timestamp end = Timestamp.valueOf(endDate);
+        Timestamp startTimestamp = Timestamp.valueOf(starDate);
+        Timestamp endTimestamp = Timestamp.valueOf(endDate);
+
         double result = 0;
-        List<Alipay> alipayList = alipayRepository.findByUsernameAndCreateTimeBetween(username, start, end);
-        List<SchoolCard> schoolCardList = schoolCardRepository.findByUsernameAndTimeBetween(username, start, end);
+
         List<Account> accounts = accountRepository.findByUsername(username);
-        Map<Integer, List<IcbcCard>> icbcCardmap = new HashMap<>();
-        for (int i = 0; i < accounts.size(); i++) {
-            if(!accounts.get(i).getCardType().equals(ICBC_CARD.accountType)){
-                accounts.remove(i);
-            }
-            //获取所有工行卡
-        }
-        for(int i = 0 ; i < accounts.size() ; i++){
-            icbcCardmap.put(i, icbcCardRepository.findByCardIdAndTradeDateBetween(accounts.get(i).getCardId(), start, end));
-            //添加账单
-        }
-        for (int k = 0; k < icbcCardmap.size(); k++) {
-            List<IcbcCard> icbcCardList = icbcCardmap.get(k);
-            for (int i = 0; i < icbcCardList.size(); i++) {
-                for (int j = 0; j < alipayList.size(); j++) {
-                    if (icbcCardList.get(i).getAccountAmountExpense() == alipayList.get(j).getMoney()
-                            && icbcCardList.get(i).getTradeDate() == alipayList.get(j).getPayTime()) {
-                        if (alipayList.get(j).getCommodity().equals("充值-普通充值")) {
-                            alipayList.remove(j);
-                            icbcCardList.remove(i);//支付宝从卡转账到余额，
-                        } else {
-                            alipayRepository.delete(alipayList.get(j));
-                            alipayList.remove(j);//支付宝用银行卡消费
-                        }
-                    } else if ((alipayList.get(j).getMoney() - icbcCardList.get(i).getAccountAmountIncome() < 10)
-                            && (icbcCardList.get(i).getTradeDate().getTime() - alipayList.get(j).getPayTime().getTime() <= (2 * 60 * 1000))
-                            && (alipayList.get(j).getCommodity().equals("提现-快速提现"))) {
-                        //支付宝余额提现到银行卡
-                        alipayList.remove(j);
-                        icbcCardList.remove(i);
+        for (Account account : accounts) {
+            String accountType = account.getCardType();
+            if (accountType.equals(ALIPAY.accountType)) {
+                List<Alipay> alipayList = alipayRepository.findByUsernameAndCreateTimeBetween(username, startTimestamp, endTimestamp);
+                for (Alipay alipay : alipayList) {
+                    BillType billType = BillType.stringToBillType(alipay.getConsumeType());
+                    if (billType != null && billType.ordinal() >= 4
+                            && !ALIPAY_COMMODITY_FILTER.contains(alipay.getCommodity())) {
+                        result += alipay.getMoney();
                     }
                 }
-                for (int j = 0; j < schoolCardList.size(); j++) {
-                    if (icbcCardList.get(i).getAccountAmountExpense() == schoolCardList.get(j).getIncomeExpenditure() &&
-                            icbcCardList.get(i).getTradeDate() == schoolCardList.get(j).getTime()) {
-                        schoolCardList.remove(j);
-                        icbcCardList.remove(i);//银行卡转账到校园卡
+            } else if (accountType.equals(ICBC_CARD.accountType)) {
+                List<IcbcCard> icbcCardList = icbcCardRepository.findByUsernameAndTradeDateBetween(username, startTimestamp, endTimestamp);
+                for (IcbcCard icbcCard : icbcCardList) {
+                    if (icbcCard.getAccountAmountExpense() > 0 && !ICBC_SUMMARY_FILTER.contains(icbcCard.getSummary())) {
+                        result += icbcCard.getAccountAmountExpense();
+                    }
+                }
+            } else if (accountType.equals(SCHOOL_CARD.accountType)) {
+                List<SchoolCard> schoolCardList = schoolCardRepository.findByUsernameAndTimeBetween(username, startTimestamp, endTimestamp);
+                for (SchoolCard schoolCard : schoolCardList) {
+                    if (schoolCard.getIncomeExpenditure() < 0) {
+                        result += - schoolCard.getIncomeExpenditure();
+                    }
+                }
+            } else {
+                List<ManualBilling> manualBillingList = manualBillingRepository.findByUsernameAndTimeBetween(username, startTimestamp, endTimestamp);
+                for (ManualBilling manualBilling : manualBillingList) {
+                    if (manualBilling.getIncomeExpenditure() < 0) {
+                        result += - manualBilling.getIncomeExpenditure();
                     }
                 }
             }
         }
 
-        // TODO 根据用户名分别查找计算四种资产账户消费账目
-         for ( int i = 0 ; i <alipayList.size();i++){
-			if(alipayList.get(i).getIncomeExpenditureType().equals("支出")){
-				result += Double.valueOf(alipayList.get(i).getIncomeExpenditureType());
-			}
-		}
-		for ( int i = 0 ; i <schoolCardList.size();i++){
-			if(schoolCardList.get(i).getIncomeExpenditure() < 0){
-				result -= schoolCardList.get(i).getIncomeExpenditure();
-			}
-		}
-		for(int k = 0; k < icbcCardmap.size() ;k++) {
-			List<IcbcCard> icbcCardList = icbcCardmap.get(k);
-			for (int i = 0; i < icbcCardList.size(); i++) {
-				if (icbcCardList.get(i).getAccountAmountExpense() > 0) {
-					result += icbcCardList.get(i).getAccountAmountExpense();
-				}
-			}
-		}
-		List<ManualBilling> manualBillings = manualBillingRepository.findByUsernameAndTimeBetween(username,start,end);
-        for(ManualBilling manualBilling: manualBillings){
-            result += manualBilling.getIncomeExpenditure();
-        }
         return result;
+
+//        List<Alipay> alipayList = alipayRepository.findByUsernameAndCreateTimeBetween(username, start, end);
+//        List<SchoolCard> schoolCardList = schoolCardRepository.findByUsernameAndTimeBetween(username, start, end);
+//        List<Account> accounts = accountRepository.findByUsername(username);
+//        Map<Integer, List<IcbcCard>> icbcCardmap = new HashMap<>();
+//        for (int i = 0; i < accounts.size(); i++) {
+//            if(!accounts.get(i).getCardType().equals(ICBC_CARD.accountType)){
+//                accounts.remove(i);
+//            }
+//            //获取所有工行卡
+//        }
+//        for(int i = 0 ; i < accounts.size() ; i++){
+//            icbcCardmap.put(i, icbcCardRepository.findByCardIdAndTradeDateBetween(accounts.get(i).getCardId(), start, end));
+//            //添加账单
+//        }
+//        for (int k = 0; k < icbcCardmap.size(); k++) {
+//            List<IcbcCard> icbcCardList = icbcCardmap.get(k);
+//            for (int i = 0; i < icbcCardList.size(); i++) {
+//                for (int j = 0; j < alipayList.size(); j++) {
+//                    if (icbcCardList.get(i).getAccountAmountExpense() == alipayList.get(j).getMoney()
+//                            && icbcCardList.get(i).getTradeDate() == alipayList.get(j).getPayTime()) {
+//                        if (alipayList.get(j).getCommodity().equals("充值-普通充值")) {
+//                            alipayList.remove(j);
+//                            icbcCardList.remove(i);//支付宝从卡转账到余额，
+//                        } else {
+//                            alipayRepository.delete(alipayList.get(j));
+//                            alipayList.remove(j);//支付宝用银行卡消费
+//                        }
+//                    } else if ((alipayList.get(j).getMoney() - icbcCardList.get(i).getAccountAmountIncome() < 10)
+//                            && (icbcCardList.get(i).getTradeDate().getTime() - alipayList.get(j).getPayTime().getTime() <= (2 * 60 * 1000))
+//                            && (alipayList.get(j).getCommodity().equals("提现-快速提现"))) {
+//                        //支付宝余额提现到银行卡
+//                        alipayList.remove(j);
+//                        icbcCardList.remove(i);
+//                    }
+//                }
+//                for (int j = 0; j < schoolCardList.size(); j++) {
+//                    if (icbcCardList.get(i).getAccountAmountExpense() == schoolCardList.get(j).getIncomeExpenditure() &&
+//                            icbcCardList.get(i).getTradeDate() == schoolCardList.get(j).getTime()) {
+//                        schoolCardList.remove(j);
+//                        icbcCardList.remove(i);//银行卡转账到校园卡
+//                    }
+//                }
+//            }
+//        }
+//
+//        // TODO 根据用户名分别查找计算四种资产账户消费账目
+//         for ( int i = 0 ; i <alipayList.size();i++){
+//			if(alipayList.get(i).getIncomeExpenditureType().equals("支出")){
+//				result += Double.valueOf(alipayList.get(i).getIncomeExpenditureType());
+//			}
+//		}
+//		for ( int i = 0 ; i <schoolCardList.size();i++){
+//			if(schoolCardList.get(i).getIncomeExpenditure() < 0){
+//				result -= schoolCardList.get(i).getIncomeExpenditure();
+//			}
+//		}
+//		for(int k = 0; k < icbcCardmap.size() ;k++) {
+//			List<IcbcCard> icbcCardList = icbcCardmap.get(k);
+//			for (int i = 0; i < icbcCardList.size(); i++) {
+//				if (icbcCardList.get(i).getAccountAmountExpense() > 0) {
+//					result += icbcCardList.get(i).getAccountAmountExpense();
+//				}
+//			}
+//		}
+//		List<ManualBilling> manualBillings = manualBillingRepository.findByUsernameAndTimeBetween(username,start,end);
+//        for(ManualBilling manualBilling: manualBillings){
+//            result += manualBilling.getIncomeExpenditure();
+//        }
+//        return result;
     }
 }

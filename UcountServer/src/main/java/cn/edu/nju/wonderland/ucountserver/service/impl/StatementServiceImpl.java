@@ -14,11 +14,11 @@ import org.springframework.stereotype.Service;
 import java.lang.reflect.Field;
 import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import static cn.edu.nju.wonderland.ucountserver.util.AutoAccountType.*;
+import static cn.edu.nju.wonderland.ucountserver.util.BillFilter.ALIPAY_COMMODITY_FILTER;
+import static cn.edu.nju.wonderland.ucountserver.util.BillFilter.ICBC_SUMMARY_FILTER;
 import static cn.edu.nju.wonderland.ucountserver.util.BillType.OTHER_INCOME;
 import static cn.edu.nju.wonderland.ucountserver.util.BillType.stringToBillType;
 
@@ -157,32 +157,6 @@ public class StatementServiceImpl implements StatementService {
         }
     }
 
-    /**
-     * 计算利润表时需要过滤的支付宝账目commodity信息
-     */
-    private static final Set<String> alipayCommodityFilterSet = new HashSet<>();
-    /**
-     * 计算利润表时需要过滤的工行卡账目summary信息
-     */
-    private static final Set<String> icbcSummaryFilterSet = new HashSet<>();
-
-    static {
-        alipayCommodityFilterSet.add("转账到银行卡-转账");
-        alipayCommodityFilterSet.add("提现-快速提现");
-        alipayCommodityFilterSet.add("转出到网商银行");
-        alipayCommodityFilterSet.add("网商银行转入");
-        alipayCommodityFilterSet.add("余额宝-自动转入");
-        alipayCommodityFilterSet.add("余额宝-单次转入");
-        alipayCommodityFilterSet.add("余额宝-转出到银行卡");
-
-        icbcSummaryFilterSet.add("ATM取款");
-        icbcSummaryFilterSet.add("余额宝提现");
-        icbcSummaryFilterSet.add("QQ钱包提现 DF");
-        icbcSummaryFilterSet.add("微信零钱提现 DF");
-        icbcSummaryFilterSet.add("DF提现");
-        icbcSummaryFilterSet.add("校园");
-    }
-
     @Override
     public IncomeStatementVO getIncomeStatement(String username, String beginDate, String endDate) {
         IncomeStatementVO vo = new IncomeStatementVO();
@@ -197,7 +171,7 @@ public class StatementServiceImpl implements StatementService {
         List<Alipay> alipayList = alipayRepository.findByUsernameAndCreateTimeBetween(username, start, end);
         alipayList.forEach(a -> {
             // 支付宝账目过滤
-            if (!alipayCommodityFilterSet.contains(a.getCommodity())) {
+            if (!ALIPAY_COMMODITY_FILTER.contains(a.getCommodity())) {
                 countIncomeStatement(vo, a.getConsumeType(), a.getMoney());
             }
         });
@@ -205,7 +179,7 @@ public class StatementServiceImpl implements StatementService {
         List<IcbcCard> icbcCardList = icbcCardRepository.findByUsernameAndTradeDateBetween(username, start, end);
         icbcCardList.forEach(i -> {
             // 工行卡账目过滤
-            if (!icbcSummaryFilterSet.contains(i.getSummary())) {
+            if (!ICBC_SUMMARY_FILTER.contains(i.getSummary())) {
                 countIncomeStatement(vo, i.getConsumeType(), i.getAccountAmountIncome() + i.getAccountAmountExpense());
             }
         });

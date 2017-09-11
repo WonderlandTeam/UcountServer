@@ -31,14 +31,6 @@ public class AccountServiceTest {
         }
     }
 
-//    @Test
-//    public void testGetAccountByUserAndTime() {
-//        TotalAccountVO totalAccountVO = accountService.getAccountByUserAndTime("sigma", "2017-09-11 00:00:00");
-//        System.out.println(totalAccountVO.getExpend());
-//        System.out.println(totalAccountVO.getIncome());
-//        System.out.println(totalAccountVO.getBalance());
-//    }
-
     @Test
     public void testGetAccountsByUser() {
         List<AccountInfoVO> accountInfoVOList = accountService.getAccountsByUser("sigma");
@@ -47,6 +39,6 @@ public class AccountServiceTest {
 
     @Test
     public void testDeleteAccpunt() {
-        accountService.deleteAccount(Long.valueOf(24));
+        accountService.deleteAccount(24L);
     }
 }
