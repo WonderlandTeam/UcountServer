@@ -53,7 +53,7 @@ public class BudgetServiceTest {
         double consumeMoney=1;
         String consumeTime="2017-8";
         BudgetAddVO budgetAddVO=new BudgetAddVO(username,consumeType,consumeMoney,consumeTime);
-        budgetService.addBudget(budgetAddVO);
+//        budgetService.addBudget(budgetAddVO);
     }
 
     @Test

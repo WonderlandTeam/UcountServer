@@ -25,13 +25,13 @@ public class TaskRepositoryTest {
      */
     @Test
     public void testSaveAndFlush() {
-        String username="sense";
-        String taskContent="学车";
-        String createTime="2017-7-1";
-        String deadline= "2017-9-1";
-        Double upper=2000.0;
-        Task task=new Task(username, Date.valueOf(createTime), taskContent, Date.valueOf(deadline), upper, "未开始");
-        Task task1=taskRepository.saveAndFlush(task);
+//        String username="sense";
+//        String taskContent="学车";
+//        String createTime="2017-9-12";
+//        String deadline= "2017-11-1";
+//        Double upper=2000.0;
+//        Task task=new Task(username, Date.valueOf(createTime), taskContent, Date.valueOf(deadline), upper, "未开始");
+//        Task task1=taskRepository.saveAndFlush(task);
     }
 
     /**
@@ -73,12 +73,12 @@ public class TaskRepositoryTest {
      */
     @Test
     public void testFindByContentAndTime() {
-        String username="sense";
-        String taskContent="学车";
-        String createTime="2017-7-1";
-        String deadline= "2017-9-1";
-        Task task1=taskRepository.findByContentAndTime(username,taskContent,Date.valueOf(createTime),Date.valueOf(deadline));
-        System.out.println(task1);
+//        String username="sense";
+//        String taskContent="学车";
+//        String createTime="2017-9-1";
+//        String deadline= "2017-9-1";
+//        Task task1=taskRepository.findByContentAndTime(username,taskContent,Date.valueOf(createTime),Date.valueOf(deadline));
+//        System.out.println(task1);
     }
 
     /**

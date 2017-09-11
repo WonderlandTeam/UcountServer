@@ -51,8 +51,8 @@ public class TaskServiceTest {
         String deadline="2019-7-1";
         Double upper=2000000.0;
         TaskAddVO taskAddVO=new TaskAddVO(username,taskContent,createTime,deadline,upper);
-        long i =taskService.addTask(taskAddVO);
-        System.out.println(i);
+//        long i =taskService.addTask(taskAddVO);
+//        System.out.println(i);
     }
 
     @Test

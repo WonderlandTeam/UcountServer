@@ -9,7 +9,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.sql.Timestamp;
-import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -27,13 +26,13 @@ public class BudgetRepositoryTest {
      */
     @Test
     public void testSaveAndFlush(){
-        String username="sense";
-        String consumeType="交通";
-        double consumeMoney=100;
-        String consumeTime="2017-7";
-        Budget budget=new Budget(username,consumeType,consumeMoney, DateHelper.toTimestampByMonth(consumeTime), Timestamp.valueOf(LocalDateTime.now()));
-        Budget newBudget=budgetRepository.saveAndFlush(budget);
-        System.out.println(newBudget.getId());
+//        String username="sense";
+//        String consumeType="交通";
+//        double consumeMoney=100;
+//        String consumeTime="2017-7";
+//        Budget budget=new Budget(username,consumeType,consumeMoney, DateHelper.toTimestampByMonth(consumeTime), Timestamp.valueOf(LocalDateTime.now()));
+//        Budget newBudget=budgetRepository.saveAndFlush(budget);
+//        System.out.println(newBudget.getId());
 
     }
 
