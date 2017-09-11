@@ -32,7 +32,7 @@ public class AccountServiceTest {
     }
     @Test
     public void testGetAccountByUserAndTime(){
-        TotalAccountVO totalAccountVO = accountService.getAccountByUserAndTime("bian","2017-07-01 00:00:00");
+        TotalAccountVO totalAccountVO = accountService.getAccountByUserAndTime("sigma","2017-09-11 00:00:00");
         System.out.println(totalAccountVO.getExpend());
         System.out.println(totalAccountVO.getIncome());
         System.out.println(totalAccountVO.getBalance());
@@ -45,5 +45,9 @@ public class AccountServiceTest {
     @Test
     public void testDeleteAccpunt(){
         accountService.deleteAccount(Long.valueOf(24));
+    }
+    @Test
+    public void testAddBill(){
+        
     }
 }

@@ -246,14 +246,17 @@ public class AccountServiceImpl implements AccountService {
         double balance = 0;
         for (int i = 0; i < accounts.size(); i++) {
             if(!accounts.get(i).getCardType().equals(ICBC_CARD.accountType)){
-                continue;
+                accounts.remove(i);
             }
-            icbcCardmap.put(i, icbcCardRepository.findByCardIdAndTradeDateBetween(accounts.get(i).getCardId(), start, end));
             //获取所有银行卡当月账单
         }
+        for(int i = 0 ; i < accounts.size() ; i++){
+            icbcCardmap.put(i, icbcCardRepository.findByCardIdAndTradeDateBetween(accounts.get(i).getCardId(), start, end));
+        }
         for (int k = 0; k < icbcCardmap.size(); k++) {
-            List<IcbcCard> icbcCardList = icbcCardmap.get(k);
+            List<IcbcCard> icbcCardList = icbcCardmap.get(0);
             for (int i = 0; i < icbcCardList.size(); i++) {
+                System.out.println(i);
                 for (int j = 0; j < alipayList.size(); j++) {
                     if (icbcCardList.get(i).getAccountAmountExpense() == alipayList.get(j).getMoney()
                             && icbcCardList.get(i).getTradeDate() == alipayList.get(j).getPayTime()) {
@@ -388,10 +391,13 @@ public class AccountServiceImpl implements AccountService {
         Map<Integer, List<IcbcCard>> icbcCardmap = new HashMap<>();
         for (int i = 0; i < accounts.size(); i++) {
             if(!accounts.get(i).getCardType().equals(ICBC_CARD.accountType)){
-                continue;
+                accounts.remove(i);
             }
+            //获取所有工行卡
+        }
+        for(int i = 0 ; i < accounts.size() ; i++){
             icbcCardmap.put(i, icbcCardRepository.findByCardIdAndTradeDateBetween(accounts.get(i).getCardId(), start, end));
-            //获取所有银行卡当月账单
+            //添加账单
         }
         for (int k = 0; k < icbcCardmap.size(); k++) {
             List<IcbcCard> icbcCardList = icbcCardmap.get(k);

@@ -38,7 +38,7 @@ public class BillServiceTest {
 
     @Test
     public void testGetConsumedMoneyByTypeAndTime(){
-        double result = billService.getConsumedMoneyByTypeAndTime("bian","饮食","2017-07-01 00:00:00");
+        double result = billService.getConsumedMoneyByTypeAndTime("sigma","饮食","2017-09-11 00:00:00");
         System.out.println(result);
     }
 
