@@ -283,7 +283,8 @@ public class BillServiceImpl implements BillService {
         manualBilling.setCommodity(vo.commodity);
         manualBilling.setConsumeType(vo.consumeType);
         manualBilling.setIncomeExpenditure(vo.incomeExpenditure);
-        manualBilling.setTime(DateHelper.toTimestampByMonth(vo.time));
+        Timestamp timestamp = Timestamp.valueOf(vo.time);
+        manualBilling.setTime(timestamp);
         manualBilling.setRemark(vo.remark);
 
         return manualBilling;
@@ -299,8 +300,8 @@ public class BillServiceImpl implements BillService {
         if (accountType.equals(ALIPAY.accountType) || accountType.equals(ICBC_CARD.accountType) || accountType.equals(SCHOOL_CARD.accountType)) {
             throw new InvalidRequestException("可同步账户无法添加账目");
         }
-
-        ManualBilling manualBilling = billAddVOToEntity(account, billAddVO);
+        ManualBilling manualBilling ;
+        manualBilling = billAddVOToEntity(account,billAddVO);
 
         return manualBillingRepository.save(manualBilling).getId();
     }

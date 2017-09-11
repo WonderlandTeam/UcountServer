@@ -23,6 +23,7 @@ public class AccountServiceTest {
     public IcbcCardRepository icbcCardRepository;
     @Autowired
     public AlipayRepository alipayRepository;
+
     @Test
     public void testGetAccountById() throws IllegalAccessException {
         AccountInfoVO vo = accountService.getAccountById(1L);
@@ -30,24 +31,23 @@ public class AccountServiceTest {
             System.out.println(field.getName() + ":\t" + field.get(vo));
         }
     }
+
     @Test
-    public void testGetAccountByUserAndTime(){
-        TotalAccountVO totalAccountVO = accountService.getAccountByUserAndTime("sigma","2017-09-11 00:00:00");
+    public void testGetAccountByUserAndTime() {
+        TotalAccountVO totalAccountVO = accountService.getAccountByUserAndTime("sigma", "2017-09-11 00:00:00");
         System.out.println(totalAccountVO.getExpend());
         System.out.println(totalAccountVO.getIncome());
         System.out.println(totalAccountVO.getBalance());
     }
+
     @Test
-    public void testGetAccountsByUser(){
+    public void testGetAccountsByUser() {
         List<AccountInfoVO> accountInfoVOList = accountService.getAccountsByUser("sigma");
         System.out.println(accountInfoVOList.size());
     }
+
     @Test
-    public void testDeleteAccpunt(){
+    public void testDeleteAccpunt() {
         accountService.deleteAccount(Long.valueOf(24));
-    }
-    @Test
-    public void testAddBill(){
-        
     }
 }
