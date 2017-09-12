@@ -47,6 +47,7 @@ public class BillServiceImpl implements BillService {
      */
     private BillInfoVO alipayToVO(Alipay alipay) {
         BillInfoVO vo = new BillInfoVO();
+        vo.billId = alipay.getId();
         vo.type = alipay.getConsumeType();
         vo.amount = alipay.getMoney();
         vo.trader = alipay.getTrader();
@@ -59,6 +60,7 @@ public class BillServiceImpl implements BillService {
      */
     private BillInfoVO icbcCardToVO(IcbcCard icbcCard) {
         BillInfoVO vo = new BillInfoVO();
+        vo.billId = icbcCard.getId();
         vo.type = icbcCard.getConsumeType();
         vo.amount = icbcCard.getAccountAmountIncome() + icbcCard.getAccountAmountExpense();
         vo.trader = icbcCard.getLocation();
@@ -71,6 +73,7 @@ public class BillServiceImpl implements BillService {
      */
     private BillInfoVO schoolCardToVO(SchoolCard schoolCard) {
         BillInfoVO vo = new BillInfoVO();
+        vo.billId = schoolCard.getId();
         vo.type = schoolCard.getConsumeType();
         vo.amount = Math.abs(schoolCard.getIncomeExpenditure());
         vo.time = DateHelper.toTimeByTimeStamp(schoolCard.getTime());
@@ -83,6 +86,7 @@ public class BillServiceImpl implements BillService {
      */
     private BillInfoVO manualBillingToVO(ManualBilling manualBilling) {
         BillInfoVO vo = new BillInfoVO();
+        vo.billId = manualBilling.getId();
         vo.type = manualBilling.getConsumeType();
         vo.amount = Math.abs(manualBilling.getIncomeExpenditure());
         vo.time = DateHelper.toTimeByTimeStamp(manualBilling.getTime());
@@ -378,7 +382,6 @@ public class BillServiceImpl implements BillService {
                 result += Math.abs(manualBilling.getIncomeExpenditure());
             }
         }
-        // TODO 手动记账
 
         return result;
     }
