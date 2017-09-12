@@ -21,7 +21,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static cn.edu.nju.wonderland.ucountserver.util.AutoAccountType.*;
-import static cn.edu.nju.wonderland.ucountserver.util.DateHelper.DATE_FORMATTER;
 import static cn.edu.nju.wonderland.ucountserver.util.DateHelper.DATE_TIME_FORMATTER;
 
 @Service
@@ -214,13 +213,15 @@ public class BillServiceImpl implements BillService {
         if (!userDetector.isUserExists(username)) {
             throw new ResourceNotFoundException("用户不存在");
         }
-
-        List<BillInfoVO> result = new ArrayList<>();
-
-        LocalDateTime startDate = LocalDateTime.parse(month + "-01", DATE_FORMATTER);
+        if (month == null) {
+            month = DateHelper.getTodayMonth();
+        }
+        LocalDateTime startDate = LocalDateTime.parse(month + "-01 00:00:00", DATE_TIME_FORMATTER);
         LocalDateTime endDate = startDate.plusMonths(1);
         Timestamp startStamp = Timestamp.valueOf(startDate);
         Timestamp endStamp = Timestamp.valueOf(endDate);
+
+        List<BillInfoVO> result = new ArrayList<>();
 
         List<Account> accounts = accountRepository.findByUsername(username);
         for (Account account : accounts) {
@@ -242,6 +243,9 @@ public class BillServiceImpl implements BillService {
                         .forEach(m -> result.add(manualBillingToVO(m)));
             }
         }
+
+        // 按时间逆序排序
+        result.sort((o1, o2) -> o2.time.compareTo(o1.time));
 
         return result;
     }

@@ -87,6 +87,14 @@ public class DateHelper {
     }
 
     /**
+     * 获取当前月份，格式为yyyy-MM
+     */
+    public static String getTodayMonth() {
+        LocalDateTime localDateTime = LocalDateTime.now();
+        return localDateTime.format(DATE_TIME_FORMATTER).substring(0, 7);
+    }
+
+    /**
      * 获得当前的日期，格式为日期格式
      */
     public static String getTodayDate() {
