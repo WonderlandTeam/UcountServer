@@ -7,6 +7,7 @@ import java.sql.Timestamp;
  * 提醒（用户名，提醒类型，提醒时间）
  * Created by green-cherry on 2017/8/17.
  */
+@Deprecated
 @Entity
 @Table(name = "remind", schema = "Ucount_data", catalog = "")
 public class Remind {

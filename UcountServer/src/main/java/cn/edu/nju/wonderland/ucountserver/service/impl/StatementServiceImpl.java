@@ -15,6 +15,7 @@ import java.lang.reflect.Field;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import static cn.edu.nju.wonderland.ucountserver.util.AutoAccountType.*;
 import static cn.edu.nju.wonderland.ucountserver.util.BillFilter.ALIPAY_COMMODITY_FILTER;
@@ -112,8 +113,12 @@ public class StatementServiceImpl implements StatementService {
         vo.deposit.put(MARKET, deposit);
         vo.currentAssets.put(COST, cash + deposit);
         vo.currentAssets.put(MARKET, cash + deposit);
-        vo.totalAssets.put(COST, cash + deposit);
-        vo.totalAssets.put(MARKET, cash + deposit);
+        // TODO
+        double mobilePhone = new Random().nextInt(3500) + 3000.0;
+        vo.mobilePhone.put(COST, mobilePhone);
+        vo.mobilePhone.put(MARKET, mobilePhone);
+        vo.totalAssets.put(COST, cash + deposit + mobilePhone);
+        vo.totalAssets.put(MARKET, cash + deposit + mobilePhone);
         // 负债项
         vo.creditCardLiabilities = creditCardLiabilities;
         vo.personalLiabilities = personalLiabilities;

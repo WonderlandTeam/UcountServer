@@ -15,7 +15,7 @@ import java.util.List;
 @RestController
 public class BillController {
 
-    private BillService billService;
+    private final BillService billService;
 
     public BillController(BillService billService) {
         this.billService = billService;
@@ -36,7 +36,7 @@ public class BillController {
     public void modifyBillConsumeType(@PathVariable("account_id") Long accountId,
                                       @PathVariable("bill_id") Long billId,
                                       @RequestParam String consumeType) {
-
+        billService.modifyBillConsumeType(accountId, billId, consumeType);
     }
 
     @ApiOperation(value = "获取资产账户账目列表", notes = "根据资产账户id及筛选条件获取账目信息列表")
@@ -46,7 +46,7 @@ public class BillController {
     })
     @GetMapping("accounts/{account_id}/bills")
     public List<BillInfoVO> getBillsByAccount(@PathVariable("account_id") Long accountId,
-                                                 Pageable pageable) {
+                                              Pageable pageable) {
         return billService.getBillsByAccount(accountId,pageable);
     }
 
@@ -67,7 +67,7 @@ public class BillController {
     })
     @PostMapping("accounts/{account_id}/bills")
     public List<BillInfoVO> addBill(@PathVariable("account_id") Long accountId,
-                                       @RequestBody(required = false) BillAddVO billAddVO) {
+                                    @RequestBody(required = false) BillAddVO billAddVO) {
         List<BillInfoVO> result = new ArrayList<>();
         if (billAddVO == null) {
             result = billService.addBillAutomatically(accountId);
@@ -85,7 +85,7 @@ public class BillController {
     })
     @DeleteMapping("accounts/{account_id}/bills/{bill_id}")
     public void deleteBill(@PathVariable("account_id") Long accountId,
-                                          @PathVariable("bill_id") Long billId) {
+                           @PathVariable("bill_id") Long billId) {
         billService.deleteBill(accountId,billId);
     }
 

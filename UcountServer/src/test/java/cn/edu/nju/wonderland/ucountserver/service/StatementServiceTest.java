@@ -1,6 +1,7 @@
 package cn.edu.nju.wonderland.ucountserver.service;
 
 import cn.edu.nju.wonderland.ucountserver.vo.BalanceSheetVO;
+import cn.edu.nju.wonderland.ucountserver.vo.CashFlowItemVO;
 import cn.edu.nju.wonderland.ucountserver.vo.IncomeStatementVO;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -9,6 +10,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.lang.reflect.Field;
+import java.util.List;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -31,6 +33,12 @@ public class StatementServiceTest {
         for (Field field : vo.getClass().getFields()) {
             System.out.println(field.getName() + ": " + field.get(vo));
         }
+    }
+
+    @Test
+    public void testGetCashFlows() {
+        List<CashFlowItemVO> cashFlows = statementService.getCashFlows("sigma", "2017-07-20", "2017-08-01");
+        cashFlows.forEach(v -> System.out.println(v.time + " " + v.money + "\t" + v.billType + "\t" + v.cardId));
     }
 
 }

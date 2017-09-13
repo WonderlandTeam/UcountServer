@@ -7,6 +7,7 @@ import java.sql.Timestamp;
  * 账户总资产（用户名，账户类型，账号，时间，收/支，消费项目，消费类型，余额，流入累计，流出累计，备注）
  * Created by green-cherry on 2017/8/17.
  */
+@Deprecated
 @Entity
 @Table(name = "total_asset", schema = "Ucount_data", catalog = "")
 public class TotalAsset {
