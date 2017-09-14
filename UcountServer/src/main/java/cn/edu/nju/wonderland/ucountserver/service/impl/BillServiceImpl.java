@@ -227,26 +227,18 @@ public class BillServiceImpl implements BillService {
 
         List<BillInfoVO> result = new ArrayList<>();
 
-        List<Account> accounts = accountRepository.findByUsername(username);
-        for (Account account : accounts) {
-            String accountType = account.getCardType();
-            if (accountType.equals(ALIPAY.accountType)) {
-                alipayRepository.findByUsernameAndCreateTimeBetween(username, startStamp, endStamp)
-                        .forEach(a -> result.add(alipayToVO(a)));
-            } else if (accountType.equals(ICBC_CARD.accountType)) {
-                icbcCardRepository
-                        .findByUsernameAndTradeDateBetween(username, startStamp, endStamp)
-                        .forEach(i -> result.add(icbcCardToVO(i)));
-            } else if (accountType.equals(SCHOOL_CARD.accountType)) {
-                schoolCardRepository
-                        .findByUsernameAndTimeBetween(username, startStamp, endStamp)
-                        .forEach(s -> result.add(schoolCardToVO(s)));
-            } else {
-                manualBillingRepository
-                        .findByUsernameAndTimeBetween(username, startStamp, endStamp)
-                        .forEach(m -> result.add(manualBillingToVO(m)));
-            }
-        }
+        alipayRepository.findByUsernameAndCreateTimeBetween(username, startStamp, endStamp)
+                .forEach(a -> result.add(alipayToVO(a)));
+
+        icbcCardRepository
+                .findByUsernameAndTradeDateBetween(username, startStamp, endStamp)
+                .forEach(i -> result.add(icbcCardToVO(i)));
+        schoolCardRepository
+                .findByUsernameAndTimeBetween(username, startStamp, endStamp)
+                .forEach(s -> result.add(schoolCardToVO(s)));
+        manualBillingRepository
+                .findByUsernameAndTimeBetween(username, startStamp, endStamp)
+                .forEach(m -> result.add(manualBillingToVO(m)));
 
         // 按时间逆序排序
         result.sort((o1, o2) -> o2.time.compareTo(o1.time));
