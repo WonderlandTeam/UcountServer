@@ -115,10 +115,13 @@ public class StatementServiceImpl implements StatementService {
         vo.currentAssets.put(MARKET, cash + deposit);
         // TODO
         double mobilePhone = new Random().nextInt(3500) + 3000.0;
+        double computer = new Random().nextInt(4000) + 6000.0;
         vo.mobilePhone.put(COST, mobilePhone);
         vo.mobilePhone.put(MARKET, mobilePhone);
-        vo.totalAssets.put(COST, cash + deposit + mobilePhone);
-        vo.totalAssets.put(MARKET, cash + deposit + mobilePhone);
+        vo.computer.put(COST, computer);
+        vo.computer.put(MARKET, computer);
+        vo.totalAssets.put(COST, cash + deposit + mobilePhone + computer);
+        vo.totalAssets.put(MARKET, cash + deposit + mobilePhone + computer);
         // 负债项
         vo.creditCardLiabilities = creditCardLiabilities;
         vo.personalLiabilities = personalLiabilities;

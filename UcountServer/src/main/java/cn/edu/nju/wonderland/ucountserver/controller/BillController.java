@@ -56,7 +56,8 @@ public class BillController {
             @ApiImplicitParam(name = "month", value = "年份-月份，如\"2017-09\"", required = false, dataType = "String")
     })
     @GetMapping("users/{username}/bills")
-    public List<BillInfoVO> getMouthBillsByUser(@PathVariable String username,  @RequestParam(required = false) String month) {
+    public List<BillInfoVO> getMouthBillsByUser(@PathVariable String username,
+                                                @RequestParam(required = false) String month) {
         return billService.getMonthBillsByUser(username,month);
     }
 
