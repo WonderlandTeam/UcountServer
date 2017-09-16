@@ -41,8 +41,7 @@ public class BudgetServiceImpl implements BudgetService {
         //添加已消费金额和余额
         double consume = 0;
         consume = billService.getConsumedMoneyByTypeAndTime(budget.getUsername(), budget.getConsumeType(), DateHelper.toTimeByTimeStamp(budget.getConsumeTime()));
-        BudgetInfoVO budgetInfoVO = new BudgetInfoVO(budget, consume, budget.getConsumeMoney() - consume);
-        return budgetInfoVO;
+        return new BudgetInfoVO(budget, consume, budget.getConsumeMoney() - consume);
     }
 
     @Override
@@ -51,7 +50,7 @@ public class BudgetServiceImpl implements BudgetService {
 
         //获取预算并检查
         List<Budget> budgets = budgetRepository.findByUsernameAndConsumeTimeGreaterThanEqual(username, Timestamp.valueOf(localDateTime));
-        if ((budgets == null) ||(budgets.size()==0)) {
+        if ((budgets == null) || (budgets.size() == 0)) {
             throw new ResourceNotFoundException("预算信息不存在");
         }
 
@@ -61,7 +60,7 @@ public class BudgetServiceImpl implements BudgetService {
     /**
      * @param username 用户名
      * @param time     月份，格式为yyyy-mm
-     * @return
+     * @return 预算列表
      */
     @Override
     public List<BudgetInfoVO> getBudgetsByUserAndTime(String username, String time) {
@@ -71,7 +70,7 @@ public class BudgetServiceImpl implements BudgetService {
         //获取预算并检查
         List<Budget> budgets = budgetRepository.findByUsernameAndConsumeTime(username, timestamp);
 
-        if ((budgets == null) ||(budgets.size()==0)) {
+        if ((budgets == null) || (budgets.size() == 0)) {
             throw new ResourceNotFoundException("预算信息不存在");
         }
         return getBudgetInfoVO(budgets);
@@ -80,8 +79,8 @@ public class BudgetServiceImpl implements BudgetService {
     /**
      * 将budget转化为budgetinfovo
      *
-     * @param budgets
-     * @return
+     * @param budgets 预算实体类列表
+     * @return 预算vo列表
      */
     private List<BudgetInfoVO> getBudgetInfoVO(List<Budget> budgets) {
         return budgets.stream()

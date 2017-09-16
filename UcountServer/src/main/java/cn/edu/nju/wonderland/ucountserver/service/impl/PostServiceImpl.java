@@ -46,8 +46,9 @@ public class PostServiceImpl implements PostService {
 
     /**
      * Post实体转vo
-     * @param entity    entity
-     * @return          vo
+     *
+     * @param entity entity
+     * @return vo
      */
     private PostInfoVO postEntityToVO(Post entity, String username) {
         PostInfoVO vo = new PostInfoVO();
@@ -56,7 +57,7 @@ public class PostServiceImpl implements PostService {
         vo.username = entity.getUsername();
         vo.title = entity.getTitle();
         vo.content = entity.getContent();
-        vo. setTime(DateHelper.toTimeByTimeStamp(entity.getTime()));
+        vo.setTime(DateHelper.toTimeByTimeStamp(entity.getTime()));
         vo.supportNum = supportRepository.countByPostId(entity.getPostId());
 
         if (username != null) {
@@ -69,8 +70,9 @@ public class PostServiceImpl implements PostService {
 
     /**
      * Reply实体转vo
-     * @param entity    entity
-     * @return          vo
+     *
+     * @param entity entity
+     * @return vo
      */
     private PostReplyVO replyEntityToVO(Reply entity, String username) {
         PostReplyVO vo = new PostReplyVO();
@@ -82,7 +84,7 @@ public class PostServiceImpl implements PostService {
         vo.supportNum = supportRepository.countByReplyId(entity.getReplyId());
 
         if (username != null) {
-            vo.isSupported = supportRepository.findByUsernameAndReplyId(username, entity.getReplyId()) != null ;
+            vo.isSupported = supportRepository.findByUsernameAndReplyId(username, entity.getReplyId()) != null;
         }
 
         return vo;

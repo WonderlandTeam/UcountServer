@@ -36,7 +36,7 @@ public class UserServiceImpl implements UserService, UserDetector {
 
     @Override
     public void signUp(SignUpVO signUpVO) {
-        if(userRepository.findByUsername(signUpVO.userName) != null) {
+        if (userRepository.findByUsername(signUpVO.userName) != null) {
             throw new ResourceConflictException("用户名已存在");
         }
         if (signUpVO.tel != null && userRepository.findByTel(signUpVO.tel) != null) {
@@ -63,7 +63,7 @@ public class UserServiceImpl implements UserService, UserDetector {
     @Override
     public void modifyUserInfo(String username, UserInfoVO userInfoVO) {
         User user = userRepository.findByUsername(username);
-        if(user != null){
+        if (user != null) {
             user.setEmail(userInfoVO.email);
             user.setTel(userInfoVO.tel);
             user.setPassword(MD5.encrypt(userInfoVO.password));
@@ -72,7 +72,7 @@ public class UserServiceImpl implements UserService, UserDetector {
     }
 
     @Override
-    public String findPasswordByMail(String username)  {
+    public String findPasswordByMail(String username) {
         //生成随机数
         String chars = "0123456789";
         char[] rands = new char[6];
@@ -108,14 +108,13 @@ public class UserServiceImpl implements UserService, UserDetector {
             e.printStackTrace();
         }
         // 获取默认session对象
-        Session session = Session.getDefaultInstance(properties,new Authenticator(){
-            public PasswordAuthentication getPasswordAuthentication()
-            {
+        Session session = Session.getDefaultInstance(properties, new Authenticator() {
+            public PasswordAuthentication getPasswordAuthentication() {
                 return new PasswordAuthentication("782024062@qq.com", "ioolndenegkhbbfh"); //发件人邮件用户名、密码
             }
         });
 
-        try{
+        try {
             // 创建默认的 MimeMessage 对象
             MimeMessage message = new MimeMessage(session);
 
@@ -135,10 +134,10 @@ public class UserServiceImpl implements UserService, UserDetector {
             Transport.send(message);
             System.out.println("Sent message successfully....from runoob.com");
             return num;
-        }catch (MessagingException mex) {
+        } catch (MessagingException mex) {
             mex.printStackTrace();
         }
-        return  null;
+        return null;
     }
 
     @Override
@@ -151,13 +150,13 @@ public class UserServiceImpl implements UserService, UserDetector {
         }
         String num = String.valueOf(rands);
         User user = userRepository.findByUsername(username);
-        if(user == null){
+        if (user == null) {
             return null;
         }
         HttpClient client = new HttpClient();
         PostMethod post = new PostMethod("http://gbk.api.smschinese.cn");
-        post.addRequestHeader("Content-Type","application/x-www-form-urlencoded;charset=gbk");//在头文件中设置转码
-        NameValuePair[] data ={ new NameValuePair("Uid", "VanillaV"),new NameValuePair("Key", "10a3d7604001230f4b42"),new NameValuePair("smsMob",user.getTel()),new NameValuePair("smsText","验证码："+num)};
+        post.addRequestHeader("Content-Type", "application/x-www-form-urlencoded;charset=gbk");//在头文件中设置转码
+        NameValuePair[] data = {new NameValuePair("Uid", "VanillaV"), new NameValuePair("Key", "10a3d7604001230f4b42"), new NameValuePair("smsMob", user.getTel()), new NameValuePair("smsText", "验证码：" + num)};
         post.setRequestBody(data);
 
         try {
@@ -168,9 +167,8 @@ public class UserServiceImpl implements UserService, UserDetector {
         }
         org.apache.commons.httpclient.Header[] headers = post.getResponseHeaders();
         int statusCode = post.getStatusCode();
-        System.out.println("statusCode:"+statusCode);
-        for(Header h : headers)
-        {
+        System.out.println("statusCode:" + statusCode);
+        for (Header h : headers) {
             System.out.println(h.toString());
         }
         String result = null;
@@ -181,7 +179,7 @@ public class UserServiceImpl implements UserService, UserDetector {
         }
         System.out.println(result); //打印返回消息状态
         post.releaseConnection();
-        return  null;
+        return null;
     }
 
     @Override
@@ -193,7 +191,7 @@ public class UserServiceImpl implements UserService, UserDetector {
         if (user == null) {
             throw new ResourceNotFoundException("用户名不存在");
         }
-        if(!user.getPassword().equals(MD5.encrypt(password))) {
+        if (!user.getPassword().equals(MD5.encrypt(password))) {
             throw new ResourceNotFoundException("密码错误");
         }
         // 更新客户端类型

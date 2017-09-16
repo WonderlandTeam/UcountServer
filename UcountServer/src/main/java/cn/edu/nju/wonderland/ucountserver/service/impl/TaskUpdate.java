@@ -28,18 +28,18 @@ public class TaskUpdate {
 
     //每天零点定时更新状态信息，前三位对应：秒 分 时
     @Scheduled(cron = "0 0 0 * * ? ")
-    private void updateState(){
-        taskRepository.updateStateToInProcess("未开始","进行中", Date.valueOf(LocalDate.now()));
-        taskRepository.updateStateToFinish("进行中","已完成", Date.valueOf(LocalDate.now()));
+    private void updateState() {
+        taskRepository.updateStateToInProcess("未开始", "进行中", Date.valueOf(LocalDate.now()));
+        taskRepository.updateStateToFinish("进行中", "已完成", Date.valueOf(LocalDate.now()));
         updateSavedMoney();
     }
 
 
-    private void updateSavedMoney(){
-        List<Task> tasks=taskRepository.findByTaskState("进行中");
-        for (Task task:tasks){
-            double savedMoney=taskService.getSavedMoney(task, DateHelper.getYesterday());
-            taskRepository.updateSavedMoney(task.getId(),savedMoney);
+    private void updateSavedMoney() {
+        List<Task> tasks = taskRepository.findByTaskState("进行中");
+        for (Task task : tasks) {
+            double savedMoney = taskService.getSavedMoney(task, DateHelper.getYesterday());
+            taskRepository.updateSavedMoney(task.getId(), savedMoney);
         }
     }
 

@@ -4,6 +4,9 @@ import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
+/**
+ * MD5加密工具类
+ */
 public class MD5 {
 
     public static String encrypt(String str) {
@@ -17,6 +20,9 @@ public class MD5 {
         return null;
     }
 
+    /**
+     * 测试main方法
+     */
     public static void main(String[] args) {
         System.out.println(encrypt("bian"));
     }

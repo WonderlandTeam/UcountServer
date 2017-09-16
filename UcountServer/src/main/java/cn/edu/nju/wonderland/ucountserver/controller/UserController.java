@@ -48,7 +48,7 @@ public class UserController {
     @ApiOperation(value = "更改用户详细信息", notes = "根据用户名更新相应用户,根据传的userModifyVO更新用户详细信息")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "username", value = "用户名", required = true, dataType = "String"),
-            @ApiImplicitParam(name = "userModifyVO", value = "用户更新信息vo", required = true, dataType = "UserModifyVO")
+            @ApiImplicitParam(name = "userModifyVO", value = "用户更新信息vo", required = true, dataType = "UserInfoVO")
     })
     @PutMapping(value = "/{username}")
     public void modifyUserInfo(@PathVariable String username,

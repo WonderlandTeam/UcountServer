@@ -113,7 +113,7 @@ public class StatementServiceImpl implements StatementService {
         vo.deposit.put(MARKET, deposit);
         vo.currentAssets.put(COST, cash + deposit);
         vo.currentAssets.put(MARKET, cash + deposit);
-        // TODO
+
         double mobilePhone = new Random().nextInt(3500) + 3000.0;
         double computer = new Random().nextInt(4000) + 6000.0;
         vo.mobilePhone.put(COST, mobilePhone);

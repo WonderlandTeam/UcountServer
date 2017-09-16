@@ -7,6 +7,7 @@ public class BudgetModifyVO {
     double money;
 
     public BudgetModifyVO(){}
+
     public BudgetModifyVO(double money) {
         this.money = money;
     }
