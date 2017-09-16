@@ -289,7 +289,7 @@ public class BillServiceImpl implements BillService {
 
     @Override
     public List<BillInfoVO> addBillAutomatically(Long accountId) {
-        // TODO 模拟数据生成
+        // 模拟数据生成
         return null;
     }
 

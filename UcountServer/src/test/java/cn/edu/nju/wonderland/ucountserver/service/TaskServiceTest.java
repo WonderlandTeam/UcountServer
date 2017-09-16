@@ -17,18 +17,19 @@ import java.util.List;
 @RunWith(SpringRunner.class)
 @SpringBootTest
 public class TaskServiceTest {
+
     @Autowired
     TaskService taskService;
 
     @Test
     public void testGetTask() {
-        TaskInfoVO taskInfoVO = taskService.getTask(1l);
+        TaskInfoVO taskInfoVO = taskService.getTask(11L);
         System.out.println(taskInfoVO);
     }
 
     @Test
     public void testGetTasksByState() {
-        List<TaskInfoVO> taskInfoVOS = taskService.getTasksByState("sense", "已完成");
+        List<TaskInfoVO> taskInfoVOS = taskService.getTasksByState("sigma", "进行中");
         for (TaskInfoVO taskInfoVO : taskInfoVOS) {
             System.out.println(taskInfoVO);
         }
@@ -36,7 +37,7 @@ public class TaskServiceTest {
 
     @Test
     public void testGetTasksByUser() {
-        List<TaskInfoVO> taskInfoVOS = taskService.getTasksByUser("sense");
+        List<TaskInfoVO> taskInfoVOS = taskService.getTasksByUser("sigma");
         for (TaskInfoVO taskInfoVO : taskInfoVOS) {
             System.out.println(taskInfoVO);
         }

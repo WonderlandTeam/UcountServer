@@ -17,19 +17,19 @@ import java.util.List;
 @RunWith(SpringRunner.class)
 @SpringBootTest
 public class BudgetServiceTest {
+
     @Autowired
     BudgetService budgetService;
 
     @Test
     public void testGetBudget() {
-        BudgetInfoVO budgetInfoVO = budgetService.getBudget(1l);
+        BudgetInfoVO budgetInfoVO = budgetService.getBudget(1L);
         System.out.println(budgetInfoVO);
-
     }
 
     @Test
     public void testGetBudgetsByUser() {
-        List<BudgetInfoVO> budgetInfoVOS = budgetService.getBudgetsByUser("sense");
+        List<BudgetInfoVO> budgetInfoVOS = budgetService.getBudgetsByUser("sigma");
         for (BudgetInfoVO budgetInfoVO : budgetInfoVOS) {
             System.out.println(budgetInfoVO);
         }

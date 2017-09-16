@@ -52,8 +52,8 @@ public class UserServiceTest {
 
     @Test
     public void testfindPasswordByMail() {
-        String result = userService.findPasswordByMail("456");
-        System.out.println(result);
+//        String result = userService.findPasswordByMail("456");
+//        System.out.println(result);
     }
 
     @Test
