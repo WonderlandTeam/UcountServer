@@ -86,7 +86,7 @@ public class TaskRepositoryTest {
      */
     @Test
     public void testUpdate() {
-        taskRepository.update(1l,3000);
+//        taskRepository.update(1l,3000);
     }
 
     /**

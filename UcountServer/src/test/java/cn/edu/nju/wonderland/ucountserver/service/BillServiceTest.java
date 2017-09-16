@@ -1,6 +1,5 @@
 package cn.edu.nju.wonderland.ucountserver.service;
 
-import cn.edu.nju.wonderland.ucountserver.vo.BillAddVO;
 import cn.edu.nju.wonderland.ucountserver.vo.BillInfoVO;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -27,17 +26,17 @@ public class BillServiceTest {
     }
     @Test
     public void testAddBill(){
-        BillAddVO billAddVO = new BillAddVO();
-        billAddVO.incomeExpenditure = 8.0;
-        billAddVO.commodity ="breakfast";
-        billAddVO.consumeType = "饮食";
-        billAddVO.remark = "take the breakfast";
-        billAddVO.time = "2017-9-15 00:00:00";
-        billService.addBillManually(Long.valueOf(27),billAddVO);
+//        BillAddVO billAddVO = new BillAddVO();
+//        billAddVO.incomeExpenditure = 8.0;
+//        billAddVO.commodity ="breakfast";
+//        billAddVO.consumeType = "饮食";
+//        billAddVO.remark = "take the breakfast";
+//        billAddVO.time = "2017-9-15 00:00:00";
+//        billService.addBillManually(27L, billAddVO);
     }
     @Test
     public void testDeleteBill(){
-        billService.deleteBill(Long.valueOf(27),Long.valueOf(5));
+//        billService.deleteBill(27L, 5L);
     }
     @Test
     public void testGetBillsByAccount() {
@@ -54,5 +53,6 @@ public class BillServiceTest {
     @Test
     public void testGetMonthBillsByUser(){
         List<BillInfoVO> billInfoVOList = billService.getMonthBillsByUser("sigma",null);
+        System.out.println(billInfoVOList.size());
     }
 }

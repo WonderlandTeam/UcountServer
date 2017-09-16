@@ -7,9 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.sql.Timestamp;
-import java.time.LocalDateTime;
-
 @RunWith(SpringRunner.class)
 @SpringBootTest
 public class PostRepositoryTest {
@@ -19,13 +16,13 @@ public class PostRepositoryTest {
 
     @Test
     public void testSave() {
-        Post post = new Post();
-        post.setUsername("sigma");
-        post.setTitle("测试贴1");
-        post.setContent("测试内容");
-        post.setTime(Timestamp.valueOf(LocalDateTime.now()));
-
-        System.out.println("帖子id：\t" + postRepository.save(post).getPostId());
+//        Post post = new Post();
+//        post.setUsername("sigma");
+//        post.setTitle("测试贴1");
+//        post.setContent("测试内容");
+//        post.setTime(Timestamp.valueOf(LocalDateTime.now()));
+//
+//        System.out.println("帖子id：\t" + postRepository.save(post).getPostId());
     }
 
     @Test

@@ -25,7 +25,7 @@ public class BudgetRepositoryTest {
      * 测试保存预算
      */
     @Test
-    public void testSaveAndFlush(){
+    public void testSaveAndFlush() {
 //        String username="sense";
 //        String consumeType="交通";
 //        double consumeMoney=100;
@@ -40,8 +40,8 @@ public class BudgetRepositoryTest {
      * 测试根据ID获取预算
      */
     @Test
-    public void testFindOne(){
-        Budget budget=budgetRepository.findOne(1L);
+    public void testFindOne() {
+        Budget budget = budgetRepository.findOne(1L);
         System.out.println(budget.getUsername());
         System.out.println(budget.getConsumeType());
         System.out.println(budget.getConsumeMoney());
@@ -52,11 +52,11 @@ public class BudgetRepositoryTest {
      * 测试获取当月之后的所有预算信息
      */
     @Test
-    public void testFindByUsernameAndConsumeTimeGreaterThanEqual(){
-        String username="sense";
-        Timestamp timestamp=DateHelper.toTimestampByMonth("2017-7");
-        List<Budget> budgets=budgetRepository.findByUsernameAndConsumeTimeGreaterThanEqual(username,timestamp);
-        for(Budget budget :budgets){
+    public void testFindByUsernameAndConsumeTimeGreaterThanEqual() {
+        String username = "sense";
+        Timestamp timestamp = DateHelper.toTimestampByMonth("2017-7");
+        List<Budget> budgets = budgetRepository.findByUsernameAndConsumeTimeGreaterThanEqual(username, timestamp);
+        for (Budget budget : budgets) {
             System.out.println(budget.getId());
             System.out.println(budget.getUsername());
             System.out.println(budget.getConsumeType());
@@ -69,12 +69,12 @@ public class BudgetRepositoryTest {
      * 测试按月份获取预算信息
      */
     @Test
-    public void testFindByUsernameAndConsumeTime(){
-        String username="sense";
-        Timestamp timestamp=DateHelper.toTimestampByMonth("2017-9");
-        List<Budget> budgets=budgetRepository.findByUsernameAndConsumeTime(username,timestamp);
-        for(Budget budget :budgets){
-           System.out.println(budget);
+    public void testFindByUsernameAndConsumeTime() {
+        String username = "sense";
+        Timestamp timestamp = DateHelper.toTimestampByMonth("2017-9");
+        List<Budget> budgets = budgetRepository.findByUsernameAndConsumeTime(username, timestamp);
+        for (Budget budget : budgets) {
+            System.out.println(budget);
         }
     }
 
@@ -82,11 +82,11 @@ public class BudgetRepositoryTest {
      * 测试根据用户名，预算时间，预算类型获取预算信息
      */
     @Test
-    public void testFindByUsernameAndConsumeTimeAndConsumeType(){
-        String username="sense";
-        Timestamp timestamp=DateHelper.toTimestampByMonth("2017-8");
-        String consumeType="交通";
-        Budget budget=budgetRepository.findByUsernameAndConsumeTimeAndConsumeType(username,timestamp,consumeType);
+    public void testFindByUsernameAndConsumeTimeAndConsumeType() {
+        String username = "sense";
+        Timestamp timestamp = DateHelper.toTimestampByMonth("2017-8");
+        String consumeType = "交通";
+        Budget budget = budgetRepository.findByUsernameAndConsumeTimeAndConsumeType(username, timestamp, consumeType);
         System.out.println(budget);
     }
 
@@ -94,8 +94,8 @@ public class BudgetRepositoryTest {
      * 测试更新预算
      */
     @Test
-    public void testUpdate(){
-        int i=budgetRepository.update(1L,150);
+    public void testUpdate() {
+        int i = budgetRepository.update(1L, 150);
         System.out.println(i);
     }
 
@@ -103,7 +103,7 @@ public class BudgetRepositoryTest {
      * 测试删除预算
      */
     @Test
-    public void testDelete(){
+    public void testDelete() {
         budgetRepository.delete(4L);
     }
 }

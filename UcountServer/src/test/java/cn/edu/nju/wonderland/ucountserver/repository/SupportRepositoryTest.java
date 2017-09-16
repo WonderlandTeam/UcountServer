@@ -1,6 +1,5 @@
 package cn.edu.nju.wonderland.ucountserver.repository;
 
-import cn.edu.nju.wonderland.ucountserver.entity.Support;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,10 +15,10 @@ public class SupportRepositoryTest {
 
     @Test
     public void testSave() {
-        Support support = new Support();
-        support.setUsername("sigma");
-        support.setPostId(1L);
-        supportRepository.save(support);
+//        Support support = new Support();
+//        support.setUsername("sigma");
+//        support.setPostId(1L);
+//        supportRepository.save(support);
     }
 
     @Test

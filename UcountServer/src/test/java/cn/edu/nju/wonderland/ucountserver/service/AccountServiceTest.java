@@ -38,7 +38,8 @@ public class AccountServiceTest {
     }
 
     @Test
-    public void testDeleteAccpunt() {
-        accountService.deleteAccount(24L);
+    public void testDeleteAccount() {
+//        accountService.deleteAccount(24L);
     }
+
 }
