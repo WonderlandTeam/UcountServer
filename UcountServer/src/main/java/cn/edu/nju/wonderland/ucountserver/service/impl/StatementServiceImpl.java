@@ -202,7 +202,7 @@ public class StatementServiceImpl implements StatementService {
         });
 
         List<ManualBilling> manualBillingList = manualBillingRepository.findByUsernameAndTimeBetween(username, start, end);
-        manualBillingList.forEach(m -> countIncomeStatement(vo, m.getConsumeType(), m.getIncomeExpenditure()));
+        manualBillingList.forEach(m -> countIncomeStatement(vo, m.getConsumeType(), Math.abs(m.getIncomeExpenditure())));
 
         // 计算部分支出分类合计
         vo.necessityTotal = vo.commodity + vo.utilities + vo.communication + vo.diet + vo.electronic + vo.traffic;
