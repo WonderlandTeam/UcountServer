@@ -2,6 +2,7 @@ package cn.edu.nju.wonderland.ucountserver.service.impl;
 
 import cn.edu.nju.wonderland.ucountserver.entity.*;
 import cn.edu.nju.wonderland.ucountserver.repository.*;
+import cn.edu.nju.wonderland.ucountserver.service.PersonasData;
 import cn.edu.nju.wonderland.ucountserver.service.StatementService;
 import cn.edu.nju.wonderland.ucountserver.util.BillType;
 import cn.edu.nju.wonderland.ucountserver.util.DateHelper;
@@ -13,6 +14,8 @@ import org.springframework.stereotype.Service;
 
 import java.lang.reflect.Field;
 import java.sql.Timestamp;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -24,7 +27,7 @@ import static cn.edu.nju.wonderland.ucountserver.util.BillType.OTHER_INCOME;
 import static cn.edu.nju.wonderland.ucountserver.util.BillType.stringToBillType;
 
 @Service
-public class StatementServiceImpl implements StatementService {
+public class StatementServiceImpl implements StatementService, PersonasData {
 
     private AccountRepository accountRepository;
     private AlipayRepository alipayRepository;
@@ -44,6 +47,80 @@ public class StatementServiceImpl implements StatementService {
     public static final String COST = "cost";
     // 市价 键名
     public static final String MARKET = "market";
+
+    public double getCurrentTotalBalanceByUser(String username) {
+        double balance = 0;
+        List<Account> accounts = accountRepository.findByUsername(username);
+        Timestamp nowStamp = Timestamp.valueOf(LocalDateTime.now());
+        for (Account account : accounts) {
+            String cardType = account.getCardType();
+            if (cardType.equals(ALIPAY.accountType)) {
+                List<Alipay> balanceList = alipayRepository.getBalance(account.getCardId(), nowStamp);
+                balance += balanceList.size() > 0 ? balanceList.get(0).getBalance() : 0;
+            } else if (cardType.equals(ICBC_CARD.accountType)) {
+                List<IcbcCard> balanceList = icbcCardRepository.getBalance(account.getCardId(), nowStamp);
+                balance += balanceList.size() > 0 ? balanceList.get(0).getBalance() : 0;
+            } else if (cardType.equals(SCHOOL_CARD.accountType)) {
+                List<SchoolCard> balanceList = schoolCardRepository.getBalance(account.getCardId(), nowStamp);
+                balance += balanceList.size() > 0 ? balanceList.get(0).getBalance() : 0;
+            } else {
+                List<ManualBilling> balanceList = manualBillingRepository
+                        .getBalance(account.getUsername(), account.getCardType(), account.getCardId(), nowStamp);
+                balance += balanceList.size() > 0 ? balanceList.get(0).getBalance() : 0;
+            }
+        }
+        return balance;
+    }
+
+    @Override
+    public double getExpenditurePerDay(String username) {
+        double totalExpense = 0;
+        long days = 1;
+        List<Account> accounts = accountRepository.findByUsername(username);
+        for (Account account : accounts) {
+            String cardType = account.getCardType();
+            long duration = days;
+            if (cardType.equals(ALIPAY.accountType)) {
+                List<Alipay> alipays = alipayRepository.findByUsernameOrderByCreateTime(username);
+                if (alipays.size() == 0) {
+                    continue;
+                }
+                duration = Duration
+                        .between(
+                                alipays.get(0).getCreateTime().toLocalDateTime(),
+                                alipays.get(alipays.size() - 1).getCreateTime().toLocalDateTime())
+                        .toDays();
+                for (Alipay alipay : alipays) {
+                    BillType billType = BillType.stringToBillType(alipay.getConsumeType());
+                    if (billType != null && billType.ordinal() > 4) {
+                        totalExpense += alipay.getMoney();
+                    }
+                }
+            } else if (cardType.equals(ICBC_CARD.accountType)) {
+                List<IcbcCard> icbcCards = icbcCardRepository.findByUsernameOrderByTradeDate(username);
+                duration = Duration
+                        .between(
+                                icbcCards.get(0).getTradeDate().toLocalDateTime(),
+                                icbcCards.get(icbcCards.size() - 1).getTradeDate().toLocalDateTime())
+                        .toDays();
+                for (IcbcCard icbcCard : icbcCards) {
+                    totalExpense += icbcCard.getAccountAmountExpense();
+                }
+            } else if (cardType.equals(SCHOOL_CARD.accountType)) {
+                List<SchoolCard> schoolCards = schoolCardRepository.findByUsernameOrderBySequence(username);
+                duration = Duration
+                        .between(
+                                schoolCards.get(0).getTime().toLocalDateTime(),
+                                schoolCards.get(schoolCards.size() - 1).getTime().toLocalDateTime())
+                        .toDays();
+                for (SchoolCard schoolCard : schoolCards) {
+                    totalExpense += -Double.min(0, schoolCard.getIncomeExpenditure());
+                }
+            }
+            days = duration > days ? duration : days;
+        }
+        return totalExpense / days;
+    }
 
     @Override
     public BalanceSheetVO getBalanceSheet(String username, String date) {
@@ -115,7 +192,7 @@ public class StatementServiceImpl implements StatementService {
         vo.currentAssets.put(MARKET, cash + deposit);
 
         double mobilePhone = new Random().nextInt(3500) + 3000.0;
-        double computer = new Random().nextInt(4000) + 6000.0;
+        double computer = 0;
         vo.mobilePhone.put(COST, mobilePhone);
         vo.mobilePhone.put(MARKET, mobilePhone);
         vo.computer.put(COST, computer);

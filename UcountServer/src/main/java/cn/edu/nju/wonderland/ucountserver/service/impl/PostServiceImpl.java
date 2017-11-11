@@ -1,19 +1,14 @@
 package cn.edu.nju.wonderland.ucountserver.service.impl;
 
-import cn.edu.nju.wonderland.ucountserver.entity.Collection;
-import cn.edu.nju.wonderland.ucountserver.entity.Post;
-import cn.edu.nju.wonderland.ucountserver.entity.Reply;
-import cn.edu.nju.wonderland.ucountserver.entity.Support;
+import cn.edu.nju.wonderland.ucountserver.entity.*;
 import cn.edu.nju.wonderland.ucountserver.exception.InvalidRequestException;
 import cn.edu.nju.wonderland.ucountserver.exception.ResourceConflictException;
 import cn.edu.nju.wonderland.ucountserver.exception.ResourceNotFoundException;
-import cn.edu.nju.wonderland.ucountserver.repository.CollectionRepository;
-import cn.edu.nju.wonderland.ucountserver.repository.PostRepository;
-import cn.edu.nju.wonderland.ucountserver.repository.ReplyRepository;
-import cn.edu.nju.wonderland.ucountserver.repository.SupportRepository;
+import cn.edu.nju.wonderland.ucountserver.repository.*;
 import cn.edu.nju.wonderland.ucountserver.service.PostService;
 import cn.edu.nju.wonderland.ucountserver.service.UserDetector;
 import cn.edu.nju.wonderland.ucountserver.util.DateHelper;
+import cn.edu.nju.wonderland.ucountserver.util.PostTagKeywords;
 import cn.edu.nju.wonderland.ucountserver.vo.PostAddVO;
 import cn.edu.nju.wonderland.ucountserver.vo.PostInfoVO;
 import cn.edu.nju.wonderland.ucountserver.vo.PostReplyAddVO;
@@ -25,6 +20,7 @@ import org.springframework.stereotype.Service;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -34,13 +30,20 @@ public class PostServiceImpl implements PostService {
     private final ReplyRepository replyRepository;
     private final SupportRepository supportRepository;
     private final CollectionRepository collectionRepository;
+    private final PostTagRepository postTagRepository;
     private final UserDetector userDetector;
 
-    public PostServiceImpl(PostRepository postRepository, ReplyRepository replyRepository, SupportRepository supportRepository, CollectionRepository collectionRepository, UserDetector userDetector) {
+    public PostServiceImpl(PostRepository postRepository,
+                           ReplyRepository replyRepository,
+                           SupportRepository supportRepository,
+                           CollectionRepository collectionRepository,
+                           PostTagRepository postTagRepository,
+                           UserDetector userDetector) {
         this.postRepository = postRepository;
         this.replyRepository = replyRepository;
         this.supportRepository = supportRepository;
         this.collectionRepository = collectionRepository;
+        this.postTagRepository = postTagRepository;
         this.userDetector = userDetector;
     }
 
@@ -92,6 +95,7 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public List<PostInfoVO> getPosts(Pageable pageable, String username) {
+        // TODO 智能推荐
         Page<Post> posts = postRepository.findAll(pageable);
         return posts.map(e -> postEntityToVO(e, username)).getContent();
     }
@@ -124,7 +128,13 @@ public class PostServiceImpl implements PostService {
         post.setContent(vo.content);
         post.setTime(Timestamp.valueOf(LocalDateTime.now()));
 
-        return postRepository.save(post).getPostId();
+        Long postId = postRepository.saveAndFlush(post).getPostId();
+
+        // 添加标签
+        Set<String> tags = PostTagKeywords.getPostTags(vo.title, vo.content);
+        tags.forEach(t -> postTagRepository.save(new PostTag(postId, t)));
+
+        return postId;
     }
 
     @Override

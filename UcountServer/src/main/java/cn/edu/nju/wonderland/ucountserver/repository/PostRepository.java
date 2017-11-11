@@ -13,4 +13,7 @@ public interface PostRepository extends JpaRepository<Post,Long> {
 
     List<Post> findByUsernameOrderByTimeDesc(String username);
 
+//    @Query(value = "select distinct(tag) from post_tag where post_id=?1", nativeQuery = true)
+//    List<String> getTagsByPostId(Long postId);
+
 }

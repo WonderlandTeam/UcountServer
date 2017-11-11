@@ -21,10 +21,14 @@ import java.util.List;
 @Component
 public class TaskUpdate {
 
+    private final TaskRepository taskRepository;
+    private final TaskService taskService;
+
     @Autowired
-    TaskRepository taskRepository;
-    @Autowired
-    TaskService taskService;
+    public TaskUpdate(TaskRepository taskRepository, TaskService taskService) {
+        this.taskRepository = taskRepository;
+        this.taskService = taskService;
+    }
 
     //每天零点定时更新状态信息，前三位对应：秒 分 时
     @Scheduled(cron = "0 0 0 * * ? ")

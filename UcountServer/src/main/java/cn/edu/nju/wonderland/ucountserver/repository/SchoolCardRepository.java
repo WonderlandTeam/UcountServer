@@ -17,7 +17,7 @@ public interface SchoolCardRepository extends JpaRepository<SchoolCard, Long> {
 
     Page<SchoolCard> findByCardId(String cardId, Pageable pageable);
 
-    List<SchoolCard> findByUsername(String username, Pageable pageable);
+    List<SchoolCard> findByUsernameOrderBySequence(String username);
 
     void deleteByCardId(String cardId);
 

@@ -15,4 +15,6 @@ public interface CollectionRepository extends JpaRepository<Collection,Long> {
 
     List<Collection> findByUsernameOrderByColTimeDesc(String username);
 
+    List<Collection> findByUsername(String username);
+
 }

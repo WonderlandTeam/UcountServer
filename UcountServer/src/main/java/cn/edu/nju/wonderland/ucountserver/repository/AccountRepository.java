@@ -13,6 +13,7 @@ import java.util.List;
  */
 
 public interface AccountRepository extends JpaRepository<Account,Long> {
+
 	Account findById(Long id);
 
 	Account findByUsernameAndCardTypeAndCardId(String username, String cardType, String cardId);

@@ -17,7 +17,7 @@ public interface AlipayRepository extends JpaRepository<Alipay, Long> {
 
     Page<Alipay> findByCardId(String cardId, Pageable pageable);
 
-    List<Alipay> findByUsername(String username, Pageable pageable);
+    List<Alipay> findByUsernameOrderByCreateTime(String username);
 
     void deleteByCardId(String cardId);
 
@@ -25,4 +25,5 @@ public interface AlipayRepository extends JpaRepository<Alipay, Long> {
     List<Alipay> getBalance(String cardId, Timestamp time);
 
     List<Alipay> findByUsernameAndCreateTimeBetween(String username, Timestamp start, Timestamp end);
+
 }
