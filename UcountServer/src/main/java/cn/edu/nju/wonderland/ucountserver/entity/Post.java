@@ -3,6 +3,7 @@ package cn.edu.nju.wonderland.ucountserver.entity;
 import javax.persistence.*;
 import java.sql.Timestamp;
 import java.util.List;
+import java.util.Set;
 
 /**
  * 理财经验（用户名，帖子ID，标题，帖子内容，时间）
@@ -16,6 +17,7 @@ public class Post {
     private String content;
     private Timestamp time;
     private List<Reply> replies;
+    private Set<Tag> tags;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -77,6 +79,20 @@ public class Post {
 
     public void setReplies(List<Reply> replies) {
         this.replies = replies;
+    }
+
+    @ManyToMany(targetEntity = Tag.class, fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "post_tag",
+            joinColumns = @JoinColumn(name = "post_id", referencedColumnName = "post_id"),
+            inverseJoinColumns = @JoinColumn(name = "tag", referencedColumnName = "name")
+    )
+    public Set<Tag> getTags() {
+        return tags;
+    }
+
+    public void setTags(Set<Tag> tags) {
+        this.tags = tags;
     }
 
     @Override

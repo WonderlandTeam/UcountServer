@@ -1,7 +1,7 @@
 package cn.edu.nju.wonderland.ucountserver.repository;
 
 import cn.edu.nju.wonderland.ucountserver.entity.Post;
-import cn.edu.nju.wonderland.ucountserver.entity.PostTag;
+import cn.edu.nju.wonderland.ucountserver.entity.Tag;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,15 +17,19 @@ public class PostRepositoryTest {
     @Autowired
     public PostRepository postRepository;
     @Autowired
-    public PostTagRepository postTagRepository;
+    public TagRepository tagRepository;
 
     @Test
     public void testSave() {
 //        Post post = new Post();
-//        post.setUsername("sigma");
-//        post.setTitle("测试贴1");
-//        post.setContent("测试内容");
+//        post.setUsername("bian");
+//        post.setTitle("选股策略");
+//        post.setContent("动量策略、均值回归");
 //        post.setTime(Timestamp.valueOf(LocalDateTime.now()));
+//        post.setTags(new HashSet<Tag>(){{
+//            Tag tag = new Tag();
+//            tag.setName("股票");add(tag);
+//        }});
 //
 //        System.out.println("帖子id：\t" + postRepository.save(post).getPostId());
     }
@@ -41,14 +45,14 @@ public class PostRepositoryTest {
 
     @Test
     public void testGetTags() {
-        List<String> tags = postTagRepository.findTagsByPostId(1L);
-        tags.forEach(System.out::println);
+        Post post = postRepository.findOne(1L);
+        post.getTags().forEach(t -> System.out.println(t.getName()));
     }
 
     @Test
-    public void testAddTag() {
-        PostTag postTag = new PostTag(1L, "省钱");
-        postTagRepository.saveAndFlush(postTag);
+    public void testGetFavouriteTags() {
+        List<Tag> tags = tagRepository.getFavouriteTags("sigma");
+        tags.forEach(e -> System.out.println(e.getName()));
     }
 
 }

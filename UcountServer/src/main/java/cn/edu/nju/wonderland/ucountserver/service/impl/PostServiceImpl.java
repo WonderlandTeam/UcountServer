@@ -4,7 +4,10 @@ import cn.edu.nju.wonderland.ucountserver.entity.*;
 import cn.edu.nju.wonderland.ucountserver.exception.InvalidRequestException;
 import cn.edu.nju.wonderland.ucountserver.exception.ResourceConflictException;
 import cn.edu.nju.wonderland.ucountserver.exception.ResourceNotFoundException;
-import cn.edu.nju.wonderland.ucountserver.repository.*;
+import cn.edu.nju.wonderland.ucountserver.repository.CollectionRepository;
+import cn.edu.nju.wonderland.ucountserver.repository.PostRepository;
+import cn.edu.nju.wonderland.ucountserver.repository.ReplyRepository;
+import cn.edu.nju.wonderland.ucountserver.repository.SupportRepository;
 import cn.edu.nju.wonderland.ucountserver.service.PostService;
 import cn.edu.nju.wonderland.ucountserver.service.UserDetector;
 import cn.edu.nju.wonderland.ucountserver.util.DateHelper;
@@ -30,20 +33,17 @@ public class PostServiceImpl implements PostService {
     private final ReplyRepository replyRepository;
     private final SupportRepository supportRepository;
     private final CollectionRepository collectionRepository;
-    private final PostTagRepository postTagRepository;
     private final UserDetector userDetector;
 
     public PostServiceImpl(PostRepository postRepository,
                            ReplyRepository replyRepository,
                            SupportRepository supportRepository,
                            CollectionRepository collectionRepository,
-                           PostTagRepository postTagRepository,
                            UserDetector userDetector) {
         this.postRepository = postRepository;
         this.replyRepository = replyRepository;
         this.supportRepository = supportRepository;
         this.collectionRepository = collectionRepository;
-        this.postTagRepository = postTagRepository;
         this.userDetector = userDetector;
     }
 
@@ -121,20 +121,19 @@ public class PostServiceImpl implements PostService {
             throw new ResourceConflictException("用户名不存在");
         }
 
+        // 获取标签
+        Set<Tag> tags = PostTagKeywords.getPostTags(vo.title, vo.content);
+
         // 持久化
         Post post = new Post();
         post.setUsername(vo.username);
         post.setTitle(vo.title);
         post.setContent(vo.content);
         post.setTime(Timestamp.valueOf(LocalDateTime.now()));
-
-        Long postId = postRepository.saveAndFlush(post).getPostId();
-
         // 添加标签
-        Set<String> tags = PostTagKeywords.getPostTags(vo.title, vo.content);
-        tags.forEach(t -> postTagRepository.save(new PostTag(postId, t)));
+        post.setTags(tags);
 
-        return postId;
+        return postRepository.saveAndFlush(post).getPostId();
     }
 
     @Override
@@ -168,6 +167,8 @@ public class PostServiceImpl implements PostService {
         collection.setPostId(postId);
         collection.setColTime(Timestamp.valueOf(LocalDateTime.now()));
         collectionRepository.save(collection);
+
+        // TODO 标签处理
     }
 
     @Override
@@ -213,6 +214,8 @@ public class PostServiceImpl implements PostService {
             support.setPostId(id);
         }
         supportRepository.save(support);
+
+        // TODO 标签处理
     }
 
     @Override
