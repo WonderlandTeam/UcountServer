@@ -4,10 +4,7 @@ import cn.edu.nju.wonderland.ucountserver.entity.*;
 import cn.edu.nju.wonderland.ucountserver.exception.InvalidRequestException;
 import cn.edu.nju.wonderland.ucountserver.exception.ResourceConflictException;
 import cn.edu.nju.wonderland.ucountserver.exception.ResourceNotFoundException;
-import cn.edu.nju.wonderland.ucountserver.repository.CollectionRepository;
-import cn.edu.nju.wonderland.ucountserver.repository.PostRepository;
-import cn.edu.nju.wonderland.ucountserver.repository.ReplyRepository;
-import cn.edu.nju.wonderland.ucountserver.repository.SupportRepository;
+import cn.edu.nju.wonderland.ucountserver.repository.*;
 import cn.edu.nju.wonderland.ucountserver.service.PostService;
 import cn.edu.nju.wonderland.ucountserver.service.UserDetector;
 import cn.edu.nju.wonderland.ucountserver.util.DateHelper;
@@ -22,6 +19,7 @@ import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -33,17 +31,20 @@ public class PostServiceImpl implements PostService {
     private final ReplyRepository replyRepository;
     private final SupportRepository supportRepository;
     private final CollectionRepository collectionRepository;
+    private final TagRepository tagRepository;
     private final UserDetector userDetector;
 
     public PostServiceImpl(PostRepository postRepository,
                            ReplyRepository replyRepository,
                            SupportRepository supportRepository,
                            CollectionRepository collectionRepository,
+                           TagRepository tagRepository,
                            UserDetector userDetector) {
         this.postRepository = postRepository;
         this.replyRepository = replyRepository;
         this.supportRepository = supportRepository;
         this.collectionRepository = collectionRepository;
+        this.tagRepository = tagRepository;
         this.userDetector = userDetector;
     }
 
@@ -95,9 +96,36 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public List<PostInfoVO> getPosts(Pageable pageable, String username) {
-        // TODO 智能推荐
-        Page<Post> posts = postRepository.findAll(pageable);
-        return posts.map(e -> postEntityToVO(e, username)).getContent();
+        Page<Post> postsPage = postRepository.findAll(pageable);
+        // 智能推荐
+        if (username == null) {
+            return postsPage.map(e -> postEntityToVO(e, null)).getContent();
+        }
+
+        List<Tag> favouriteTags = tagRepository.getFavouriteTags(username);
+        // 无喜爱标签
+        if (favouriteTags.size() == 0) {
+            return postsPage.map(e -> postEntityToVO(e, username)).getContent();
+        }
+        List<Post> posts = new ArrayList<>();
+        for (Tag tag : favouriteTags) {
+            List<Post> postsWithSameTag = postRepository.getPostsByTag(tag.getName());
+            for (Post post : postsWithSameTag) {
+                if (!posts.contains(post)) {
+                    posts.add(post);
+                }
+            }
+        }
+        // 推荐帖子数目不足
+        if (posts.size() < pageable.getPageSize()) {
+            for (Post post : postsPage) {
+                if (!posts.contains(post)) {
+                    posts.add(post);
+                }
+            }
+        }
+
+        return posts.stream().map(e -> postEntityToVO(e, username)).collect(Collectors.toList());
     }
 
     @Override
@@ -167,8 +195,6 @@ public class PostServiceImpl implements PostService {
         collection.setPostId(postId);
         collection.setColTime(Timestamp.valueOf(LocalDateTime.now()));
         collectionRepository.save(collection);
-
-        // TODO 标签处理
     }
 
     @Override
@@ -214,8 +240,6 @@ public class PostServiceImpl implements PostService {
             support.setPostId(id);
         }
         supportRepository.save(support);
-
-        // TODO 标签处理
     }
 
     @Override

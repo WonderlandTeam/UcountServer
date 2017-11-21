@@ -55,4 +55,12 @@ public class PostRepositoryTest {
         tags.forEach(e -> System.out.println(e.getName()));
     }
 
+    @Test
+    public void testGetPostsByTag() {
+        List<Post> posts = postRepository.getPostsByTag("股票");
+        for (Post post : posts) {
+            System.out.println(post.getPostId());
+        }
+    }
+
 }

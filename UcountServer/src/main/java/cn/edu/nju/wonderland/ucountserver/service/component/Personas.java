@@ -37,6 +37,7 @@ public class Personas {
             System.out.printf("%5.2f\t", personasData.getCurrentTotalBalanceByUser(user.getUsername()));
             System.out.printf("%5.2f\t", personasData.getExpenditurePerDay(user.getUsername()));
             System.out.println();
+
         }
     }
 
