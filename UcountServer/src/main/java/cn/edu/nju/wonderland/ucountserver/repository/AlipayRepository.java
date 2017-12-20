@@ -26,4 +26,6 @@ public interface AlipayRepository extends JpaRepository<Alipay, Long> {
 
     List<Alipay> findByUsernameAndCreateTimeBetween(String username, Timestamp start, Timestamp end);
 
+    List<Alipay> findByConsumeTypeIsNull();
+
 }

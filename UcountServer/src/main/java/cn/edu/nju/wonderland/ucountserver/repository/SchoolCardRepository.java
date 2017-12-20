@@ -25,4 +25,6 @@ public interface SchoolCardRepository extends JpaRepository<SchoolCard, Long> {
     List<SchoolCard> getBalance(String cardId, Timestamp time);
 
     List<SchoolCard> findByUsernameAndTimeBetween(String username, Timestamp start, Timestamp end);
+
+    List<SchoolCard> findByConsumeTypeIsNull();
 }

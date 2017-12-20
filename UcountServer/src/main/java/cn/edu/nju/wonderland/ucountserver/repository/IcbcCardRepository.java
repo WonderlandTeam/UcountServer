@@ -27,4 +27,7 @@ public interface IcbcCardRepository extends JpaRepository<IcbcCard, Long> {
 //    List<IcbcCard> findByCardIdAndTradeDateBetween(String account, Timestamp start, Timestamp end);
 
     List<IcbcCard> findByUsernameAndTradeDateBetween(String username,Timestamp start,Timestamp end);
+
+    List<IcbcCard> findByConsumeTypeIsNull();
+
 }

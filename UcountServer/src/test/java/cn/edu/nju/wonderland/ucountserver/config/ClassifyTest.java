@@ -165,6 +165,37 @@ public class ClassifyTest {
 
         System.out.println(classifyNum);
 //        System.out.println("支付宝可分类比例：\t" + classifyNum / alipayList.size());
-
     }
+
+    @Test
+    public void classifyAndSave() {
+        List<Alipay> alipays = alipayRepository.findByConsumeTypeIsNull();
+        for (Alipay alipay : alipays) {
+            BillType billType = Classify.classifyAlipay(alipay);
+//            System.out.println("支付宝：" + alipay.getId() + "\t" + billType);
+            alipay.setConsumeType(billType.billType);
+            alipayRepository.save(alipay);
+        }
+
+        System.out.println();
+
+        List<IcbcCard> icbcCards = icbcCardRepository.findByConsumeTypeIsNull();
+        for (IcbcCard icbcCard : icbcCards) {
+            BillType billType = Classify.classifyICBC(icbcCard);
+//            System.out.println("工行卡：" + icbcCard.getId() + "\t" + billType);
+            icbcCard.setConsumeType(billType.billType);
+            icbcCardRepository.save(icbcCard);
+        }
+
+        System.out.println();
+
+        List<SchoolCard> schoolCards = schoolCardRepository.findByConsumeTypeIsNull();
+        for (SchoolCard schoolCard : schoolCards) {
+            BillType billType = Classify.classifySchoolCard(schoolCard);
+//            System.out.println("校园卡：" + schoolCard.getId() + "\t" + billType);
+            schoolCard.setConsumeType(billType.billType);
+            schoolCardRepository.save(schoolCard);
+        }
+    }
+
 }
